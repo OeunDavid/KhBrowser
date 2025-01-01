@@ -1,0 +1,1259 @@
+﻿<UserControl x:Class="WpfUI.Views.frmMain"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:numeric="http://gu.se/NumericInput"
+             Height="auto" Width="auto"
+             FontSize="11"
+             >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="341*"/>
+            <ColumnDefinition Width="265*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="888*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0" Grid.Row="0" Margin="3,3,3,3" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center">General --------------------------------------------------------------------------------------------</TextBlock>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid  Grid.Column="0" Grid.Row="0">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="70"></ColumnDefinition>
+                            <ColumnDefinition Width="150"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="5,0,0,0">
+                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Thread"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtThread" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="1" MaxValue="1000000" Text="6" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                    <Grid  Grid.Column="0" Grid.Row="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="150"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5,0,0,0" Grid.ColumnSpan="2">
+                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reset IP (Acc)"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1" Margin="2,4">
+                            <numeric:IntBox Name="txtResetIP" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0"  MinValue="0" MaxValue="1000000" Text="0" PreviewTextInput="NumberValidationTextBox"  VerticalAlignment="Top"/>
+                        </numeric:SpinnerDecorator>
+
+                        <Button  Grid.Column="2" x:Name="btnStart" Height="30" Width="80" Margin="0"  IsEnabled="True" Click="btnStart_Click" >
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Play" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                                <TextBlock Margin="0" Text="Start" TextAlignment="Left" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button  Grid.Column="3" x:Name="btnStop" Height="30" Width="80" Margin="5,0,0,0"   IsEnabled="False"  Style="{DynamicResource MaterialDesignRaisedAccentButton}" Click="btnStop_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Stop" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                                <TextBlock Margin="0" Text="Stop" TextAlignment="Left" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center">Search --------------------------------------------------------------------------------------------</TextBlock>
+                </StackPanel>
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="0" Grid.Row="0" Grid.Column="0">
+                        <ComboBox 
+                        Name="ddlStore" 
+                        SelectedValuePath="Id"
+                        DisplayMemberPath="Name" 
+                        SelectionChanged="ddlStore_SelectionChanged" 
+                        Foreground="{DynamicResource MaterialDesignBody}"
+                        IsSynchronizedWithCurrentItem="True"
+                       />
+                    </StackPanel>
+                    <StackPanel Margin="2,0" Grid.Row="0" Grid.Column="1">
+                        <ComboBox 
+                        Name="ddlStatus" 
+                        SelectedValuePath="Id"
+                        DisplayMemberPath="Name" 
+                        SelectionChanged="ddlStatus_SelectionChanged" 
+                        Foreground="{DynamicResource MaterialDesignBody}"
+                        IsSynchronizedWithCurrentItem="True"
+                       />
+                    </StackPanel>
+                    <StackPanel Margin="5,0,0,0" Grid.Row="0" Grid.Column="2">
+                        <TextBox Name="txtKeyword" Height="25" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Margin="2" BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}" KeyUp="txtKeyword_KeyUp"></TextBox>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <Grid Grid.Column="1" Grid.Row="0" Margin="10,0,5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" >
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbShareConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Share Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.ColumnSpan="2" Grid.Row="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share to Timeline"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareToTimeline" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock FontSize="11" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share to Groups"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareToGroups" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock FontSize="11" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share by Page Profile"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbSharePageProfile" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock FontSize="11" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Website"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareWebsite" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Button x:Name="btnAddNewAccount" Height="30" Width="auto" Margin="0,7,0,0"   IsEnabled="True" Background="BlueViolet" Click="btnAddNewAccount_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="UserAdd" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                                <TextBlock Margin="0,2" Grid.Column="1" Text="New Account" TextAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="1" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbGroupConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Groups Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Join Groups"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupJoin" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Leave Groups"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupLeave" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="View Groups"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupView" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Backup Groups"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupBackup" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Button x:Name="btnStore" Height="30" Width="auto" Margin="6"   IsEnabled="True" Background="DodgerBlue" Click="btnStore_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Store" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                                <TextBlock Margin="0,2" Grid.Column="1" Text="Store" TextAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="2" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbPageConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Pages Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.ColumnSpan="2" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Create Pages"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageCreate" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Follow/Like Pages"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageFollow" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Backup Pages (Token)"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageBackup" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Create Reel"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageCreateReel" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Invite Pages"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageInvite" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Remove Pages"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageRemoveAdmin" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Button IsEnabled="True" x:Name="btnClearAllCache" Click="btnClearAllCache_Click"  Height="30" Width="auto" Margin="0,6,0,0" Background="CadetBlue">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="MonitorClean" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                                <TextBlock Margin="0,2" Grid.Column="1" Foreground="OrangeRed" Text="Clear All Cache" TextAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="3" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbNewsFeedConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">News Feed Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.ColumnSpan="3" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Play on News Feed"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedPlay" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Read Notifications"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedReadNotification" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Read Messenger"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedReadMessenger" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Timeline"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedPostTimeline" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Button x:Name="btnSettings" Height="30" Width="auto" Margin="6"   IsEnabled="True" Background="CornflowerBlue" Click="btnSettings_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Settings" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                                <TextBlock Margin="0,2" Grid.Column="1" Text="Settings" TextAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="4" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbProfileConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Profile Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Data"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileDeleteData" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Info"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileNewInfo" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Public Post"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfilePublicPost" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Turn on 2FA"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileTurnOn2FA" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Password"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileNewPassword" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Get Info (Token)"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGetInfo" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Activity"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbDeleteActivity" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Check-in"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileCheckIn" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Marketplace"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileMarketplace" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Turn on PM"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfileTurnOnPM" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Lock Time"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbLockTime" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" FontSize="9" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Primary Location"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPrimaryLocation" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Creation Date"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCreationDate" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Token"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbToken" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="5" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="115"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbFriendsConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Friends Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.ColumnSpan="2" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Accept Friends"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbFriendsAccept" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Add Friends"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbFriendsAdd" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Backup Friends"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbFriendsBackup" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Friends by UID"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbFriendsByUID" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="6" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="115"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbContactConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Contact Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.ColumnSpan="2" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="35"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Primary"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPrimary" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="35"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="R-Phone,Mail"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPrimaryRemovePhone" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="35"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="R-Instragram"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbRemoveInstragram" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="7" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="125"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="Underline">Other Config</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0">
+                        <Grid Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Watch Time"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherWatchTime" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reel Play"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherReelPlay" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="English (US)"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherChangeLanguage" IsChecked="True" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Logout All Devices"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbLogOutAllDevices" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Unlock Checkpoint"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbAutoUnlockCheckpoint" IsChecked="True" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Use User Data"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbUseUserData" IsChecked="True" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Check Reel Invite"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCheckReelInvite" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="No Switch Page"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" IsChecked="True" x:Name="chbNoSwitchPage" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Working on Page?"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbWorkingOnPage" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="8" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="None" FontSize="10">Clean PC (Run Admini...)</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Chrome"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCleanChrome" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Edge"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCleanEdge" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Temp"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCleanTemp" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Visibility="Hidden" Grid.Row="0" Grid.Column="9" Margin="5,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" >
+                            <Hyperlink Click="chbRecoveryConfig_Click"  FontWeight="Bold" Foreground="#FF20B2AA" TextDecorations="None" FontSize="10">Recovery</Hyperlink>
+                        </TextBlock>
+                        
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Phone"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbRecoveryPhone" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Graph"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareByGraph" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid x:Name="dgAccounts" 
+                AlternationCount="{Binding Items.Count}"
+                CanUserAddRows="False" 
+                MinHeight="400" 
+                RowHeight="30"
+                AutoGenerateColumns="False" 
+                HeadersVisibility="All"
+                SelectionMode="Extended"
+                SelectionUnit="FullRow"
+                LoadingRow="dgAccounts_LoadingRow" Margin="0,-9,0,0" 
+                >
+
+                <DataGrid.ContextMenu>
+                    <ContextMenu Background="WhiteSmoke" Foreground="Black">
+                        <MenuItem Header="Change Store" Click="changeStore_Click"/>
+                        <MenuItem Header="Check Size (Message Show)" Click="CheckSize_Click"/>
+                        <MenuItem Header="Copy">
+                            <MenuItem Header="UID" Click="copyUID_Click"/>
+                            <MenuItem Header="PASS" Click="copyPass_Click"/>
+                            <MenuItem Header="2FA" Click="copy2FA_Click"/>
+                            <MenuItem Header="Cookie" Click="copyCookie_Click"/>
+                            <MenuItem Header="UID|PASS" Click="copyUP_Click"/>
+                            <MenuItem Header="UID|PASS|2FA" Click="copyUP2FA_Click"/>
+                            <MenuItem Header="UID|PASS|Cookie" Click="copyUPCookie_Click"/>
+                            <MenuItem Header="UID|PASS|2FA|Cookie" Click="copyUP2FACookie_Click"/>
+                            <MenuItem Header="DOB">
+                                <MenuItem Header="UID|PASS|DOB" Click="copyUPDOB_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|DOB" Click="copyUP2FADOB_Click"/>
+                                <MenuItem Header="UID|PASS|Cookie|DOB" Click="copyUPCookieDOB_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|Cookie|DOB" Click="copyUP2FACookieDOB_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Mail">
+                                <MenuItem Header="UID|PASS|Mail|PassMail" Click="copyUPMail_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|Mail|PassMail" Click="copyUP2FAMail_Click"/>
+                                <MenuItem Header="UID|PASS|Cookie|Mail|PassMail" Click="copyUPCookieMail_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|Cookie|Mail|PassMail" Click="copyUP2FACookieMail_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Mail and DOB">
+                                <MenuItem Header="UID|PASS|Mail|PassMail|DOB" Click="copyUPMailDOB_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|Mail|PassMail|DOB" Click="copyUP2FAMailDOB_Click"/>
+                                <MenuItem Header="UID|PASS|Cookie|Mail|PassMail|DOB" Click="copyUPCookieMailDOB_Click"/>
+                                <MenuItem Header="UID|PASS|2FA|Cookie|Mail|PassMail|DOB" Click="copyUP2FACookieMailDOB_Click"/>
+                            </MenuItem>
+                        </MenuItem>
+                        <!--<MenuItem Header="Share">
+                            <MenuItem Header="Allow" Click="unblockShare_Click"/>
+                            <MenuItem Header="Block" Click="blockShare_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Active">
+                            <MenuItem Header="Allow" Click="allowActive_Click"/>
+                            <MenuItem Header="Block" Click="blockActive_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Login">
+                            <MenuItem Header="Allow" Click="allowLogin_Click"/>
+                            <MenuItem Header="Block" Click="blockLogin_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Verify">
+                            <MenuItem Header="Allow" Click="allowVerify_Click"/>
+                            <MenuItem Header="Block" Click="blockVerify_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="2FA">
+                            <MenuItem Header="Allow" Click="allow2FA_Click"/>
+                            <MenuItem Header="Block" Click="block2FA_Click"/>
+                        </MenuItem>-->
+                        <MenuItem Header="Account">
+                            <MenuItem Header="Move to Live" Click="liveAccount_Click"/>
+                            <MenuItem Header="Move to Die" Click="dieAccount_Click"/>
+                            <MenuItem Header="Delete" Click="removeAccount_Click"/>
+                            <MenuItem Header="Clear Cache" Click="clearCache_Click"/>
+                            <MenuItem Header="Delete Profile" Click="deleteProfile_Click"/>
+                            <!--<MenuItem Header="Remove Temp Store" Click="removeTempStore_Click"/>-->
+
+                            <MenuItem Header="Check Live" Click="startCheckLive_Click"/>
+                            <MenuItem Header="Stop Check Live" Click="stopCheckLive_Click" Foreground="OrangeRed"/>
+                        </MenuItem>
+                        <!--<MenuItem Header="Group">
+                            -->
+                        <!--<MenuItem Header="Allow Leave Group" Click="unblockLeaveGroup_Click"/>
+                            <MenuItem Header="Block Leave Group" Click="blockLeaveGroup_Click"/>-->
+                        <!--
+                            <MenuItem Header="Remove Suggestion" Click="removeSuggestion_Click"/>
+                            <MenuItem Header="Remove Fixed Group IDs" Click="removeFixedGroup_Click"/>
+                        </MenuItem>-->
+                        <MenuItem Header="Timeline Source">
+                            <MenuItem Header="Add New Source" Click="addTimelineSource_Click"/>
+                            <MenuItem Header="Remove Source" Click="removeTimelineSource_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Reel Videos">
+                            <MenuItem Header="Count Videos" Click="reelCountVideos_Click"/>
+                            <MenuItem Header="Add New Source" Click="addReelSourceVideo_Click"/>
+                            <MenuItem Header="Remove Source" Click="removeReelSourceVideo_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Proxy">
+                            <MenuItem Header="Add Proxy" Click="addProxy_Click"/>
+                            <MenuItem Header="Remove Proxy" Click="removeProxy_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="User Agent">
+                            <MenuItem Header="Add User Agent" Click="addUserAgent_Click"/>
+                            <MenuItem Header="Remove User Agent" Click="removeUserAgent_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Note">
+                            <MenuItem Header="Add Note" Click="addNote_Click"/>
+                            <MenuItem Header="Remove Note" Click="removeNote_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Groups without Join">
+                            <MenuItem Header="Add Group" Click="addGroup_Click"/>
+                            <MenuItem Header="Remove Group" Click="removeGroup_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="Browser">
+                            <MenuItem Header="Open" Click="open_Click"/>
+                            <MenuItem Header="Check Live" Click="checkLive_Click"/>
+                        </MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Key}" Header="No" Width="auto"  IsReadOnly="True" MaxWidth="100"/>
+                    <DataGridTextColumn Binding="{Binding UID}" Header="UID"  Width="100"  IsReadOnly="True" />
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="100"  IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Password}" Header="Password" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TwoFA}" Header="2FA" Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TotalGroup}" Header="Groups" Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TotalPage}" Header="Page" Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding ReelSourceVideo}" Header="Reel Source" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TimelineSource}" Header="Timeline Source" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding PrimaryLocation}"  Header="Primary Location" Width="135" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding CreationDate}"  Header="Creation Date" Width="135" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Status}" Header="Status" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding LastUpdate}" Header="Last Active" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Description}" Header="Message" MinWidth="100" Width="150"  IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Proxy}" Header="Proxy" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Note}" Header="Note" Width="120" IsReadOnly="True"/>
+
+                    <DataGridTextColumn Binding="{Binding Gender}" Header="Gender" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TotalFriend}" Header="Friends" Width="80" IsReadOnly="True"/>
+                    <!--<DataGridTextColumn Binding="{Binding FriendsRequest}" Header="Request" Width="80" IsReadOnly="True"/>-->
+                    <DataGridTextColumn Binding="{Binding DOB}" Header="Birthday" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Token}" Header="Token" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Email}" Header="Email" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding MailPass}" Header="Mail|Pass" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding UserAgent}" Header="User Agent" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Cookie}" Header="Cookie" Width="100" IsReadOnly="True"/>
+                    <!--<DataGridTextColumn Binding="{Binding Active}" Header="Active" Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Share}" Header="Share" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Leave}" Header="Leave" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Login}" Header="Login" Width="auto" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Verify}" Header="Verify" Width="auto" IsReadOnly="True"/>-->
+                    <!--<DataGridTextColumn Binding="{Binding GroupIDs}" Header="Group IDs" Width="100" IsReadOnly="True"/>-->
+                    <!--<DataGridTextColumn Binding="{Binding PendingJoin}" Header="Suggestion" Width="130" IsReadOnly="True" />-->
+                    <!--<DataGridTextColumn Binding="{Binding TotalShareGroup}" Header="Share Groups" Width="120" IsReadOnly="True"/>-->
+                    <!--<DataGridTextColumn Binding="{Binding TotalShareTimeline}" Header="Share Timeline" Width="120" IsReadOnly="True"/>-->
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
+            <StackPanel Margin="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="All Account - "/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="0" Width="40">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Total: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0" MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAllAccountTotal" Text="0"/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="3" Margin="0" Width="35">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Live: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" Margin="0"  MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="ForestGreen" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAllAccountLive" Text="0"/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="5" Margin="0" Width="35">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Die: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="6" Margin="0" MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="PaleVioletRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAllAccountDie" Text="0"/></TextBlock>
+                    </StackPanel>
+
+
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="7" Margin="0">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text=">>>   Account - "/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="8" Margin="0" Width="40">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Total: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="9" Margin="0" MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAccountTotal" Text="0"/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="10" Margin="0" Width="35">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Live: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="11" Margin="0"  MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="ForestGreen" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAccountLive" Text="0"/></TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="12" Margin="0" Width="35">
+                        <TextBlock Margin="2" FontSize="14" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Die: "/></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="13" Margin="0" MinWidth="30">
+                        <TextBlock Margin="2" FontSize="14" Foreground="PaleVioletRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Name="lblAccountDie" Text="0"/></TextBlock>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

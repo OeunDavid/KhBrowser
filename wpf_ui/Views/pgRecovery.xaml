@@ -1,0 +1,146 @@
+﻿<Page x:Class="ToolKHBrowser.Views.pgRecovery"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:numeric="http://gu.se/NumericInput"
+        Width="380"
+        Height="280"
+        Title="pgRecovery">
+
+    <StackPanel Background="Black">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Contact ---------------------------------------------------------------------"/></TextBlock>
+            </StackPanel>
+            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Primary"/></TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="83"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chb5Sim" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">5Sim</RadioButton>
+                        <RadioButton x:Name="chbHotmail" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >....</RadioButton>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="5Sim -----------------------------------------------------------------"/></TextBlock>
+            </StackPanel>
+            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="API Key"/></TextBlock>
+                    </StackPanel>
+                    <PasswordBox  Grid.Row="0" Grid.Column="1" PasswordChar="*"  x:Name="txt5SimApiKey" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></PasswordBox >
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Country"/></TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txt5SimCountry" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Operator"/></TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txt5SimOperator" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Product"/></TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txt5SimProduct" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="240"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Password"/></TextBlock>
+            </StackPanel>
+            <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtNewPassword" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+        </Grid>
+        <Grid>
+            <StackPanel Margin="5">
+
+                <Button x:Name="btnSaveConfig" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveConfig_Click" >
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                        <TextBlock Margin="0" Text="Save Config" TextAlignment="Left" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Page>

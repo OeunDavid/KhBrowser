@@ -1,0 +1,65 @@
+﻿<Page x:Class="ToolKHBrowser.Views.pgStore"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:numeric="http://gu.se/NumericInput"
+       Width="1173.125"
+      Title="pgNewAccount">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="1">
+                <Button Height="30" Margin="5,5" Click="btnAddNew_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,2" Grid.Column="1" Text="Add New" TextAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <DataGrid Grid.Column="0" x:Name="dgStore" 
+                      AlternationCount="{Binding Items.Count}"
+                      CanUserAddRows="False" 
+                      Margin="0" 
+                      MinHeight="800" 
+                      RowHeight="30"
+                      RowHeaderWidth="20" 
+                      AutoGenerateColumns="False" 
+                      HeadersVisibility="All"
+                      SelectionMode="Single"
+                      BorderThickness="1"
+                      SelectionUnit="FullRow"
+                      MouseDoubleClick="dgStore_DoubleClick"
+                      
+                      >
+
+                <DataGrid.Columns >
+                    <DataGridTextColumn Binding="{Binding Key}" Header="No" Width="50"  IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="350"  IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TextStatus}" Header="Status" Width="150" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Description}" Header="Message" MinWidth="100" Width="auto"  IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Page>

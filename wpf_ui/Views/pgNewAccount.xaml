@@ -1,0 +1,106 @@
+﻿<Page x:Class="ToolKHBrowser.Views.pgNewAccount"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:numeric="http://gu.se/NumericInput"
+       Width="1195"
+      Height="550"
+      Title="pgNewAccount">
+    <StackPanel Background="Black">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="500*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="132"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="5,0,0,0">
+                    <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Store Account"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="0,5,5,0" Grid.Row="0" Grid.Column="1">
+                    <ComboBox 
+                    Name="ddlStore" 
+                    SelectedValuePath="Id"
+                    DisplayMemberPath="Name" 
+                    Foreground="{DynamicResource MaterialDesignBody}"
+                    IsSynchronizedWithCurrentItem="True"
+                    />
+                </StackPanel>
+                <Button  Grid.Column="2" x:Name="btnStartSaveAccount" Height="30" Width="auto" Margin="5"  IsEnabled="True" Background="DeepSkyBlue" Click="btnStartSaveAccount_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                        <TextBlock Margin="0" Text="Save Account" TextAlignment="Left" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Grid Grid.Row="0" Grid.Column="3" Margin="3,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                        <TextBlock  Margin="5,0,0,0" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="No Update (Exist)"/></TextBlock>
+                    </StackPanel>
+                    <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNoNeedUpdateExistData" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" Margin="5,0,0,0">
+                    <TextBlock Margin="2" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Note: 1. Copy accounts, 2. Rigth click on table, 3. Choose format you want add, 4. Start Save Account"/></TextBlock>
+                </StackPanel>
+            </Grid>
+            <DataGrid x:Name="gdNewAccount" Grid.Column="0" Grid.Row="1"
+            AlternationCount="{Binding Items.Count}"
+            CanUserAddRows="False" 
+            Margin="0" 
+            MinHeight="500"
+            Height="auto"
+            RowHeight="30"
+            RowHeaderWidth="20" 
+            AutoGenerateColumns="False" 
+            HeadersVisibility="All"
+            SelectionMode="Extended"
+            IsReadOnly="True"
+            SnapsToDevicePixels="True"
+            BorderThickness="1"
+            SelectionUnit="FullRow" Grid.ColumnSpan="3"
+            >
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Pass UID|Password" Click="passUIDPassword_Click"></MenuItem>
+                        <MenuItem Header="Pass UID|Password|2FA" Click="passUIDPasswordTwoFA_Click"></MenuItem>
+                        <MenuItem Header="Pass UID|Password|Cookie" Click="passUIDPasswordCookie_Click"/>
+                        <MenuItem Header="Pass UID|Password|2FA|Cookie" Click="passUIDPasswordTwoFACookie_Click"/>
+                        <MenuItem Header="Pass UID|Password|Mail|PassMail" Click="passUIDPasswordMailMailPass_Click"/>
+                        <MenuItem Header="Pass UID|Password|2FA|Mail|PassMail" Click="passUIDPassword2FAMailMailPass_Click"/>
+                        <MenuItem Header="Pass UID|Password|Cookie|Mail|PassMail" Click="passUIDPasswordCookieMailMailPass_Click"/>
+                        <MenuItem Header="Pass UID|Password|2FA|Cookie|Mail|PassMail" Click="passUIDPassword2FACookieMailMailPass_Click"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="auto"  Header="No" Binding="{Binding Key}" IsReadOnly="True" />
+                    <DataGridTextColumn Width="200" Header="UID" Binding="{Binding UID}" IsReadOnly="True"/>
+                    <DataGridTextColumn Width="150" MinWidth="150" Header="Password" Binding="{Binding Password}" IsReadOnly="True" />
+                    <DataGridTextColumn Width="150" MinWidth="150" Header="2FA" Binding="{Binding TwoFA}" IsReadOnly="True" />
+                    <DataGridTextColumn Width="150" MinWidth="200" Header="Cookie" Binding="{Binding Cookie}" IsReadOnly="True"/>
+                    <DataGridTextColumn Width="150" MinWidth="200" Header="Mail" Binding="{Binding MailPass}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </StackPanel>
+</Page>

@@ -1,0 +1,321 @@
+﻿<Page x:Class="ToolKHBrowser.Views.pgSetting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:numeric="http://gu.se/NumericInput"
+        Width="650"
+        Height="700"
+        Title="pgSetting">
+
+    <StackPanel Background="Black">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Width="auto">
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
+                        <TextBlock FontWeight="Bold" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center">Configuration</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Account Profile</TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtMicrosoftEdgeProfile" Margin="0,3" Foreground="White" BorderBrush="#FFDCDCDC"></TextBox>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">License Key</TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1" Name="txtLicenseKey"  Margin="0,3" Foreground="White" BorderBrush="#FFDCDCDC"></TextBox>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Screen</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="50"></ColumnDefinition>
+                            <ColumnDefinition Width="100"></ColumnDefinition>
+                            <ColumnDefinition Width="50"></ColumnDefinition>
+                            <ColumnDefinition Width="100"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                            <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Width</TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Row="3" Grid.Column="1" Margin="2,4">
+                            <numeric:IntBox Name="txtScreenWidth" AllowSpinners="True"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="500" MaxValue="10000" Text="500" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="2,4">
+                            <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Height</TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Row="3" Grid.Column="3" Margin="2,4">
+                            <numeric:IntBox Name="txtScreenHeight" AllowSpinners="True"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="500" MaxValue="10000" Text="500" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Browser Type</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="70"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbBrowserEdge" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">Edge</RadioButton>
+                        <RadioButton x:Name="chbBrowserChrome" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Chrome</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Device Type</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbDeviceTypeDefault" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">Default</RadioButton>
+                        <RadioButton x:Name="chbDeviceTypeApp" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >App</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Auto Clear Cache</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbAutoClearCacheYes" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">Yes</RadioButton>
+                        <RadioButton x:Name="chbAutoClearCacheNo" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >No</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Login Type</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbLoginTypeByCookie" Grid.Row="0" Grid.Column="0" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Cookie</RadioButton>
+                        <RadioButton x:Name="chbLoginTypeByUID" IsChecked="True" Grid.Row="0" Grid.Column="1" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">UID and Password</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Use Image</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbUseImageYes"  IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Yes</RadioButton>
+                        <RadioButton x:Name="chbUseImageNo" Grid.Row="0" Grid.Column="1" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">No</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Run Type</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbDefaultRunTypeWeb" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">Web</RadioButton>
+                        <RadioButton x:Name="chbDefaultRunTypeMobile" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Mobile</RadioButton>
+                        <RadioButton x:Name="chbDefaultRunTypeMbasic" Grid.Row="0" Grid.Column="2" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >MBasic</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Data Mode</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbDataModeNone" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">None</RadioButton>
+                        <RadioButton x:Name="chbDataModeFree" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Free</RadioButton>
+                        <RadioButton x:Name="chbDataModeUseData" Grid.Row="0" Grid.Column="2" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >Use Data</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Show Screen</TextBlock>
+                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition Width="50"></ColumnDefinition>
+                            <ColumnDefinition Width="50"></ColumnDefinition>
+                            <ColumnDefinition Width="50"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="33"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="chbShowScreen6" IsChecked="True" Grid.Row="0" Grid.Column="0" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">6</RadioButton>
+                        <RadioButton x:Name="chbShowScreen3" Grid.Row="0" Grid.Column="1" Foreground="White"  Style="{DynamicResource MaterialDesignRadioButton}" >3</RadioButton>
+                        <RadioButton x:Name="chbShowScreen2" Grid.Row="0" Grid.Column="2" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">2</RadioButton>
+                        <RadioButton x:Name="chbShowScreen1" Grid.Row="0" Grid.Column="3" Foreground="White" Style="{DynamicResource MaterialDesignRadioButton}">1</RadioButton>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="200"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="2,4">
+                        <TextBlock  Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Top">Modem Config</TextBlock>
+                    </StackPanel>
+                    <TextBox Name="txtConfigModem" Grid.Column="1" Grid.Row="0" Margin="2" Height="auto"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"></TextBox>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="105"/>
+                        <ColumnDefinition Width="90"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="btnConfigRestIP" Height="30" Width="auto" Grid.Column="1" Grid.Row="0"  Click="btnConfigResetIP_Click">
+                        <StackPanel Orientation="Horizontal" >
+                            <materialDesign:PackIcon Kind="Network" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                            <TextBlock Grid.Column="1" Text="Reset IP" VerticalAlignment="Center" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnConfigSave" Height="30" Width="auto" Grid.Column="2" Grid.Row="0" Margin="5,0,0,0"  Click="btnConfigSave_Click">
+                        <StackPanel Orientation="Horizontal" >
+                            <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
+                            <TextBlock Grid.Column="1" Text="Save" VerticalAlignment="Center" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </StackPanel>
+</Page>

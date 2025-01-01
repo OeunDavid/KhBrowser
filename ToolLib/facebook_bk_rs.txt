@@ -1,0 +1,7 @@
+#backup
+adb backup -apk -shared -all -f bk.ad
+#restore
+adb restore bk.ad
+#todo 
+# add capture screen and confirm on backup & restore in seperate thread
+# create fodler as backup and pull all backup data into there & restore back

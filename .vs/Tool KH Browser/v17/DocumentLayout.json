@@ -1,0 +1,295 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Tools\\Tool KH Browser\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\views\\frmmain.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\views\\frmmain.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\viewmodels\\pageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\viewmodels\\pageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\viewmodels\\shareviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\viewmodels\\shareviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\mainwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\mainwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|d:\\tools\\tool kh browser\\wpf_ui\\toollib\\data\\sqlconstant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\data\\sqlconstant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\views\\pgshare.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\views\\pgshare.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\tool\\webfbtool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\tool\\webfbtool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\views\\pgshare.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\views\\pgshare.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\viewmodels\\processactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\viewmodels\\processactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\data\\pagesdao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\data\\pagesdao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\views\\frmmain.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\views\\frmmain.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\tool\\mywebdriver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\tool\\mywebdriver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\tool\\fbtool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\tool\\fbtool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\tool\\fbgraph.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\tool\\fbgraph.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\data\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\data\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\toollib\\data\\datadao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\toollib\\data\\datadao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|D:\\Tools\\Tool KH Browser\\wpf_ui\\viewmodels\\profileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1437184D-864C-4D38-BB7F-D2F954A20985}|wpf_ui\\Tool KH Browser.csproj|solutionrelative:wpf_ui\\viewmodels\\profileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 9,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SQLConstant.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\SQLConstant.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Data\\SQLConstant.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\SQLConstant.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Data\\SQLConstant.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACUAAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-21T03:58:36.357Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "MyWebDriver.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\MyWebDriver.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Tool\\MyWebDriver.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\MyWebDriver.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Tool\\MyWebDriver.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAjAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-13T07:16:55.636Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "FBGraph.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\FBGraph.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Tool\\FBGraph.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\FBGraph.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Tool\\FBGraph.cs",
+              "ViewState": "AQIAAMACAAAAAAAAAAAqwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-13T03:44:17.865Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\MainWindow.xaml.cs",
+              "RelativeToolTip": "wpf_ui\\MainWindow.xaml.cs",
+              "ViewState": "AQIAAM8AAAAAAAAAAAA8wAEBAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-06T17:12:38.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ShareViewModel.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ShareViewModel.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ViewModels\\ShareViewModel.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ShareViewModel.cs",
+              "RelativeToolTip": "wpf_ui\\ViewModels\\ShareViewModel.cs",
+              "ViewState": "AQIAAPkBAAAAAAAAAAAMwAQCAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-05T02:59:12.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PagesDao.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\PagesDao.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Data\\PagesDao.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\PagesDao.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Data\\PagesDao.cs",
+              "ViewState": "AQIAACYAAAAAAAAAAAAuwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-01-30T13:03:58.878Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "DataDao.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\DataDao.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Data\\DataDao.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\DataDao.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Data\\DataDao.cs",
+              "ViewState": "AQIAAG0AAAAAAAAAAAAYwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-01-30T13:03:45.927Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "FBTool.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\FBTool.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Tool\\FBTool.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\FBTool.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Tool\\FBTool.cs",
+              "ViewState": "AQIAAEEDAAAAAAAAAAAUwFcDAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-12-21T03:18:49.046Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "WebFBTool.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\WebFBTool.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Tool\\WebFBTool.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Tool\\WebFBTool.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Tool\\WebFBTool.cs",
+              "ViewState": "AQIAABsNAAAAAAAAAAAkwCcNAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-12-21T02:53:13.048Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "frmMain.xaml.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\frmMain.xaml.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\Views\\frmMain.xaml.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\frmMain.xaml.cs",
+              "RelativeToolTip": "wpf_ui\\Views\\frmMain.xaml.cs",
+              "ViewState": "AQIAAMYNAAAAAAAAAAAewOUNAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-09-07T05:34:11.592Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PageViewModel.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\PageViewModel.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ViewModels\\PageViewModel.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\PageViewModel.cs",
+              "RelativeToolTip": "wpf_ui\\ViewModels\\PageViewModel.cs",
+              "ViewState": "AQIAAHUAAAAAAAAAAAAewI4AAAA8AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-11-07T02:05:54.536Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "pgShare.xaml",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\pgShare.xaml",
+              "RelativeDocumentMoniker": "wpf_ui\\Views\\pgShare.xaml",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\pgShare.xaml",
+              "RelativeToolTip": "wpf_ui\\Views\\pgShare.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2024-03-24T13:58:17.548Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "pgShare.xaml.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\pgShare.xaml.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\Views\\pgShare.xaml.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\pgShare.xaml.cs",
+              "RelativeToolTip": "wpf_ui\\Views\\pgShare.xaml.cs",
+              "ViewState": "AQIAAH0AAAAAAAAAAAAwwJ0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-24T14:05:58.111Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ProcessActions.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ProcessActions.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ViewModels\\ProcessActions.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ProcessActions.cs",
+              "RelativeToolTip": "wpf_ui\\ViewModels\\ProcessActions.cs",
+              "ViewState": "AQIAACUBAAAAAAAAAAAnwDQBAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-10-18T13:32:47.46Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "frmMain.xaml",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\frmMain.xaml",
+              "RelativeDocumentMoniker": "wpf_ui\\Views\\frmMain.xaml",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\Views\\frmMain.xaml",
+              "RelativeToolTip": "wpf_ui\\Views\\frmMain.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2024-03-17T03:47:35.546Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Account.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\Account.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ToolLib\\Data\\Account.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ToolLib\\Data\\Account.cs",
+              "RelativeToolTip": "wpf_ui\\ToolLib\\Data\\Account.cs",
+              "ViewState": "AQIAAIsAAAAAAAAAAAAkwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-01-30T13:05:54.206Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ProfileViewModel.cs",
+              "DocumentMoniker": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ProfileViewModel.cs",
+              "RelativeDocumentMoniker": "wpf_ui\\ViewModels\\ProfileViewModel.cs",
+              "ToolTip": "D:\\Tools\\Tool KH Browser\\wpf_ui\\ViewModels\\ProfileViewModel.cs",
+              "RelativeToolTip": "wpf_ui\\ViewModels\\ProfileViewModel.cs",
+              "ViewState": "AQIAAFwAAAAAAAAAAAASwGsAAAA8AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-12-21T03:20:26.581Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

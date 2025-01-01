@@ -1,0 +1,89 @@
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\ToolLib.exe
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\ToolLib.pdb
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\obj\Debug\ToolLib.csprojAssemblyReference.cache
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\obj\Debug\ToolLib.exe
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\obj\Debug\ToolLib.pdb
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\ToolLib.exe.config
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\CliWrap.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\CliWrap.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\obj\Debug\ToolLib.csproj.CopyComplete
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Bitmap.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Bitmap.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\EntityFramework.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.EF6.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.Linq.dll
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\EntityFramework.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\sam.engleang\source\repos\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\log4net.config
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\ToolLib.exe.config
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\ToolLib.exe
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\ToolLib.pdb
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\CliWrap.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Bitmap.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\EntityFramework.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\EntityFramework.SqlServer.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\log4net.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Ninject.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.EF6.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.Linq.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\CliWrap.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Bitmap.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\EntityFramework.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\EntityFramework.SqlServer.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\log4net.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\Ninject.xml
+D:\RD\android\FacebookApp\ToolLib\bin\Debug\System.Data.SQLite.xml
+D:\RD\android\FacebookApp\ToolLib\obj\Debug\ToolLib.csprojAssemblyReference.cache
+D:\RD\android\FacebookApp\ToolLib\obj\Debug\ToolLib.csproj.CopyComplete
+D:\RD\android\FacebookApp\ToolLib\obj\Debug\ToolLib.exe
+D:\RD\android\FacebookApp\ToolLib\obj\Debug\ToolLib.pdb
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\log4net.config
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\ToolLib.pdb
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\CliWrap.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Bitmap.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\EntityFramework.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\EntityFramework.SqlServer.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\log4net.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Ninject.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\System.Data.SQLite.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\System.Data.SQLite.EF6.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\System.Data.SQLite.Linq.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\CliWrap.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Bitmap.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Platform.NetCore.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Emgu.CV.Platform.NetStandard.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\EntityFramework.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\EntityFramework.SqlServer.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\log4net.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Ninject.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\System.Data.SQLite.xml
+D:\My Project\ToolRealDevice\ToolLib\obj\Debug\ToolLib.csproj.CoreCompileInputs.cache
+D:\My Project\ToolRealDevice\ToolLib\obj\Debug\ToolLib.csproj.CopyComplete
+D:\My Project\ToolRealDevice\ToolLib\obj\Debug\ToolLib.pdb
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Newtonsoft.Json.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\RestSharp.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\Newtonsoft.Json.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\RestSharp.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\CsQuery.dll
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\CsQuery.xml
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\ToolLib.exe.config
+D:\My Project\ToolRealDevice\ToolLib\bin\Debug\ToolLib.exe
+D:\My Project\ToolRealDevice\ToolLib\obj\Debug\ToolLib.exe
+D:\My Project\ToolRealDevice\ToolLib\obj\Debug\ToolLib.csprojAssemblyReference.cache

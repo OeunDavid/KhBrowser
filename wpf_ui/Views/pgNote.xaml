@@ -1,0 +1,38 @@
+﻿<Page x:Class="ToolKHBrowser.Views.pgNote"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      
+      d:DesignHeight="400" d:DesignWidth="700"
+      Title="pgNote">
+
+    <StackPanel Background="Black">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="0">
+                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Note"/></TextBlock>
+            </StackPanel>
+            <TextBox Name="txtNote" Grid.Column="0" Grid.Row="1" Margin="2,2,2,2" Height="250"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+        </Grid>
+        <Grid>
+            <StackPanel Margin="5">
+
+                <Button x:Name="btnSaveNote" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveNote_Click" >
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                        <TextBlock Margin="0" Text="Save Note" TextAlignment="Left" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Page>
