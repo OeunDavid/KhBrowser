@@ -48,7 +48,7 @@ namespace ToolKHBrowser.ToolLib.Data
             var p = new Dictionary<string, object> {
                 {"@key", key }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_CACHE_SELECT_BY_KEY, p);
+            var dataTable = _dataDao.query(SQLConstant.CacheSQL.TABLE_CACHE_SELECT_BY_KEY, p);
             foreach (DataRow row in dataTable.Rows)
             {
                 return From(row);
@@ -66,10 +66,10 @@ namespace ToolKHBrowser.ToolLib.Data
             var data = Get(key);
             if(!string.IsNullOrEmpty(data.Key))
             {
-                return _dataDao.execute(SQLConstant.TABLE_CACHE_UPDATE, p);
+                return _dataDao.execute(SQLConstant.CacheSQL.TABLE_CACHE_UPDATE, p);
             }
 
-            return _dataDao.execute(SQLConstant.TABLE_CACHE_INSERT, p);
+            return _dataDao.execute(SQLConstant.CacheSQL.TABLE_CACHE_INSERT, p);
         }
         public int SetTotal(string key, long total)
         {
@@ -81,10 +81,10 @@ namespace ToolKHBrowser.ToolLib.Data
             var data = Get(key);
             if (!string.IsNullOrEmpty(data.Key))
             {
-                return _dataDao.execute(SQLConstant.TABLE_CACHE_UPDATE_TOTAL, p);
+                return _dataDao.execute(SQLConstant.CacheSQL.TABLE_CACHE_UPDATE_TOTAL, p);
             }
 
-            return _dataDao.execute(SQLConstant.TABLE_CACHE_INSERT_TOTAL, p);
+            return _dataDao.execute(SQLConstant.CacheSQL.TABLE_CACHE_INSERT_TOTAL, p);
         }
     }
 }

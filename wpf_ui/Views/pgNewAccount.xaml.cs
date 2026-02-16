@@ -16,14 +16,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ToolKHBrowser.ViewModels;
+using WpfUI.ViewModels;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI;
-using WpfUI.ViewModels;
 using WpfUI.Views;
 
-namespace ToolKHBrowser.Views
+namespace WpfUI.Views
 {
     /// <summary>
     /// Interaction logic for pgNewAccount.xaml
@@ -34,6 +32,7 @@ namespace ToolKHBrowser.Views
         private IStoreViewModel storeViewModel;
 
         private ObservableCollection<Store> storeData;
+        private ObservableCollection<FbAccount> accountsToSave = new ObservableCollection<FbAccount>();
 
         private frmMain parentForm;
         private int parentStoreId;
@@ -46,228 +45,233 @@ namespace ToolKHBrowser.Views
             this.parentStoreId = storeId;
 
             fbAccountViewModel = DIConfig.Get<IFbAccountViewModel>();
-
             storeViewModel = DIConfig.Get<IStoreViewModel>();
             storeData = storeViewModel.listDataForGrid(1);
 
             ddlStore.ItemsSource = storeData;
             ddlStore.SelectedIndex = 0;
+
+            gdNewAccount.ItemsSource = accountsToSave;
+
+            // Initial visibility
+            UpdateFieldVisibility();
         }
 
-        private void passUIDPassword_Click(object sender, RoutedEventArgs e)
+        private void ddlFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            PassAccount("UID|Password");
+            UpdateFieldVisibility();
         }
-        private void passUIDPasswordTwoFA_Click(object sender, RoutedEventArgs e)
+
+        private void UpdateFieldVisibility()
         {
-            PassAccount("UID|Password|2FA");
+            if (ddlFormat == null || pnl2FA == null) return;
+
+            string selectedFormat = (ddlFormat.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "UID|Password";
+
+            // Always show UID and Password
+            pnlUID.Visibility = Visibility.Visible;
+            pnlPassword.Visibility = Visibility.Visible;
+
+            // Show others based on format
+            pnl2FA.Visibility = selectedFormat.Contains("2FA") ? Visibility.Visible : Visibility.Collapsed;
+            pnlCookie.Visibility = selectedFormat.Contains("Cookie") ? Visibility.Visible : Visibility.Collapsed;
+            pnlMail.Visibility = selectedFormat.Contains("Mail") ? Visibility.Visible : Visibility.Collapsed;
+            pnlPassMail.Visibility = selectedFormat.Contains("PassMail") ? Visibility.Visible : Visibility.Collapsed;
         }
-        private void passUIDPasswordCookie_Click(object sender, RoutedEventArgs e)
+
+        private void btnAddManual_Click(object sender, RoutedEventArgs e)
         {
-            PassAccount("UID|Password|Cookie");
+            string uid = txtUID.Text.Trim();
+            string pass = txtPassword.Text.Trim();
+            if (string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(pass))
+            {
+                MessageBox.Show("UID and Password are required!");
+                return;
+            }
+
+            AddAccountToList(uid, pass, txt2FA.Text.Trim(), txtCookie.Text.Trim(), txtMail.Text.Trim(), txtPassMail.Text.Trim());
+
+            // Clear inputs
+            txtUID.Text = "";
+            txtPassword.Text = "";
+            txt2FA.Text = "";
+            txtCookie.Text = "";
+            txtMail.Text = "";
+            txtPassMail.Text = "";
+            txtUID.Focus();
         }
-        private void passUIDPasswordTwoFACookie_Click(object sender, RoutedEventArgs e)
+
+        private void AddAccountToList(string uid, string pass, string twofa, string cookie, string mail, string passmail)
         {
-            PassAccount("UID|Password|2FA|Cookie");
+            string mailPass = mail;
+            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(passmail))
+                mailPass = mail + "|" + passmail;
+
+            accountsToSave.Add(new FbAccount()
+            {
+                Key = accountsToSave.Count + 1,
+                UID = uid,
+                Password = pass,
+                TwoFA = twofa,
+                Cookie = cookie,
+                MailPass = mailPass
+            });
         }
-        private void passUIDPasswordMailMailPass_Click(object sender, RoutedEventArgs e)
-        {
-            PassAccount("UID|Password|Mail|MailPass");
-        }
-        private void passUIDPasswordCookieMailMailPass_Click(object sender, RoutedEventArgs e)
-        {
-            PassAccount("UID|Password|Cookie|Mail|MailPass");
-        }
-        private void passUIDPassword2FAMailMailPass_Click(object sender, RoutedEventArgs e)
-        {
-            PassAccount("UID|Password|2FA|Mail|MailPass");
-        }
-        private void passUIDPassword2FACookieMailMailPass_Click(object sender, RoutedEventArgs e)
-        {
-            PassAccount("UID|Password|2FA|Cookie|Mail|MailPass");
-        }
-        public void PassAccount(string format)
+
+        private void btnPasteClipboard_Click(object sender, RoutedEventArgs e)
         {
             string str = Clipboard.GetText();
-            if (string.IsNullOrEmpty(str))
+            if (string.IsNullOrEmpty(str)) return;
+
+            string selectedFormat = (ddlFormat.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "UID|Password";
+            string[] lines = str.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string line in lines)
             {
-                return;
-            }
-            string[] arr = str.Split('\n');
-            if (arr.Length == 0)
-            {
-                return;
-            }
-            ObservableCollection<FbAccount> accounts = new ObservableCollection<FbAccount>();
-            for (int i = 0; i < arr.Length; i++)
-            {
-                string[] arrAcc = arr[i].Trim().Split('|');
-                string uid = "", password = "", twoFA = "", cookie = "", mail="", mailPass="";
+                string cleanLine = line.Trim();
+                if (string.IsNullOrEmpty(cleanLine)) continue;
+
+                char separator = '|';
+                if (!cleanLine.Contains("|") && cleanLine.Contains("\t")) separator = '\t';
+                else if (!cleanLine.Contains("|") && !cleanLine.Contains("\t") && cleanLine.Contains(":")) separator = ':';
+
+                string[] arr = cleanLine.Split(separator);
+                if (arr.Length < 2) continue;
+
+                string uid = arr[0].Trim();
+                string pass = arr[1].Trim();
+                string twofa = "", cookie = "", mail = "", passmail = "";
 
                 try
                 {
-                    uid = arrAcc[0].Trim();
-                    password = arrAcc[1].Trim();
-                    switch (format)
+                    switch (selectedFormat)
                     {
-                        case "UID|Password":
-
-                            break;
                         case "UID|Password|2FA":
-                            twoFA = arrAcc[2].Trim();
+                            if (arr.Length > 2) twofa = arr[2].Trim();
                             break;
                         case "UID|Password|Cookie":
-                            cookie = arrAcc[2];
+                            if (arr.Length > 2) cookie = arr[2].Trim();
                             break;
                         case "UID|Password|2FA|Cookie":
-                            twoFA = arrAcc[2].Trim();
-                            cookie = arrAcc[3];
+                            if (arr.Length > 2) twofa = arr[2].Trim();
+                            if (arr.Length > 3) cookie = arr[3].Trim();
                             break;
-                        case "UID|Password|Mail|MailPass":
-                            mail = arrAcc[2].Trim();
-                            mailPass = arrAcc[3].Trim();
+                        case "UID|Password|Mail|PassMail":
+                            if (arr.Length > 2) mail = arr[2].Trim();
+                            if (arr.Length > 3) passmail = arr[3].Trim();
                             break;
-                        case "UID|Password|Cookie|Mail|MailPass":
-                            cookie = arrAcc[2];
-                            mail = arrAcc[3].Trim();
-                            mailPass = arrAcc[4].Trim();
+                        case "UID|Password|2FA|Mail|PassMail":
+                            if (arr.Length > 2) twofa = arr[2].Trim();
+                            if (arr.Length > 3) mail = arr[3].Trim();
+                            if (arr.Length > 4) passmail = arr[4].Trim();
                             break;
-                        case "UID|Password|2FA|Mail|MailPass":
-                            twoFA = arrAcc[2].Trim();
-                            mail = arrAcc[3].Trim();
-                            mailPass = arrAcc[4].Trim();
+                        case "UID|Password|Cookie|Mail|PassMail":
+                            if (arr.Length > 2) cookie = arr[2].Trim();
+                            if (arr.Length > 3) mail = arr[3].Trim();
+                            if (arr.Length > 4) passmail = arr[4].Trim();
                             break;
-                        case "UID|Password|2FA|Cookie|Mail|MailPass":
-                            twoFA = arrAcc[2].Trim();
-                            cookie = arrAcc[3];
-                            mail = arrAcc[4].Trim();
-                            mailPass = arrAcc[5].Trim();
+                        case "UID|Password|2FA|Cookie|Mail|PassMail":
+                            if (arr.Length > 2) twofa = arr[2].Trim();
+                            if (arr.Length > 3) cookie = arr[3].Trim();
+                            if (arr.Length > 4) mail = arr[4].Trim();
+                            if (arr.Length > 5) passmail = arr[5].Trim();
                             break;
                     }
-                }
-                catch (Exception) { }
-                if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(password))
-                {
-                    twoFA = Regex.Replace(twoFA, @"\s+", "");
-                    if (twoFA.Length != 32)
-                    {
-                        twoFA = "";
-                    }
-                    if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(mailPass))
-                    {
-                        mailPass = mail + "|" + mailPass;
-                    } else
-                    {
-                        mail = "";
-                        mailPass = "";
-                    }
-                    accounts.Add(new FbAccount()
-                    {
-                        Key= i+1,
-                        UID= uid,
-                        Password= password,
-                        TwoFA= twoFA,
-                        Cookie= cookie,
-                        MailPass= mailPass
-                    });
-                }
+                } catch { }
+
+                AddAccountToList(uid, pass, twofa, cookie, mail, passmail);
             }
-            gdNewAccount.ItemsSource = accounts;
         }
+
+        private void btnClearGrid_Click(object sender, RoutedEventArgs e)
+        {
+            accountsToSave.Clear();
+        }
+
+        private void btnDeleteRow_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button).DataContext as FbAccount;
+            if (item != null)
+            {
+                accountsToSave.Remove(item);
+                // Re-index
+                for (int i = 0; i < accountsToSave.Count; i++)
+                    accountsToSave[i].Key = i + 1;
+            }
+        }
+
         public int GetStoreId()
         {
-            int id = 0;
-            try
-            {
-                id = Convert.ToInt32(ddlStore.SelectedValue.ToString());
-            }
-            catch (Exception) { }
-
-            return id;
+            try { return Convert.ToInt32(ddlStore.SelectedValue); } catch { return 0; }
         }
 
         private void btnStartSaveAccount_Click(object sender, RoutedEventArgs e)
         {
-            string str = Clipboard.GetText();
-            if (string.IsNullOrEmpty(str))
+            if (accountsToSave.Count == 0)
             {
+                MessageBox.Show("No accounts to save!");
                 return;
             }
-            string[] arr = str.Split('\n');
-            if (arr.Length == 0)
-            {
-                return;
-            }
-            List<Account> acc = fbAccountViewModel.getAccountDao().listAccount();
-            Dictionary<string, int> accExist = new Dictionary<string, int>();
-            Account data;
-            foreach (Account a in acc)
-            {
-                accExist[a.UID] = 1;
-            }
+
             int storeId = GetStoreId();
             if (storeId == 0)
             {
                 MessageBox.Show("Please choose store!");
                 return;
             }
+
+            List<Account> existingAccs = fbAccountViewModel.getAccountDao().listAccount();
+            HashSet<string> accExist = new HashSet<string>(existingAccs.Select(a => a.UID));
+            
             string sql = "";
-            bool isNew = false, isUpdate= false, noNeedUpdateExist= chbNoNeedUpdateExistData.IsChecked.Value;
-            foreach(FbAccount fbAcc in gdNewAccount.ItemsSource)
+            bool isNew = false, isUpdate = false;
+            bool noNeedUpdateExist = chbNoNeedUpdateExistData.IsChecked == true;
+
+            foreach (var fbAcc in accountsToSave)
             {
-                string uid = "", password = "", twoFA = "", cookie = "",mailPass= "";
-                try
+                string uid = fbAcc.UID;
+                string password = fbAcc.Password;
+                string twoFA = Regex.Replace(fbAcc.TwoFA ?? "", @"\s+", "");
+                string cookie = fbAcc.Cookie ?? "";
+                string mailPass = fbAcc.MailPass ?? "";
+
+                if (string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(password)) continue;
+
+                if (accExist.Contains(uid))
                 {
-                    uid = fbAcc.UID;
-                    password = fbAcc.Password;
-                    twoFA = fbAcc.TwoFA;
-                    cookie = fbAcc.Cookie;
-                    mailPass = fbAcc.MailPass;
-                }
-                catch (Exception) { }
-                if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(password))
-                {
-                    twoFA = Regex.Replace(twoFA, @"\s+", "");
-                    if (accExist.ContainsKey(uid))
+                    if (!noNeedUpdateExist)
                     {
-                        if (!noNeedUpdateExist)
-                        {
-                            fbAccountViewModel.getAccountDao().updateSecurity(uid, password, twoFA, storeId, mailPass);
-                            
-                            isUpdate = true;
-                        } else
-                        {
-                            // need update store only, I'm don't want design UI (only me use it)
-                            string pathUpdateStore = LocalData.GetPath() + "\\update_store.txt";
-                            if (File.Exists(pathUpdateStore))
-                            {
-                                fbAccountViewModel.getAccountDao().updateStore(uid, storeId);
-                            }
-                        }
+                        fbAccountViewModel.getAccountDao().updateSecurity(uid, password, twoFA, storeId, mailPass);
+                        isUpdate = true;
                     }
                     else
                     {
-                        if(!string.IsNullOrEmpty(sql))
+                        string pathUpdateStore = LocalData.GetPath() + "\\update_store.txt";
+                        if (File.Exists(pathUpdateStore))
                         {
-                            sql += ",";
+                            fbAccountViewModel.getAccountDao().updateStore(uid, storeId);
                         }
-                        sql += "('" + uid + "','" + password + "','" + twoFA + "','" + cookie + "'," + storeId + ",'"+ mailPass +"')";
-                        accExist.Add(uid, 1);
                     }
                 }
+                else
+                {
+                    if (!string.IsNullOrEmpty(sql)) sql += ",";
+                    sql += $"('{uid}','{password}','{twoFA}','{cookie}',{storeId},'{mailPass}')";
+                    accExist.Add(uid);
+                    isNew = true;
+                }
             }
-            if(!string.IsNullOrEmpty(sql))
+
+            if (!string.IsNullOrEmpty(sql))
             {
                 sql = "INSERT INTO accounts(uid,password,twofa,cookie,store_id,mailPass) VALUES " + sql;
-
                 fbAccountViewModel.getAccountDao().RunSQL(sql);
-
-                isNew = true;
             }
-            gdNewAccount.ItemsSource = null;
-            MessageBox.Show("Your data has been save successfully.");
 
-            if(isUpdate || (isNew && storeId == this.parentStoreId))
+            MessageBox.Show("Your data has been saved successfully.");
+            accountsToSave.Clear();
+
+            if (isUpdate || (isNew && storeId == this.parentStoreId))
             {
                 this.parentForm.loadDataToGrid();
             }

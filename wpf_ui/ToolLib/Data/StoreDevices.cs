@@ -16,12 +16,12 @@ namespace ToolLib.Data
         public int Key { get; set; }
         [JsonProperty("Name")]
         public string Name { get; set; }
-        [JsonProperty("Description")]
-        public string Description { get; set; }
+        [JsonProperty("Note")]
+        public string Note { get; set; }
+        [JsonProperty("State")]
+        public int State { get; set; }
         [JsonProperty("TextStatus")]
         public string TextStatus { get; set; }
-        [JsonProperty("Status")]
-        public int Status { get; set; }
         [JsonProperty("Temp")]
         public string Temp { get; set; }
         [JsonProperty("IsTemp")]
@@ -32,16 +32,20 @@ namespace ToolLib.Data
             int id = Int32.Parse(row["id"].ToString());
             string name = row["name"] + "";
 
-            string description = row["description"] + "";
-            int status = Convert.ToInt32(row["status"]);
-            int isTemp = Convert.ToInt32(row["is_temp"]);
+            string note = row["note"] + "";
+            int state = Convert.ToInt32(row["state"]);
+            
+            int isTemp = 0;
+            try {
+                isTemp = Convert.ToInt32(row["is_temp"]);
+            } catch { }
 
             var data = new Store()
             {
                 Id = id,
                 Name = name,
-                Description = description,
-                Status = status,
+                Note = note,
+                State = state,
                 IsTemp = isTemp
             };
 

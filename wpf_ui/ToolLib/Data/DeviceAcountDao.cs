@@ -25,7 +25,7 @@ namespace ToolLib.Data
                 pList.Add(p);
             }
 
-            return _dataDao.executeBatch(SQLConstant.TABLE_DEVICE_ACCOUNT_INSERT_BATCH, pList);
+            return _dataDao.executeBatch(SQLConstant.DeviceAccountSQL.TABLE_DEVICE_ACCOUNT_INSERT_BATCH, pList);
         }
         public int delete( DeviceAccount deviceAccount)
         {
@@ -34,7 +34,7 @@ namespace ToolLib.Data
                 {"@account_id", deviceAccount.AccountId },
                 {"@device_id", deviceAccount.DeviceId }
             };
-            return _dataDao.execute(SQLConstant.TABLE_DEVICE_ACCOUNT_DELETE, p);
+            return _dataDao.execute(SQLConstant.DeviceAccountSQL.TABLE_DEVICE_ACCOUNT_DELETE, p);
         }
 
     }

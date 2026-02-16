@@ -47,8 +47,8 @@ namespace WpfUI.Views
             try
             {
                 txtName.Text = store.Name;
-                txtDescription.Text = store.Description;
-                if (store.Status != 1)
+                txtDescription.Text = store.Note;
+                if (store.State != 1)
                 {
                     chbStatus.IsChecked = false;
                 }
@@ -70,18 +70,18 @@ namespace WpfUI.Views
             {
                 Store data = new Store();
                 data.Name = name;
-                data.Status = (isStatus) ? 1 : 0 ;
+                data.State = (isStatus) ? 1 : 0 ;
                 data.IsTemp = (isTemp) ? 1 : 0;
-                data.Description = description;
+                data.Note = description;
 
                 if (store.Id>0)
                 {
                     data.Id = store.Id;
                     store.Name = name;
-                    store.Description = description;
-                    store.Status = data.Status;
+                    store.Note = description;
+                    store.State = data.State;
                     store.IsTemp = data.IsTemp;
-                    if (store.Status==1)
+                    if (store.State==1)
                     {
                         store.TextStatus = "Active";
                     } else

@@ -18,6 +18,75 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        //public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false, string url = "")
+        //{
+        //    if (string.IsNullOrEmpty(url))
+        //    {
+        //        FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
+        //    }
+        //    else
+        //    {
+        //        FBTool.GoToFacebook(driver, url);
+        //        FBTool.WaitingPageLoading(driver);
+        //        if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+        //        {
+        //            FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
+        //        }
+        //    }
+        //    FBTool.WaitingPageLoading(driver);
+        //    Thread.Sleep(1000);
+        //    if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+        //    {
+        //        if (isLoginByCookie)
+        //        {
+        //            //FBTool.LoginByCookie(driver, data.Cookie);
+        //            FBTool.LoginFbByCookie(driver, data.Cookie);
+
+        //            FBTool.WaitingPageLoading(driver);
+        //            Thread.Sleep(1000);
+        //            if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+        //            {
+        //                LoginByUID(driver, data.UID, data.Password);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            LoginByUID(driver, data.UID, data.Password);
+        //        }
+        //        //if (!string.IsNullOrEmpty(data.TwoFA))
+        //        //{
+        //        //    Thread.Sleep(1000);
+        //        //    if (Is2FA(driver))
+        //        //    {
+        //        //        VerifyTwoFactorAuthentication(driver, data);
+        //        //    }
+        //        //}
+        //        // ✅ If 2FA screen shows, keep browser open and let user enter code manually
+        //        Thread.Sleep(1000);
+        //        if (Is2FA(driver))
+        //        {
+        //            data.Description = "Need 2FA: Please enter the 6-digit code in the browser...";
+
+        //            // wait up to 180 seconds for user to complete OTP and login becomes valid
+        //            bool ok = FBTool.WaitForLoginSuccess(driver, 180);
+
+        //            if (!ok)
+        //            {
+        //                data.Description = "2FA not completed";
+        //                // Do NOT quit here if you want user to keep trying
+        //                // FBTool.QuitBrowser(driver, ...);  // optional
+        //                return "Need 2FA";
+        //            }
+
+        //            data.Description = "Login success after 2FA";
+        //        }
+
+        //    }
+        //    FBTool.WaitingPageLoading(driver);
+        //    Thread.Sleep(1000);
+
+        //    return FBTool.GetResults(driver);
+        //}
         public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false, string url = "")
         {
             if (string.IsNullOrEmpty(url))
@@ -33,26 +102,27 @@ namespace ToolKHBrowser.ToolLib.Tool
                     FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
                 }
             }
+
             FBTool.WaitingPageLoading(driver);
             Thread.Sleep(1000);
+
             if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
             {
                 if (isLoginByCookie)
                 {
-                    //FBTool.LoginByCookie(driver, data.Cookie);
                     FBTool.LoginFbByCookie(driver, data.Cookie);
 
                     FBTool.WaitingPageLoading(driver);
                     Thread.Sleep(1000);
+
                     if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-                    {
                         LoginByUID(driver, data.UID, data.Password);
-                    }
                 }
                 else
                 {
                     LoginByUID(driver, data.UID, data.Password);
                 }
+
                 if (!string.IsNullOrEmpty(data.TwoFA))
                 {
                     Thread.Sleep(1000);
@@ -61,16 +131,34 @@ namespace ToolKHBrowser.ToolLib.Tool
                         VerifyTwoFactorAuthentication(driver, data);
                     }
                 }
+
+                // ✅ manual 2FA handling
+                Thread.Sleep(1000);
+                if (Is2FA(driver))
+                {
+                    data.Description = "Need 2FA: Please enter the 6-digit code in the browser...";
+
+                    bool ok = FBTool.WaitForLoginSuccess(driver, 180);
+
+                    if (!ok)
+                    {
+                        data.Description = "2FA not completed";
+                        return "Need 2FA";
+                    }
+
+                    data.Description = "Login success after 2FA";
+                }
             }
+
             FBTool.WaitingPageLoading(driver);
             Thread.Sleep(1000);
 
+            // ✅ if cookie exists, force success
+            if (!string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+                return "success";
+
             return FBTool.GetResults(driver);
         }
-
-
-
-
 
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]

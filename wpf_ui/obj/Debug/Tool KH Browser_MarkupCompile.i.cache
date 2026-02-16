@@ -4,7 +4,7 @@
 winexe
 C#
 .cs
-D:\Tool\Tool FB\wpf_ui\obj\Debug\
+D:\khBrowser\KH Browser\tool-fb\wpf_ui\obj\Debug\
 ToolKHBrowser
 none
 false
@@ -12,9 +12,9 @@ DEBUG;TRACE
 
 32494384232
 
-962089076765
-1501858960260
+109142754274
+148196981969
 App.xaml;Views\frmConfiguration.xaml;Views\frmDashboard.xaml;MainWindow.xaml;Views\frmDisabled.xaml;Views\frmExpired.xaml;Views\frmMain.xaml;Views\frmRegister.xaml;Views\pgChangeStore.xaml;Views\pgGroupsWithoutJoin.xaml;Views\pgTimelineSource.xaml;Views\pgReelSourceVideo.xaml;Views\pgRecovery.xaml;Views\pgDialogGroup.xaml;Views\pgContact.xaml;Views\pgFriends.xaml;Views\pgGroups.xaml;Views\pgNewAccount.xaml;Views\pgNewsFeed.xaml;Views\pgNewStore.xaml;Views\pgNote.xaml;Views\pgPages.xaml;Views\pgProfile.xaml;Views\pgProxy.xaml;Views\pgSetting.xaml;Views\pgShare.xaml;Views\pgStore.xaml;Views\pgUserAgent.xaml;Views\Report.xaml;Views\About.xaml;Views\wdConfirmDialog.xaml;Views\wdDialogForm.xaml;
 
-True
+False
 

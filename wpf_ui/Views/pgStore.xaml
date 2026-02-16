@@ -57,7 +57,7 @@
                     <DataGridTextColumn Binding="{Binding Key}" Header="No" Width="50"  IsReadOnly="True"/>
                     <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="350"  IsReadOnly="True"/>
                     <DataGridTextColumn Binding="{Binding TextStatus}" Header="Status" Width="150" IsReadOnly="True"/>
-                    <DataGridTextColumn Binding="{Binding Description}" Header="Message" MinWidth="100" Width="auto"  IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Note}" Header="Message" MinWidth="100" Width="auto"  IsReadOnly="True"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

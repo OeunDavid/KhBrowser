@@ -23,7 +23,7 @@ namespace ToolLib.Data
         }
         public DataTable listDataForGrid()
         {
-            DataTable table = _dataDao.query(SQLConstant.TABLE_GROUP_DEVICES_SELECT_ALL);
+            DataTable table = _dataDao.query(SQLConstant.StoreSQL.TABLE_STORE_SELECT_ALL);
 
             return table;
         }
@@ -31,34 +31,44 @@ namespace ToolLib.Data
         {
             var p = new Dictionary<string, object>() {
                 {"@name", data.Name},
-                {"@description", data.Description},
-                {"@status", data.Status},
+                {"@note", data.Note},
+                {"@state", data.State},
+                {"@created_by", "system"},
+                {"@updated_at", DateTimeOffset.Now.ToUnixTimeSeconds()},
                 {"@is_temp", data.IsTemp}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUP_DEVICES_INSERT, p);
+            return _dataDao.execute(SQLConstant.StoreSQL.TABLE_STORE_INSERT, p);
         }
         public int update(Store data)
         {
             var p = new Dictionary<string, object>() {
                 {"@id", data.Id},
                 {"@name", data.Name},
-                {"@description", data.Description},
-                {"@status", data.Status},
+                {"@note", data.Note},
+                {"@state", data.State},
+                {"@updated_at", DateTimeOffset.Now.ToUnixTimeSeconds()},
                 {"@is_temp", data.IsTemp}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUP_DEVICES_UPDATE, p);
+            return _dataDao.execute(SQLConstant.StoreSQL.TABLE_STORE_UPDATE, p);
         }
         public Store From(DataRow row)
         {
             int id = Int32.Parse(row["id"].ToString());
             string name = row["name"].ToString();
-            string description = row["description"].ToString();
-            int cStatus = Int32.Parse(row["status"].ToString());
-            int isTemp = Int32.Parse(row["is_temp"].ToString());
+            
+            string note = "";
+            try { note = row["note"].ToString(); } catch { }
+            
+            int state = 0;
+            try { state = Int32.Parse(row["state"].ToString()); } catch { }
+
+            int isTemp = 0;
+            try { isTemp = Int32.Parse(row["is_temp"].ToString()); } catch { }
+
             string text_status = "Inactive";
-            if (cStatus == 1)
+            if (state == 1)
             {
                 text_status = "Active";
             }
@@ -73,11 +83,11 @@ namespace ToolLib.Data
                 Key = 1,
                 Id = id,
                 Name = name,
-                Status = cStatus,
+                State = state,
                 IsTemp = isTemp,
                 Temp = temp,
                 TextStatus = text_status,
-                Description = description
+                Note = note
             };
 
             return d;
@@ -87,7 +97,7 @@ namespace ToolLib.Data
             var p = new Dictionary<string, object> {
                 {"@id", id }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_GROUP_DEVICES_ONE_RECORD, p);
+            var dataTable = _dataDao.query(SQLConstant.StoreSQL.TABLE_STORE_SELECT_ONE, p);
             foreach (DataRow row in dataTable.Rows)
             {
                 return From(row);

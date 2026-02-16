@@ -906,6 +906,26 @@ namespace ToolKHBrowser.ViewModels
                 cacheDao.SetTotal("share:shareToTimeline", total);
                 share = 1;
             }
+            else
+            {
+                // check for Reels share now / share to feed
+                isWorking = false;
+                counter = 10;
+                do
+                {
+                    Thread.Sleep(1000);
+                    try
+                    {
+                        // Reels share button often has different label or just a specific icon
+                        IWebElement reelShare = driver.FindElement(By.XPath("//div[@aria-label='Share now' or @aria-label='Share to Feed' or @aria-label='Post']"));
+                        WebFBTool.ClickElement(driver, reelShare);
+                        isWorking = true;
+                        share = 1;
+                        Thread.Sleep(5000);
+                    }
+                    catch (Exception) { }
+                } while (!isWorking && counter-- > 0);
+            }
             data.Description += share;
             accountDao.updateStatus(data.UID, data.Description, 1);
 
@@ -1777,6 +1797,26 @@ namespace ToolKHBrowser.ViewModels
                     try
                     {
                         driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div[2]/div/div/div/div[1]/div[2]/div/div[2]/div/div[3]/div")).Click();
+                        isWorking = true;
+                    }
+                    catch (Exception) { }
+                }
+                if (!isWorking)
+                {
+                    try
+                    {
+                        // Targeting the SVG icon for sharing which is common on Reels/Mobile layouts
+                        driver.FindElement(By.XPath("//div[i[contains(@style, 'background-image')] or @role='button']//i[contains(@class, 'x1b0p6m6')]")).Click();
+                        isWorking = true;
+                    }
+                    catch (Exception) { }
+                }
+                if (!isWorking)
+                {
+                    try
+                    {
+                        // Another common selector for the share icon in newer layouts
+                        driver.FindElement(By.XPath("//div[@aria-label='Share' or @aria-label='share']//i")).Click();
                         isWorking = true;
                     }
                     catch (Exception) { }

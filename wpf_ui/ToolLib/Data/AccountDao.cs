@@ -17,6 +17,9 @@ namespace ToolLib.Data
         int delete(Account account);
         int update(List<Account> accounts);
         int add(List<Account> accounts);
+        int updatePassword(string uid, string password);
+        int updateToken(string uid, string token);
+        int updateTotalFriend(string uid, int totalFriend);
         int resetDevice(string uid);
         List<Account> listAccount();
         List<Account> listAccount(int groupDeviceId, string keyword = "", bool isTempStore = false);
@@ -82,14 +85,49 @@ namespace ToolLib.Data
     public class AccountDao:IAccountDao
     {
         private IDataDao _dataDao;
+
         public AccountDao( IDataDao dataDao)
         {
             _dataDao = dataDao;
         }
+
         public int RunSQL(string sql)
         {
             return _dataDao.execute(sql);
         }
+        public int updatePassword(string uid, string password)
+        {
+            var p = new Dictionary<string, object>()
+    {
+        { "@uid", uid },
+        { "@password", password }
+    };
+
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_PASSWORD, p);
+        }
+
+        public int updateToken(string uid, string token)
+        {
+            var p = new Dictionary<string, object>()
+    {
+        { "@uid", uid },
+        { "@token", token }
+    };
+
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TOKEN, p);
+        }
+
+        public int updateTotalFriend(string uid, int totalFriend)
+        {
+            var p = new Dictionary<string, object>()
+    {
+        { "@uid", uid },
+        { "@total_friend", totalFriend }
+    };
+
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_FRIENDS, p);
+        }
+
         public int UpdatePage(string uid, int totalPage, string pageIds)
         {
             var p = new Dictionary<string, object>()
@@ -99,7 +137,7 @@ namespace ToolLib.Data
                 { "@page_ids", pageIds}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_PAGE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_PAGE, p);
         }
         public int UpdatePrimaryLocation(string uid, string primaryLocation)
         {
@@ -109,7 +147,7 @@ namespace ToolLib.Data
                 { "@primaryLocation", primaryLocation}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_PRIMARY_LOCATION, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_PRIMARY_LOCATION, p);
         }
         public int UpdateToken(string uid, string token)
         {
@@ -119,7 +157,7 @@ namespace ToolLib.Data
                 { "@token", token}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_TOKEN, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TOKEN, p);
         }
         public int updateShareToGroup(string uid, int total)
         {
@@ -129,7 +167,7 @@ namespace ToolLib.Data
                 { "@total", total}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_SHARE_TO_GROUP, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_SHARE_TO_GROUP, p);
         }
         public int updateShareToTimeline(string uid, int total)
         {
@@ -139,7 +177,7 @@ namespace ToolLib.Data
                 { "@total", total}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_SHARE_TO_TIMELINE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_SHARE_TO_TIMELINE, p);
         }
         public int UpdateInfo(FbAccount data)
         {
@@ -152,7 +190,7 @@ namespace ToolLib.Data
                 { "@email", data.Email}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_INFO, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_INFO, p);
         }
         public int updateEmail(string uid, string email)
         {
@@ -162,7 +200,7 @@ namespace ToolLib.Data
                 { "@email", email}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_EMAIL, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_EMAIL, p);
         }
         public int updateEmailPass(string uid, string mailPass)
         {
@@ -172,7 +210,7 @@ namespace ToolLib.Data
                 { "@mailPass", mailPass}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_MAIL_PASS, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_MAIL_PASS, p);
         }
         public int updateCookie(string uid, string cookie)
         {
@@ -182,7 +220,7 @@ namespace ToolLib.Data
                 { "@cookie", cookie}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_COOKIE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_COOKIE, p);
         }
         public int updateUID(string uid, string newUID)
         {
@@ -192,7 +230,7 @@ namespace ToolLib.Data
                 { "@new_uid", newUID}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_UID, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_UID, p);
         }
         public int TwoFA(string uid, string twofa)
         {
@@ -202,7 +240,7 @@ namespace ToolLib.Data
                 { "@twofa", twofa}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_TWOFA_BY_UID, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TWOFA_BY_UID, p);
         }
         public int IsTwoFA(string uid, int isTwoFA)
         {
@@ -211,7 +249,7 @@ namespace ToolLib.Data
                 { "@is_twofa", isTwoFA }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_IS_TWOFA_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_IS_TWOFA_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -222,7 +260,7 @@ namespace ToolLib.Data
                 { "@is_verify", isVerify }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_VERIFY_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_VERIFY_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -233,7 +271,7 @@ namespace ToolLib.Data
                 { "@is_login", isLogin }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_LOGIN_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_LOGIN_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -245,7 +283,7 @@ namespace ToolLib.Data
                 { "@name", name}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_NAME, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_NAME, p);
         }
         public int UpdateGender(string uid, string gender)
         {
@@ -255,7 +293,7 @@ namespace ToolLib.Data
                 { "@gender", gender}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_GENDER, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_GENDER, p);
         }
         public int UpdateBirthday(string uid, string dob)
         {
@@ -265,7 +303,7 @@ namespace ToolLib.Data
                 { "@dob", dob}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_BIRTHDAY, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_BIRTHDAY, p);
         }
         public int UpdateFriends(string uid, int total_friends)
         {
@@ -275,7 +313,7 @@ namespace ToolLib.Data
                 { "@total_friend", total_friends}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_FRIENDS, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_FRIENDS, p);
         }
         public int UpdateFriendsRequest(string uid, int friends_request)
         {
@@ -285,7 +323,7 @@ namespace ToolLib.Data
                 { "@friends_request", friends_request}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_FRIENDS_REQUEST, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_FRIENDS_REQUEST, p);
         }
         public int UpdateGroup(string uid, int total_group, string groupIds="", string old_group_ids = "")
         {
@@ -299,7 +337,7 @@ namespace ToolLib.Data
                 UpdateGroupIds(uid, groupIds, old_group_ids);
             }
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_TOTAL_GROUP, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TOTAL_GROUP, p);
         }
         public int UpdateGroupIds(string uid, string groupIds = null, string old_group_ids = "")
         {
@@ -309,7 +347,7 @@ namespace ToolLib.Data
                 { "@old_group_ids", old_group_ids}
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_GROUP_ID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_GROUP_ID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -321,7 +359,7 @@ namespace ToolLib.Data
                 { "@limit", limit },
                 { "@offset", offset }
             };
-            string sql = SQLConstant.TABLE_ACCOUNT_SELECT_ALL.Replace("{where}", where);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL.Replace("{where}", where);
             var dataTable = _dataDao.query(sql,p);
             int key = 1;
             foreach (DataRow row in dataTable.Rows)
@@ -357,7 +395,7 @@ namespace ToolLib.Data
         public int getTotalAccountDie()
         {
             int total = 0;
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_TOTAL_DIE);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_TOTAL_DIE);
             foreach (DataRow row in dataTable.Rows)
             {
                 total = Int32.Parse(row["total_account_die"].ToString().Trim());
@@ -369,7 +407,7 @@ namespace ToolLib.Data
         public int getTotalAccountLive()
         {
             int total = 0;
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_TOTAL_LIVE);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_TOTAL_LIVE);
             foreach (DataRow row in dataTable.Rows)
             {
                 total = Int32.Parse(row["total_account_live"].ToString().Trim());
@@ -400,12 +438,12 @@ namespace ToolLib.Data
         {
             var p = to(account);
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_INSERT, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_INSERT, p);
         }
         public int delete(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_DELETE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_DELETE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
@@ -416,7 +454,7 @@ namespace ToolLib.Data
                 { "@store_id", storeId }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_TRANSFER_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TRANSFER_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -428,7 +466,7 @@ namespace ToolLib.Data
                 { "@temp_order", DateTime.Now.ToFileTime() }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_TEMP_STORE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_TEMP_STORE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -439,7 +477,7 @@ namespace ToolLib.Data
                 { "@is_active", isActive }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_ACTIVE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_ACTIVE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -450,7 +488,7 @@ namespace ToolLib.Data
                 { "@password", password }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_PASSWORD_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_PASSWORD_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -461,7 +499,7 @@ namespace ToolLib.Data
                 { "@is_share", isShare }
             };
             uid = "'" + uid.Replace(",","','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_SHARE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_SHARE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -472,7 +510,7 @@ namespace ToolLib.Data
                 { "@is_leave", isLeave }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_LEAVE_GROUP_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_LEAVE_GROUP_BY_UID.Replace("{uid}", uid);
             return _dataDao.execute(sql,p);
         }
         public int updateSecurity(string uid, string password, string twofa, int storeId, string mailPass="")
@@ -486,7 +524,7 @@ namespace ToolLib.Data
                 { "@mailPass", mailPass }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_SECURITY, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_SECURITY, p);
         }
         public int updateStore(string uid, int storeId)
         {
@@ -496,7 +534,7 @@ namespace ToolLib.Data
                 { "@store_id", storeId }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_STORE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_STORE, p);
         }
         public int updatePendingJoin(string uid, string groupIds)
         {
@@ -506,7 +544,7 @@ namespace ToolLib.Data
             };
 
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_PENDING_JOIN_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_PENDING_JOIN_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -518,7 +556,7 @@ namespace ToolLib.Data
                 { "@group_device_id", groupDeviceId }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE_GROUP_DEVICE_BY_UID, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_GROUP_DEVICE_BY_UID, p);
         }
         public int updateStatus(string uid, string description, int status)
         {
@@ -529,7 +567,7 @@ namespace ToolLib.Data
                 { "@updated_at", DateTime.Now.ToFileTime() }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_STATUS.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_STATUS.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -541,7 +579,7 @@ namespace ToolLib.Data
                 { "@updated_at", DateTime.Now.ToFileTime() }
             };
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_UPDATE_DESCRIPTION.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE_DESCRIPTION.Replace("{uid}", uid);
 
             return _dataDao.execute(sql, p);
         }
@@ -634,7 +672,7 @@ namespace ToolLib.Data
         {
             var p = to(account);
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_UPDATE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE, p);
         }
         public int addProxy(string uid, string proxy)
         {
@@ -644,7 +682,7 @@ namespace ToolLib.Data
                 { "@proxy", proxy }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_PROXY, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_ADD_PROXY, p);
         }
         public int addUserAgent(string uid, string user_agent)
         {
@@ -654,7 +692,7 @@ namespace ToolLib.Data
                 { "@user_agent", user_agent }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_USER_AGENT, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_ADD_USER_AGENT, p);
         }
         public int clearProxy(int groupDeviceId)
         {
@@ -663,7 +701,7 @@ namespace ToolLib.Data
                 { "@group_device_id", groupDeviceId }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_CLEAR_PROXY, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_PROXY, p);
         }
         public int addNote(string uid, string note)
         {
@@ -673,19 +711,19 @@ namespace ToolLib.Data
                 { "@note", note }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_NOTE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_ADD_NOTE, p);
         }
         public int clearNote(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_NOTE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_NOTE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
         public int clearGroupID(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_GROUP_ID_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_GROUP_ID_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
@@ -697,12 +735,12 @@ namespace ToolLib.Data
                 { "@reel_source_video", reel_source_video }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_REEL_SOURCE_VIDEO, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_ADD_REEL_SOURCE_VIDEO, p);
         }
         public int clearReelSourceVideo(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_REEL_SOURCE_VIDEO_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_REEL_SOURCE_VIDEO_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
@@ -714,26 +752,26 @@ namespace ToolLib.Data
                 { "@timeline_source", source }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_TIMELINE_SOURCE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_ADD_TIMELINE_SOURCE, p);
         }
         public int clearTimelineSource(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_TIMELINE_SOURCE_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_TIMELINE_SOURCE_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
         public int clearProxyByUID(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_PROXY_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_PROXY_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
         public int clearUserAgentByUID(string uid)
         {
             uid = "'" + uid.Replace(",", "','") + "'";
-            string sql = SQLConstant.TABLE_ACCOUNT_CLEAR_USER_AGENT_BY_UID.Replace("{uid}", uid);
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_CLEAR_USER_AGENT_BY_UID.Replace("{uid}", uid);
 
             return _dataDao.execute(sql);
         }
@@ -744,12 +782,12 @@ namespace ToolLib.Data
                 { "@id", account.Id }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_DELETE, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_DELETE, p);
         }
         public List<Account> listAccount()
         {
             List<Account> result = new List<Account>();
-            DataTable table = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELEC_ALL);
+            DataTable table = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELEC_ALL);
             foreach(DataRow row in table.Rows)
             {
                 var acc = Account.from(row);
@@ -770,7 +808,7 @@ namespace ToolLib.Data
                 {"@uid", idList }
             };
             //Console.WriteLine("UID: " + idList);
-            DataTable table = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELECT_BY_UID, p);
+            DataTable table = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_BY_UID, p);
             foreach (DataRow row in table.Rows)
             {
                 var acc = Account.from(row);
@@ -809,12 +847,12 @@ namespace ToolLib.Data
             int countInsert = 0;
             if( insertList.Count > 0)
             {
-                countInsert = _dataDao.executeBatch(SQLConstant.TABLE_ACCOUNT_INSERT, insertList);
+                countInsert = _dataDao.executeBatch(SQLConstant.AccountSQL.TABLE_ACCOUNT_INSERT, insertList);
             }
             int countUpdate = 0;
             if( updateList.Count > 0)
             {
-                //countUpdate = _dataDao.executeBatch(SQLConstant.TABLE_ACCOUNT_UPDATE, updateList);
+                //countUpdate = _dataDao.executeBatch(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE, updateList);
             }
 
             return countInsert + countUpdate;
@@ -828,7 +866,7 @@ namespace ToolLib.Data
                 pList.Add(p);
             }
 
-            return _dataDao.executeBatch(SQLConstant.TABLE_ACCOUNT_UPDATE, pList);
+            return _dataDao.executeBatch(SQLConstant.AccountSQL.TABLE_ACCOUNT_UPDATE, pList);
         }
         public int add(List<Account> accounts)
         {
@@ -839,7 +877,7 @@ namespace ToolLib.Data
                 pList.Add(p);
             }
 
-            return _dataDao.executeBatch(SQLConstant.TABLE_ACCOUNT_INSERT, pList);
+            return _dataDao.executeBatch(SQLConstant.AccountSQL.TABLE_ACCOUNT_INSERT, pList);
         }
         public List<Account> listAccount(int storeId, string keyword="", bool isTempStore= false)
         {
@@ -847,13 +885,13 @@ namespace ToolLib.Data
             var p = new Dictionary<string, object> {
                 {"@store_id",storeId }
             };
-            string sql = SQLConstant.TABLE_ACCOUNT_SELECT_ALL_BY_STORE;
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_BY_STORE;
             if (isTempStore)
             {
                 p = new Dictionary<string, object> {
                     {"@temp_store_id",storeId }
                 };
-                sql = SQLConstant.TABLE_ACCOUNT_SELECT_ALL_BY_TEMP_STORE;
+                sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_BY_TEMP_STORE;
             }
             string where = "";
             if(!string.IsNullOrEmpty(keyword))
@@ -886,7 +924,7 @@ namespace ToolLib.Data
                 {"@limit",limit },
                 {"@offset", offset }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELECT_ALL_NO_DEVICE, p);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_NO_DEVICE, p);
             foreach (DataRow row in dataTable.Rows)
             {
                 var acc = Account.from(row);
@@ -901,7 +939,7 @@ namespace ToolLib.Data
             var p = new Dictionary<string, object>() {
                 {"@device_id", deviceId }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELECT_BY_DEVICE, p);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_BY_DEVICE, p);
             foreach(DataRow row in dataTable.Rows)
             {
                 var item = Account.from(row);
@@ -916,14 +954,14 @@ namespace ToolLib.Data
                 {"@uid", uid }
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_ACCOUNT_RESET_DEVICE_BY_UID, p);
+            return _dataDao.execute(SQLConstant.AccountSQL.TABLE_ACCOUNT_RESET_DEVICE_BY_UID, p);
         }
         public Account get(string id)
         {
             var p = new Dictionary<string, object> {
                 {"@id", id }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELECT_ONE, p);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ONE, p);
             foreach(DataRow row in dataTable.Rows)
             {
                 return Account.from(row);
@@ -937,7 +975,7 @@ namespace ToolLib.Data
             var p = new Dictionary<string, object> {
                 {"@uid", uid }
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_ACCOUNT_SELECT_ONE_BY_UID, p);
+            var dataTable = _dataDao.query(SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ONE_BY_UID, p);
             foreach (DataRow row in dataTable.Rows)
             {
                 b = true;

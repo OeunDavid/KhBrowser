@@ -237,6 +237,25 @@ namespace ToolKHBrowser.ToolLib.Tool
             }
             if (!iwWorking)
             {
+                try
+                {
+                    driver.FindElement(By.XPath("//input[@placeholder='Code']"));
+                    iwWorking = true;
+                }
+                catch (Exception) { }
+            }
+            if (!iwWorking)
+            {
+                try
+                {
+                     // Fallback for any standard text input on the page if we are likely on a 2FA page
+                    var inputs = driver.FindElements(By.XPath("//input[@type='text' or @type='number']"));
+                    if(inputs.Count > 0) iwWorking = true;
+                }
+                catch (Exception) { }
+            }
+            if (!iwWorking)
+            {
                 iwWorking = TwoStepVerification(driver);
             }
 
@@ -399,6 +418,25 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 try
                 {
+                    element = driver.FindElement(By.XPath("//input[@placeholder='Code']"));
+                    isVerify = true;
+                }
+                catch (Exception) { }
+            }
+            if (!isVerify)
+            {
+                try
+                {
+                    // Generic fallback
+                    element = driver.FindElement(By.XPath("//input[@type='text' or @type='number']"));
+                    isVerify = true;
+                }
+                catch (Exception) { }
+            }
+            if (!isVerify)
+            {
+                try
+                {
                     element = driver.FindElement(By.XPath("/html/body/div[1]/div[3]/div[1]/div/form/div/div[2]/div[3]/span/input"));
                     //.SendKeys(code + OpenQA.Selenium.Keys.Enter);
                     isVerify = true;
@@ -417,12 +455,21 @@ namespace ToolKHBrowser.ToolLib.Tool
                 do
                 {
                     Thread.Sleep(500);
-                    try
-                    {
-                        driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                        b = true;
-                    }
-                    catch (Exception) { }
+                        try
+                        {
+                            driver.FindElement(By.Id("checkpointSubmitButton")).Click();
+                            b = true;
+                        }
+                        catch (Exception) { }
+                        if (!b)
+                        {
+                            try
+                            {
+                                driver.FindElement(By.XPath("//span[text()='Continue']")).Click();
+                                b = true;
+                            }
+                            catch (Exception) { }
+                        }
 
                 } while (!b && counter-- > 0);
                 if (b)

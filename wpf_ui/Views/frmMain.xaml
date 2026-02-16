@@ -29,97 +29,156 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Column="0" Grid.Row="0">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock FontWeight="Bold" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center">General --------------------------------------------------------------------------------------------</TextBlock>
+                    <TextBlock FontWeight="Bold"
+                               Foreground="#FF20B2AA"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center">General --------------------------------------------------------------------------------------------</TextBlock>
                 </StackPanel>
+
+                <!-- ✅ FIXED THIS GRID (RowDefinitions were broken) -->
                 <Grid>
-                    <Grid.ColumnDefinitions >
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
+
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Grid  Grid.Column="0" Grid.Row="0">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="70"></ColumnDefinition>
-                            <ColumnDefinition Width="150"></ColumnDefinition>
+
+                    <Grid Grid.Column="0" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="150" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
                         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="5,0,0,0">
-                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Thread"/></TextBlock>
+                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Run Text="Thread" />
+                            </TextBlock>
                         </StackPanel>
-                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                            <numeric:IntBox Name="txtThread" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="1" MaxValue="1000000" Text="6" PreviewTextInput="NumberValidationTextBox"/>
+
+                        <numeric:SpinnerDecorator Grid.Column="1" Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtThread"
+                                            AllowSpinners="True"
+                                            Foreground="White"
+                                            Style="{DynamicResource MaterialDesignTextBoxBase}"
+                                            Margin="4,0"
+                                            MinValue="1"
+                                            MaxValue="1000000"
+                                            Text="6"
+                                            PreviewTextInput="NumberValidationTextBox" />
                         </numeric:SpinnerDecorator>
                     </Grid>
-                    <Grid  Grid.Column="0" Grid.Row="1">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="150"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
+
+                    <Grid Grid.Column="0" Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+
                         <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5,0,0,0" Grid.ColumnSpan="2">
-                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reset IP (Acc)"/></TextBlock>
+                            <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Run Text="Reset IP (Acc)" />
+                            </TextBlock>
                         </StackPanel>
+
                         <numeric:SpinnerDecorator Grid.Column="1" Margin="2,4">
-                            <numeric:IntBox Name="txtResetIP" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0"  MinValue="0" MaxValue="1000000" Text="0" PreviewTextInput="NumberValidationTextBox"  VerticalAlignment="Top"/>
+                            <numeric:IntBox Name="txtResetIP"
+                                            AllowSpinners="True"
+                                            Foreground="White"
+                                            Style="{DynamicResource MaterialDesignTextBoxBase}"
+                                            Margin="4,0"
+                                            MinValue="0"
+                                            MaxValue="1000000"
+                                            Text="0"
+                                            PreviewTextInput="NumberValidationTextBox"
+                                            VerticalAlignment="Top" />
                         </numeric:SpinnerDecorator>
 
-                        <Button  Grid.Column="2" x:Name="btnStart" Height="30" Width="80" Margin="0"  IsEnabled="True" Click="btnStart_Click" >
+                        <Button Grid.Column="2" x:Name="btnStart" Height="30" Width="80" Margin="0" IsEnabled="True" Click="btnStart_Click">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Play" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
-                                <TextBlock Margin="0" Text="Start" TextAlignment="Left" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Play" Width="15" Height="15" VerticalAlignment="Center" Margin="0" />
+                                <TextBlock Margin="0" Text="Start" TextAlignment="Left" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <Button  Grid.Column="3" x:Name="btnStop" Height="30" Width="80" Margin="5,0,0,0"   IsEnabled="False"  Style="{DynamicResource MaterialDesignRaisedAccentButton}" Click="btnStop_Click">
+
+                        <Button Grid.Column="3" x:Name="btnStop" Height="30" Width="80" Margin="5,0,0,0"
+                                IsEnabled="False" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Click="btnStop_Click">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Stop" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                                <materialDesign:PackIcon Kind="Stop" Width="15" Height="15" VerticalAlignment="Center" Margin="0" />
                                 <TextBlock Margin="0" Text="Stop" TextAlignment="Left" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </Grid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Margin="5,2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Use LDPlayer</TextBlock>
+                        <ToggleButton Grid.Column="1" x:Name="chbUseLDPlayer" IsChecked="False" Height="12"
+                                      Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0" />
+                    </Grid>
                 </Grid>
+
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock FontWeight="Bold" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center">Search --------------------------------------------------------------------------------------------</TextBlock>
+                    <TextBlock FontWeight="Bold"
+                               Foreground="#FF20B2AA"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center">Search --------------------------------------------------------------------------------------------</TextBlock>
                 </StackPanel>
+
                 <Grid Height="Auto">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160"/>
-                        <ColumnDefinition Width="110"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30" />
                     </Grid.RowDefinitions>
+
                     <StackPanel Margin="0" Grid.Row="0" Grid.Column="0">
-                        <ComboBox 
-                        Name="ddlStore" 
-                        SelectedValuePath="Id"
-                        DisplayMemberPath="Name" 
-                        SelectionChanged="ddlStore_SelectionChanged" 
-                        Foreground="{DynamicResource MaterialDesignBody}"
-                        IsSynchronizedWithCurrentItem="True"
-                       />
+                        <ComboBox Name="ddlStore"
+                                  SelectedValuePath="Id"
+                                  DisplayMemberPath="Name"
+                                  SelectionChanged="ddlStore_SelectionChanged"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  IsSynchronizedWithCurrentItem="True" />
                     </StackPanel>
+
                     <StackPanel Margin="2,0" Grid.Row="0" Grid.Column="1">
-                        <ComboBox 
-                        Name="ddlStatus" 
-                        SelectedValuePath="Id"
-                        DisplayMemberPath="Name" 
-                        SelectionChanged="ddlStatus_SelectionChanged" 
-                        Foreground="{DynamicResource MaterialDesignBody}"
-                        IsSynchronizedWithCurrentItem="True"
-                       />
+                        <ComboBox Name="ddlStatus"
+                                  SelectedValuePath="Id"
+                                  DisplayMemberPath="Name"
+                                  SelectionChanged="ddlStatus_SelectionChanged"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  IsSynchronizedWithCurrentItem="True" />
                     </StackPanel>
+
                     <StackPanel Margin="5,0,0,0" Grid.Row="0" Grid.Column="2">
-                        <TextBox Name="txtKeyword" Height="25" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Margin="2" BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}" KeyUp="txtKeyword_KeyUp"></TextBox>
+                        <TextBox Name="txtKeyword"
+                                 Height="25"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Visible"
+                                 Margin="2"
+                                 BorderBrush="#FFDCDCDC"
+                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                 KeyUp="txtKeyword_KeyUp" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -353,7 +412,7 @@
                             </StackPanel>
                             <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageCreateReel" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
-                        <Grid Visibility="Collapsed">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
@@ -364,9 +423,9 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
                                 <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Invite Pages"/></TextBlock>
                             </StackPanel>
-                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageInvite" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageInvite" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
-                        <Grid Visibility="Collapsed">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
@@ -377,7 +436,7 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
                                 <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Remove Pages"/></TextBlock>
                             </StackPanel>
-                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageRemoveAdmin" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPageRemoveAdmin" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
                         <Button IsEnabled="True" x:Name="btnClearAllCache" Click="btnClearAllCache_Click"  Height="30" Width="auto" Margin="0,6,0,0" Background="CadetBlue">
                             <StackPanel Orientation="Horizontal">
@@ -800,7 +859,7 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="1" Margin="0">
-                        <Grid Visibility="Collapsed">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
@@ -811,9 +870,9 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
                                 <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Watch Time"/></TextBlock>
                             </StackPanel>
-                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherWatchTime" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherWatchTime" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
-                        <Grid Visibility="Collapsed">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
@@ -824,7 +883,7 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
                                 <TextBlock Margin="2" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reel Play"/></TextBlock>
                             </StackPanel>
-                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherReelPlay" IsEnabled="False" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbOtherReelPlay" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -1140,6 +1199,7 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Header="Select" Width="50"/>
                     <DataGridTextColumn Binding="{Binding Key}" Header="No" Width="auto"  IsReadOnly="True" MaxWidth="100"/>
                     <DataGridTextColumn Binding="{Binding UID}" Header="UID"  Width="100"  IsReadOnly="True" />
                     <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="100"  IsReadOnly="True"/>

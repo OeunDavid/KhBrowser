@@ -30,7 +30,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@uid", uid}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUPSS_DELETE_BY_UID, p);
+            return _dataDao.execute(SQLConstant.GroupSSQL.TABLE_GROUPSS_DELETE_BY_UID, p);
         }
         public int delete(string uid, string group_id)
         {
@@ -39,7 +39,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@group_id", group_id},
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUPSS_DELETE, p);
+            return _dataDao.execute(SQLConstant.GroupSSQL.TABLE_GROUPSS_DELETE, p);
         }
         public bool isExist(string uid, string group_id)
         {
@@ -47,7 +47,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@uid", uid },
                 {"@group_id", group_id },
             };
-            var dataTable = _dataDao.query(SQLConstant.TABLE_GROUPSS_SELECT_SINGLE_RECORD, p);
+            var dataTable = _dataDao.query(SQLConstant.GroupSSQL.TABLE_GROUPSS_SELECT_SINGLE_RECORD, p);
             bool isExist = false;
             foreach (DataRow row in dataTable.Rows)
             {
@@ -64,7 +64,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@pending", pending},
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUPSS_UPDATE_PENDING, p);
+            return _dataDao.execute(SQLConstant.GroupSSQL.TABLE_GROUPSS_UPDATE_PENDING, p);
         }
         public int add(Groups data)
         {
@@ -79,7 +79,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@member", data.Member},
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_GROUPSS_INSERT, p);
+            return _dataDao.execute(SQLConstant.GroupSSQL.TABLE_GROUPSS_INSERT, p);
         }
         public DataTable GetRecordsByUID(string uid)
         {
@@ -87,7 +87,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@uid", uid }
             };
 
-            string sql = SQLConstant.TABLE_GROUPSS_SELECT_BY_UID;
+            string sql = SQLConstant.GroupSSQL.TABLE_GROUPSS_SELECT_BY_UID;
             DataTable table = _dataDao.query(sql, p);
 
             return table;

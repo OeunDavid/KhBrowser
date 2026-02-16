@@ -46,22 +46,29 @@ namespace WpfUI.ViewModels
                 {
                     int id = Int32.Parse(row["id"].ToString());
                     string name = row["name"].ToString();
-                    string description = row["description"].ToString();
-                    int cStatus = Int32.Parse(row["status"].ToString());
-                    int isTemp = Int32.Parse(row["is_temp"].ToString());
+                    
+                    string note = "";
+                    try { note = row["note"].ToString(); } catch { }
+                    
+                    int state = 0;
+                    try { state = Int32.Parse(row["state"].ToString()); } catch { }
+
+                    int isTemp = 0;
+                    try { isTemp = Int32.Parse(row["is_temp"].ToString()); } catch { }
+
                     if (status!=-1)
                     {
-                        if(cStatus!=status)
+                        if(state!=status)
                         {
                             continue;
                         }
                     }
 
-                    if (cStatus == 1)
+                    if (state == 1)
                     {
                         text_status = "Active";
                     }
-                    else if (cStatus == 0)
+                    else if (state == 0)
                     {
                         text_status = "Inactive";
                     }
@@ -76,11 +83,11 @@ namespace WpfUI.ViewModels
                         Key = key,
                         Id = id,
                         Name = name,
-                        Status = cStatus,
+                        State = state,
                         IsTemp = isTemp,
                         Temp = temp,
                         TextStatus = text_status,
-                        Description = description
+                        Note = note
                     };
                     key++;
                     items.Add(d);

@@ -50,6 +50,7 @@ namespace ToolLib
             Bind<IStoreDao>().To<StoreDao>();
             Bind<ICacheDao>().To<CacheDao>();
             Bind<IClientEmail>().To<ClientEmail>();
+            Bind<LDPlayerTool>().ToSelf();
         }
     }
 }

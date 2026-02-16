@@ -28,6 +28,7 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolKHBrowser.ViewModels;
 using ToolKHBrowser.Views;
+using ToolLib;
 using ToolLib.Data;
 using ToolLib.Tool;
 using WpfUI.ToolLib.Data;
@@ -42,7 +43,7 @@ using Application = System.Windows.Application;
 namespace WpfUI.Views
 {
 
-    public partial class frmMain : UserControl, IComponentConnector
+    public partial class frmMain : UserControl
     {
         public ObservableCollection<FbAccount> fbAccounts;
 
@@ -53,6 +54,7 @@ namespace WpfUI.Views
         public IStoreViewModel storeViewModel;
 
         public ICacheViewModel cacheViewModel;
+        public LDPlayerTool ldPlayerTool;
 
         public bool isFirstLoading;
 
@@ -123,6 +125,8 @@ namespace WpfUI.Views
             isFirstLoading = true;
             tempStoreId = 0;
             fbAccountViewModel = DIConfig.Get<IFbAccountViewModel>();
+            ldPlayerTool = DIConfig.Get<LDPlayerTool>();
+            ldPlayerTool.SetStopFunc(() => isStop);
             cacheViewModel = DIConfig.Get<ICacheViewModel>();
             storeViewModel = DIConfig.Get<IStoreViewModel>();
             random = new Random();
@@ -217,7 +221,34 @@ namespace WpfUI.Views
 
         public string GetDataMode()
         {
-            return cacheViewModel.GetCacheDao().Get("config:dataMode").Value.ToString();
+            try
+            {
+                var cache = cacheViewModel.GetCacheDao().Get("config:dataMode");
+                if (cache != null && cache.Value != null)
+                {
+                    return cache.Value.ToString();
+                }
+            }
+            catch (Exception) { }
+            return "";
+        }
+
+        private T GetCacheConfig<T>(string key) where T : class, new()
+        {
+            try
+            {
+                var cache = cacheViewModel.GetCacheDao().Get(key);
+                if (cache != null && cache.Value != null)
+                {
+                    string json = cache.Value.ToString();
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        return JsonConvert.DeserializeObject<T>(json) ?? new T();
+                    }
+                }
+            }
+            catch (Exception) { }
+            return new T();
         }
 
         public void loadDataToGrid()
@@ -1440,9 +1471,25 @@ namespace WpfUI.Views
 
         private void CheckLive(object obj)
         {
+            FbAccount fbAccount = (FbAccount)obj;
+            if (chbUseLDPlayer.IsChecked.Value)
+            {
+                ldPlayerTool.Connect();
+                ldPlayerTool.OpenApp("com.facebook.katana");
+                if (ldPlayerTool.WaitText("Log in", 10))
+                {
+                    fbAccount.Status = "LDPlayer: Account Logout/Die";
+                }
+                else
+                {
+                    fbAccount.Status = "LDPlayer: Account Live";
+                }
+                SetGridDataRowStatus(fbAccount);
+                return;
+            }
+
             bool useImage = IsUseImage();
             bool isLoginByCookie = IsLoginByCookie();
-            FbAccount fbAccount = (FbAccount)obj;
             string browserKey = ConfigData.GetBrowserKey(fbAccount.UID);
             IWebDriver webDriver = new MyWebDriver().GetWebDriver(browserKey, 1, GetScreen(), fbAccount.UserAgent, fbAccount.Proxy, useImage);
             int num = WebFBTool.Login(webDriver, fbAccount, isLoginByCookie, isCloseAllPopup: false);
@@ -1669,7 +1716,28 @@ namespace WpfUI.Views
             Dictionary<int, FbAccount> dictionary = new Dictionary<int, FbAccount>();
             int num2 = 1;
             int num3 = 0;
-            foreach (FbAccount selectedItem in dgAccounts.SelectedItems)
+
+            List<FbAccount> selectedAccounts = new List<FbAccount>();
+            if (fbAccounts != null)
+            {
+                foreach (var acc in fbAccounts)
+                {
+                    if (acc.IsSelected)
+                    {
+                        selectedAccounts.Add(acc);
+                    }
+                }
+            }
+
+            if (selectedAccounts.Count == 0)
+            {
+                foreach (FbAccount item in dgAccounts.SelectedItems)
+                {
+                    selectedAccounts.Add(item);
+                }
+            }
+
+            foreach (FbAccount selectedItem in selectedAccounts)
             {
                 bool flag = true;
                 num--;
@@ -1730,37 +1798,35 @@ namespace WpfUI.Views
         {
             if (true || processActionsData.IsShareProfilePage || processActionsData.IsShareToGroup || processActionsData.IsShareWebsite || processActionsData.IsShareToTimeline)
             {
-                try
-                {
-                    string text2 = cacheViewModel.GetCacheDao().Get("share:config").Value.ToString();
-                    Sharer share = JsonConvert.DeserializeObject<Sharer>(text2);
-                    processActionsData.Share = share;
-                }
-                catch (Exception) { }
-                try
-                {
-                    shareUrlArr = processActionsData.Share.Urls.Split('\n');
-                }
-                catch (Exception) { }
-                try
-                {
-                    shareCaptionArr = processActionsData.Share.Captions.Split('\n');
-                }
-                catch (Exception) { }
-                try
-                {
-                    shareCommentArr = processActionsData.Share.Comments.Split('\n');
-                }
-                catch (Exception) { }
-                try
-                {
-                    groupWithoutJoinArr = processActionsData.Share.ProfilePage.GroupIDs.Split('\n');
-                }
-                catch (Exception) { }
+                processActionsData.Share = GetCacheConfig<Sharer>("share:config");
 
-                shareUrlArr = processActionsData.Share.Urls.Split('\n');
-                shareCaptionArr = processActionsData.Share.Captions.Split('\n');
-                shareCommentArr = processActionsData.Share.Comments.Split('\n');
+                if (processActionsData.Share != null)
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(processActionsData.Share.Urls))
+                            shareUrlArr = processActionsData.Share.Urls.Split('\n');
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(processActionsData.Share.Captions))
+                            shareCaptionArr = processActionsData.Share.Captions.Split('\n');
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(processActionsData.Share.Comments))
+                            shareCommentArr = processActionsData.Share.Comments.Split('\n');
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        if (processActionsData.Share.ProfilePage != null && !string.IsNullOrEmpty(processActionsData.Share.ProfilePage.GroupIDs))
+                            groupWithoutJoinArr = processActionsData.Share.ProfilePage.GroupIDs.Split('\n');
+                    }
+                    catch (Exception) { }
+                }
             }
         }
         public string GetGroupWithoutJoin()
@@ -1962,6 +2028,7 @@ namespace WpfUI.Views
             processActions.TurnOnTwoFA = chbProfileTurnOn2FA.IsChecked.Value;
             processActions.NewPassword = chbProfileNewPassword.IsChecked.Value;
             processActions.GetInfo = chbGetInfo.IsChecked.Value;
+            processActions.CreationDate = chbCreationDate.IsChecked.Value;
             processActions.AddFriends = chbFriendsAdd.IsChecked.Value;
             processActions.AcceptFriends = chbFriendsAccept.IsChecked.Value;
             processActions.AddFriendsByUID = chbFriendsByUID.IsChecked.Value;
@@ -1969,7 +2036,17 @@ namespace WpfUI.Views
 
             processActions.RecoveryPhoneNumber = chbRecoveryPhone.IsChecked.Value;
 
-            processActions.WorkingOnPage = chbWorkingOnPage.IsChecked.Value;
+            processActions.OtherConfig = new OtherConfig();
+            processActions.OtherConfig.ChangeLanguage = chbOtherChangeLanguage.IsChecked.Value;
+            processActions.OtherConfig.WatchTime = chbOtherWatchTime.IsChecked.Value;
+            processActions.OtherConfig.ReelPlay = chbOtherReelPlay.IsChecked.Value;
+            processActions.EnglishUS = processActions.OtherConfig.ChangeLanguage;
+
+            processActions.IsCheckReelInvite = chbCheckReelInvite.IsChecked.Value;
+            processActions.NoSwitchPage = chbNoSwitchPage.IsChecked.Value;
+            processActions.IsShareByGraph = chbShareByGraph.IsChecked.Value;
+            processActions.IsPageInvite = chbPageInvite.IsChecked.Value;
+            processActions.IsPageRemoveAdmin = chbPageRemoveAdmin.IsChecked.Value;
 
 
             return processActions;
@@ -1994,37 +2071,26 @@ namespace WpfUI.Views
             }
             if (processActionsData.ContactPrimary || processActionsData.ContactRemovePhone || processActionsData.ContactRemoveInstragram)
             {
-                try
-                {
-                    yandexVerifyArr = new Dictionary<int, YandexVerify>();
-                    string text = cacheViewModel.GetCacheDao().Get("contact:config").Value.ToString();
-                    ContactConfig contactConfig = JsonConvert.DeserializeObject<ContactConfig>(text);
-                    processActionsData.ContactConfig = contactConfig;
-                    if (string.IsNullOrEmpty(text))
-                    {
+                yandexVerifyArr = new Dictionary<int, YandexVerify>();
+                processActionsData.ContactConfig = GetCacheConfig<ContactConfig>("contact:config");
 
-                    }
-                    if (processActionsData.ContactPrimary && processActionsData.ContactConfig.Yandex)
+                if (processActionsData.ContactPrimary && processActionsData.ContactConfig.Yandex)
+                {
+                    YandexLogin(processActionsData.ContactConfig.YandexConfig.Mail, processActionsData.ContactConfig.YandexConfig.Password);
+                    for (int i = 0; i < processActionsData.Thread; i++)
                     {
-                        YandexLogin(processActionsData.ContactConfig.YandexConfig.Mail, processActionsData.ContactConfig.YandexConfig.Password);
-                        for (int i = 0; i < processActionsData.Thread; i++)
+                        yandexVerifyArr.Add(i, new YandexVerify()
                         {
-                            yandexVerifyArr.Add(i, new YandexVerify()
-                            {
-                                Code = "",
-                                Status = false,
-                                MailPrimary = ""
-                            });
-                        }
-
-                        // auto get code from mail.yandex
-
-                        Thread thread1 = new Thread(GetYandexCodeFromDriver);
-                        thread1.Start();
+                            Code = "",
+                            Status = false,
+                            MailPrimary = ""
+                        });
                     }
-                }
-                catch (Exception)
-                {
+
+                    // auto get code from mail.yandex
+
+                    Thread thread1 = new Thread(GetYandexCodeFromDriver);
+                    thread1.Start();
                 }
             }
             for (int i = 0; i < processActionsData.Thread; i++)
@@ -2046,14 +2112,265 @@ namespace WpfUI.Views
             thread.Start();
         }
 
+        //public void StartRunAccount()
+        //{
+        //    FbAccount account = GetAccount();
+        //    if (account == null || string.IsNullOrEmpty(account.UID))
+        //        return;
+
+        //    // ✅ Read UI values on UI thread (very important)
+        //    bool useLDPlayer = false;
+        //    bool isNoSwitchPage_UI = false;
+        //    bool isCheckReelInvite_UI = false;
+
+        //    Application.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        useLDPlayer = chbUseLDPlayer.IsChecked == true;
+
+        //        // If you need these later you can also cache them here
+        //        isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+        //        isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
+        //    });
+
+        //    runningRequest++;
+        //    int num = runningRequest;
+        //    int screen = GetScreen();
+
+        //    try
+        //    {
+        //        num %= screen;
+        //        if (num == 0) num = screen;
+        //    }
+        //    catch { }
+
+        //    string text = "";
+        //    if (processActionsData.UserData)
+        //        text = ConfigData.GetBrowserKey(account.UID);
+
+        //    // ✅ Now safe: use bool, not UI control
+        //    if (useLDPlayer)
+        //    {
+        //        StartRunAccountLDPlayer(account);
+        //        return;
+        //    }
+
+        //    IWebDriver webDriver = new MyWebDriver()
+        //        .GetWebDriver(text, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+        //    int num2 = 0;
+        //    string text2 = "";
+
+        //    if (processActionsData.RecoveryPhoneNumber)
+        //    {
+        //        RecoveryPhoneNumber(webDriver, account);
+        //        text2 = FBTool.GetResults(webDriver);
+        //    }
+        //    else
+        //    {
+        //        bool isLoginByCookie = IsLoginByCookie();
+        //        text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+        //    }
+
+        //    if (text2 == "success")
+        //    {
+        //        num2 = 1;
+        //        account.Status = "Live";
+        //    }
+        //    else
+        //    {
+        //        account.Status = "Die";
+        //    }
+
+        //    // ✅ If SetGridDataRowStatus touches UI, do it on UI thread
+        //    Application.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        SetGridDataRowStatus(account);
+        //    });
+
+        //    fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
+        //    account.Description = text2;
+
+        //    bool flag = false;
+        //    if (text2.Contains("Lock 956") && processActionsData.AutoUnlockCheckpoint)
+        //    {
+        //        string text5 = "";
+        //        if (processActionsData.NewPassword)
+        //        {
+        //            try
+        //            {
+        //                string text6 = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
+        //                ProfileConfig profileConfig = JsonConvert.DeserializeObject<ProfileConfig>(text6);
+        //                processActionsData.ProfileConfig = profileConfig;
+        //                text5 = processActionsData.ProfileConfig.Password.Value;
+        //            }
+        //            catch { }
+        //        }
+
+        //        if (string.IsNullOrEmpty(text5))
+        //            text5 = "ph" + GetRandomString(8);
+
+        //        switch (WebFBTool.UnlockCheckpoint(webDriver, text5))
+        //        {
+        //            case 1:
+        //                account.Password = text5;
+        //                fbAccountViewModel.getAccountDao().Password(account.UID, text5);
+        //                flag = true;
+        //                if (processActionsData.NewPassword) processActionsData.NewPassword = false;
+        //                break;
+
+        //            case 2:
+        //                flag = true;
+        //                break;
+        //        }
+        //    }
+
+        //    if (num2 == 1 || flag)
+        //    {
+        //        if (flag)
+        //        {
+        //            account.Description = "Unlock checkpoint";
+        //            fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
+        //            num2 = 1;
+        //            account.Status = "Live";
+
+        //            Application.Current.Dispatcher.Invoke(() =>
+        //            {
+        //                SetGridDataRowStatus(account);
+        //            });
+        //        }
+
+        //        if (IsStop())
+        //        {
+        //            StopWorking(webDriver, account.UID);
+        //            return;
+        //        }
+
+        //        if (!DetectStopProcess(webDriver, account))
+        //        {
+        //            // ✅ Use cached UI values (no UI access here)
+        //            bool isNoSwitchPage = isNoSwitchPage_UI;
+        //            bool isCheckReelInvite = isCheckReelInvite_UI;
+
+        //            if (!processActionsData.WorkingOnPage)
+        //            {
+        //                if (!isNoSwitchPage)
+        //                    RemovePageCookie(webDriver);
+        //            }
+        //            else
+        //            {
+        //                RemovePageCookie(webDriver);
+        //            }
+
+        //            string dataMode = GetDataMode();
+        //            FBTool.UseData(webDriver, dataMode);
+
+        //            if (!DetectStopProcess(webDriver, account))
+        //            {
+        //                string userId = FBTool.GetUserId(webDriver);
+        //                string cookie = FBTool.GetCookie(webDriver);
+        //                fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+
+        //                if (text.Contains('@'))
+        //                {
+        //                    fbAccountViewModel.getAccountDao().updateEmail(account.UID, account.UID);
+        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
+        //                    account.UID = userId;
+        //                }
+        //                else if (text.Contains("+") || text.StartsWith("0"))
+        //                {
+        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
+        //                    account.UID = userId;
+        //                }
+
+        //                if (IsStop())
+        //                {
+        //                    StopWorking(webDriver, account.UID);
+        //                    return;
+        //                }
+
+        //                WebFBTool.CloseAllPopup(webDriver);
+
+        //                if (!DetectStopProcess(webDriver, account))
+        //                {
+        //                    ChangeLanguage(webDriver);
+
+        //                    if (!DetectStopProcess(webDriver, account))
+        //                    {
+        //                        if (IsStop())
+        //                        {
+        //                            StopWorking(webDriver, account.UID);
+        //                            return;
+        //                        }
+
+        //                        if (processActionsData.WorkingOnPage)
+        //                        {
+        //                            string[] pageArr = account.PageIds.Split(',');
+        //                            bool isBreak = false;
+
+        //                            for (int i = 0; i < pageArr.Length; i++)
+        //                            {
+        //                                if (IsStop() || isBreak) break;
+
+        //                                try
+        //                                {
+        //                                    string[] p = pageArr[i].Split('|');
+        //                                    string pageId = p[0].Trim();
+        //                                    var isSwitch = WebFBTool.SwitchToProfilePage(webDriver, pageId);
+        //                                    if (!isSwitch) continue;
+        //                                }
+        //                                catch { }
+
+        //                                isNoSwitchPage = true;
+        //                                WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    FBTool.QuitBrowser(webDriver, text, account.UID);
+
+        //    running--;
+        //    if (IsStop()) return;
+
+        //    int resetIP = processActionsData.ResetIP;
+        //    if (resetIP > 0 && runningRequest % resetIP == 0)
+        //    {
+        //        if (running <= 0)
+        //        {
+        //            Internet.ResetIP();
+        //            new Thread(StartProcess).Start();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        new Thread(RunOneMoreThread).Start();
+        //    }
+        //}
+
         public void StartRunAccount()
         {
             FbAccount account = GetAccount();
             if (account == null || string.IsNullOrEmpty(account.UID))
-            {
-                //Stop(true);
                 return;
-            }
+
+            bool useLDPlayer = false;
+            bool isNoSwitchPage_UI = false;
+            bool isCheckReelInvite_UI = false;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                useLDPlayer = chbUseLDPlayer.IsChecked == true;
+                isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+                isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
+            });
+
             runningRequest++;
             int num = runningRequest;
             int screen = GetScreen();
@@ -2061,38 +2378,59 @@ namespace WpfUI.Views
             try
             {
                 num %= screen;
-                if (num == 0)
-                {
-                    num = screen;
-                }
+                if (num == 0) num = screen;
             }
-            catch (Exception)
-            {
-            }
-            string text = "";
+            catch { }
+
+            string browserKey = "";
             if (processActionsData.UserData)
+                browserKey = ConfigData.GetBrowserKey(account.UID);
+
+            if (useLDPlayer)
             {
-                text = ConfigData.GetBrowserKey(account.UID);
+                StartRunAccountLDPlayer(account);
+                return;
             }
-            IWebDriver webDriver = new MyWebDriver().GetWebDriver(text, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+            IWebDriver webDriver = new MyWebDriver()
+                .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
 
             int num2 = 0;
             string text2 = "";
-            if (processActionsData.RecoveryPhoneNumber)
-            {
-                RecoveryPhoneNumber(webDriver, account);
 
-                text2 = FBTool.GetResults(webDriver);
-            }
-            else
-            {
-                bool isLoginByCookie = IsLoginByCookie();
-                text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
-            }
+            bool isLoginByCookie = IsLoginByCookie();
+            text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
 
-            string text3 = text2;
-            string text4 = text3;
-            if (text4 == "success")
+            // ============================
+            // ✅ HANDLE 2FA CORRECTLY
+            // ============================
+            if (text2 == "Need 2FA")
+            {
+                account.Status = "Need 2FA";
+                account.Description = "Waiting for 2FA code...";
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    SetGridDataRowStatus(account);
+                });
+
+                bool success = FBTool.WaitForLoginSuccess(webDriver, 180);
+
+                if (success)
+                {
+                    text2 = "success";
+                    num2 = 1;
+                    account.Status = "Live";
+                    account.Description = "Login success after 2FA";
+                }
+                else
+                {
+                    text2 = "2FA Timeout";
+                    account.Status = "Die";
+                    account.Description = "2FA not completed";
+                }
+            }
+            else if (text2 == "success")
             {
                 num2 = 1;
                 account.Status = "Live";
@@ -2101,176 +2439,1196 @@ namespace WpfUI.Views
             {
                 account.Status = "Die";
             }
-            //string userId23 = FBTool.GetCookie(webDriver);
-            //MessageBox.Show(userId23);
-            SetGridDataRowStatus(account);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                SetGridDataRowStatus(account);
+            });
+
             fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
             account.Description = text2;
-            bool flag = false;
-            if (text2.Contains("Lock 956") && processActionsData.AutoUnlockCheckpoint)
+
+            // ============================
+            // STOP HERE IF LOGIN FAILED
+            // ============================
+            if (num2 != 1)
             {
-                string text5 = "";
-                if (processActionsData.NewPassword)
-                {
-                    try
-                    {
-                        string text6 = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
-                        ProfileConfig profileConfig = JsonConvert.DeserializeObject<ProfileConfig>(text6);
-                        processActionsData.ProfileConfig = profileConfig;
-                        text5 = processActionsData.ProfileConfig.Password.Value;
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-                if (string.IsNullOrEmpty(text5))
-                {
-                    text5 = "ph" + GetRandomString(8);
-                }
-                switch (WebFBTool.UnlockCheckpoint(webDriver, text5))
-                {
-                    case 1:
-                        account.Password = text5;
-                        fbAccountViewModel.getAccountDao().Password(account.UID, text5);
-                        flag = true;
-                        if (processActionsData.NewPassword)
-                        {
-                            processActionsData.NewPassword = false;
-                        }
-                        break;
-                    case 2:
-                        flag = true;
-                        break;
-                }
-            }
-            if (num2 == 1 || flag)
-            {
-                if (flag)
-                {
-                    account.Description = "Unlock checkpoint";
-                    fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
-                    num2 = 1;
-                    account.Status = "Live";
-                    SetGridDataRowStatus(account);
-                }
-                if (IsStop())
-                {
-                    StopWorking(webDriver, account.UID);
-                    return;
-                }
-                if (!DetectStopProcess(webDriver, account))
-                {
-                    bool isNoSwitchPage = false, isCheckReelInvite = false;
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        try
-                        {
-                            isNoSwitchPage = chbNoSwitchPage.IsChecked.Value;
-                            isCheckReelInvite = chbCheckReelInvite.IsChecked.Value;
-                        }
-                        catch (Exception) { }
-                    });
-                    if (!processActionsData.WorkingOnPage)
-                    {
-                        if (!isNoSwitchPage)
-                        {
-                            RemovePageCookie(webDriver);
-                        }
-                    } else
-                    {
-                        RemovePageCookie(webDriver);
-                    }
-
-                    string dataMode = GetDataMode();
-                    FBTool.UseData(webDriver, dataMode);
-                    if (!DetectStopProcess(webDriver, account))
-                    {
-                        string userId = FBTool.GetUserId(webDriver);
-                        string cookie = FBTool.GetCookie(webDriver);
-                        fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
-                        if (text.Contains('@'))
-                        {
-                            fbAccountViewModel.getAccountDao().updateEmail(account.UID, account.UID);
-                            fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
-                            account.UID = userId;
-                        }
-                        else if (text.Contains("+") || text.StartsWith("0"))
-                        {
-                            fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
-                            account.UID = userId;
-                        }
-                        if (IsStop())
-                        {
-                            StopWorking(webDriver, account.UID);
-                            return;
-                        }
-                        WebFBTool.CloseAllPopup(webDriver);
-                        if (!DetectStopProcess(webDriver, account))
-                        {
-                            ChangeLanguage(webDriver);
-                            if (!DetectStopProcess(webDriver, account))
-                            {
-                                if (IsStop())
-                                {
-                                    StopWorking(webDriver, account.UID);
-                                    return;
-                                }
-                                if(processActionsData.WorkingOnPage)
-                                {
-                                    string[] pageArr = account.PageIds.Split(',');
-                                    bool isBreak = false;
-                                    for (int i = 0; i < pageArr.Length; i++)
-                                    {
-                                        if (IsStop() || isBreak)
-                                        {
-                                            break;
-                                        }
-                                        try
-                                        {
-                                            string[] p = pageArr[i].Split('|');
-
-                                            string pageId = p[0].Trim();
-                                            var isSwitch = WebFBTool.SwitchToProfilePage(webDriver, pageId);
-
-                                            if (!isSwitch) { continue; }
-                                        }
-                                        catch (Exception) { }
-
-                                        isNoSwitchPage = true;
-                                        WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-                                    }
-                                }
-                                else
-                                {
-                                    WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            FBTool.QuitBrowser(webDriver, text, account.UID);
-            running--;
-            if (IsStop())
-            {
+                FBTool.QuitBrowser(webDriver, browserKey, account.UID);
+                running--;
                 return;
             }
-            int resetIP = processActionsData.ResetIP;
-            if (resetIP > 0 && runningRequest % resetIP == 0)
+
+            // ============================
+            // CONTINUE WORKING PROCESS
+            // ============================
+
+            if (IsStop())
             {
-                if (running <= 0)
-                {
-                    Internet.ResetIP();
-                    Thread thread = new Thread(StartProcess);
-                    thread.Start();
-                }
+                StopWorking(webDriver, account.UID);
+                return;
             }
-            else
+
+            string dataMode = GetDataMode();
+            FBTool.UseData(webDriver, dataMode);
+
+            string userId = FBTool.GetUserId(webDriver);
+            string cookie = FBTool.GetCookie(webDriver);
+
+            fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+
+            WebFBTool.CloseAllPopup(webDriver);
+            ChangeLanguage(webDriver);
+
+            bool isNoSwitchPage = isNoSwitchPage_UI;
+            bool isCheckReelInvite = isCheckReelInvite_UI;
+
+            WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+
+            FBTool.QuitBrowser(webDriver, browserKey, account.UID);
+
+            running--;
+        }
+
+
+
+        //public void StartRunAccount()
+        //{
+        //    FbAccount account = GetAccount();
+        //    if (account == null || string.IsNullOrEmpty(account.UID))
+        //    {
+        //        //Stop(true);
+        //        return;
+        //    }
+        //    runningRequest++;
+        //    int num = runningRequest;
+        //    int screen = GetScreen();
+
+        //    try
+        //    {
+        //        num %= screen;
+        //        if (num == 0)
+        //        {
+        //            num = screen;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //    }
+        //    string text = "";
+        //    if (processActionsData.UserData)
+        //    {
+        //        text = ConfigData.GetBrowserKey(account.UID);
+        //    }
+        //    if (chbUseLDPlayer.IsChecked.Value)
+        //    {
+        //        StartRunAccountLDPlayer(account);
+        //        return;
+        //    }
+
+        //    IWebDriver webDriver = new MyWebDriver().GetWebDriver(text, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+        //    int num2 = 0;
+        //    string text2 = "";
+        //    if (processActionsData.RecoveryPhoneNumber)
+        //    {
+        //        RecoveryPhoneNumber(webDriver, account);
+
+        //        text2 = FBTool.GetResults(webDriver);
+        //    }
+        //    else
+        //    {
+        //        bool isLoginByCookie = IsLoginByCookie();
+        //        text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+        //    }
+
+        //    string text3 = text2;
+        //    string text4 = text3;
+        //    if (text4 == "success")
+        //    {
+        //        num2 = 1;
+        //        account.Status = "Live";
+        //    }
+        //    else
+        //    {
+        //        account.Status = "Die";
+        //    }
+        //    //string userId23 = FBTool.GetCookie(webDriver);
+        //    //MessageBox.Show(userId23);
+        //    SetGridDataRowStatus(account);
+        //    fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
+        //    account.Description = text2;
+        //    bool flag = false;
+        //    if (text2.Contains("Lock 956") && processActionsData.AutoUnlockCheckpoint)
+        //    {
+        //        string text5 = "";
+        //        if (processActionsData.NewPassword)
+        //        {
+        //            try
+        //            {
+        //                string text6 = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
+        //                ProfileConfig profileConfig = JsonConvert.DeserializeObject<ProfileConfig>(text6);
+        //                processActionsData.ProfileConfig = profileConfig;
+        //                text5 = processActionsData.ProfileConfig.Password.Value;
+        //            }
+        //            catch (Exception)
+        //            {
+        //            }
+        //        }
+        //        if (string.IsNullOrEmpty(text5))
+        //        {
+        //            text5 = "ph" + GetRandomString(8);
+        //        }
+        //        switch (WebFBTool.UnlockCheckpoint(webDriver, text5))
+        //        {
+        //            case 1:
+        //                account.Password = text5;
+        //                fbAccountViewModel.getAccountDao().Password(account.UID, text5);
+        //                flag = true;
+        //                if (processActionsData.NewPassword)
+        //                {
+        //                    processActionsData.NewPassword = false;
+        //                }
+        //                break;
+        //            case 2:
+        //                flag = true;
+        //                break;
+        //        }
+        //    }
+        //    if (num2 == 1 || flag)
+        //    {
+        //        if (flag)
+        //        {
+        //            account.Description = "Unlock checkpoint";
+        //            fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
+        //            num2 = 1;
+        //            account.Status = "Live";
+        //            SetGridDataRowStatus(account);
+        //        }
+        //        if (IsStop())
+        //        {
+        //            StopWorking(webDriver, account.UID);
+        //            return;
+        //        }
+        //        if (!DetectStopProcess(webDriver, account))
+        //        {
+        //            bool isNoSwitchPage = false, isCheckReelInvite = false;
+        //            Application.Current.Dispatcher.Invoke(delegate
+        //            {
+        //                try
+        //                {
+        //                    isNoSwitchPage = chbNoSwitchPage.IsChecked.Value;
+        //                    isCheckReelInvite = chbCheckReelInvite.IsChecked.Value;
+        //                }
+        //                catch (Exception) { }
+        //            });
+        //            if (!processActionsData.WorkingOnPage)
+        //            {
+        //                if (!isNoSwitchPage)
+        //                {
+        //                    RemovePageCookie(webDriver);
+        //                }
+        //            } else
+        //            {
+        //                RemovePageCookie(webDriver);
+        //            }
+
+        //            string dataMode = GetDataMode();
+        //            FBTool.UseData(webDriver, dataMode);
+        //            if (!DetectStopProcess(webDriver, account))
+        //            {
+        //                string userId = FBTool.GetUserId(webDriver);
+        //                string cookie = FBTool.GetCookie(webDriver);
+        //                fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+        //                if (text.Contains('@'))
+        //                {
+        //                    fbAccountViewModel.getAccountDao().updateEmail(account.UID, account.UID);
+        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
+        //                    account.UID = userId;
+        //                }
+        //                else if (text.Contains("+") || text.StartsWith("0"))
+        //                {
+        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
+        //                    account.UID = userId;
+        //                }
+        //                if (IsStop())
+        //                {
+        //                    StopWorking(webDriver, account.UID);
+        //                    return;
+        //                }
+        //                WebFBTool.CloseAllPopup(webDriver);
+        //                if (!DetectStopProcess(webDriver, account))
+        //                {
+        //                    ChangeLanguage(webDriver);
+        //                    if (!DetectStopProcess(webDriver, account))
+        //                    {
+        //                        if (IsStop())
+        //                        {
+        //                            StopWorking(webDriver, account.UID);
+        //                            return;
+        //                        }
+        //                        if(processActionsData.WorkingOnPage)
+        //                        {
+        //                            string[] pageArr = account.PageIds.Split(',');
+        //                            bool isBreak = false;
+        //                            for (int i = 0; i < pageArr.Length; i++)
+        //                            {
+        //                                if (IsStop() || isBreak)
+        //                                {
+        //                                    break;
+        //                                }
+        //                                try
+        //                                {
+        //                                    string[] p = pageArr[i].Split('|');
+
+        //                                    string pageId = p[0].Trim();
+        //                                    var isSwitch = WebFBTool.SwitchToProfilePage(webDriver, pageId);
+
+        //                                    if (!isSwitch) { continue; }
+        //                                }
+        //                                catch (Exception) { }
+
+        //                                isNoSwitchPage = true;
+        //                                WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    FBTool.QuitBrowser(webDriver, text, account.UID);
+        //    running--;
+        //    if (IsStop())
+        //    {
+        //        return;
+        //    }
+        //    int resetIP = processActionsData.ResetIP;
+        //    if (resetIP > 0 && runningRequest % resetIP == 0)
+        //    {
+        //        if (running <= 0)
+        //        {
+        //            Internet.ResetIP();
+        //            Thread thread = new Thread(StartProcess);
+        //            thread.Start();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Thread thread2 = new Thread(RunOneMoreThread);
+        //        thread2.Start();
+        //    }
+        //}
+
+        public void StartRunAccountLDPlayer(FbAccount account)
+        {
+            try
             {
-                Thread thread2 = new Thread(RunOneMoreThread);
-                thread2.Start();
+                if (IsStop()) return;
+
+                ldPlayerTool.Connect();
+
+                if (!string.IsNullOrEmpty(account.Proxy))
+                {
+                    account.Status = "LDPlayer: Setting Proxy...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.SetProxy(account.Proxy);
+                }
+                else
+                {
+                    ldPlayerTool.ClearProxy();
+                }
+
+                ldPlayerTool.OpenApp("com.facebook.katana");
+                account.Status = "LDPlayer Started";
+                SetGridDataRowStatus(account);
+
+                if (processActionsData.EnglishUS)
+                {
+                    account.Status = "LDPlayer: Checking Language...";
+                    SetGridDataRowStatus(account);
+
+                    if (!ldPlayerTool.IsEnglish())
+                    {
+                        account.Status = "LDPlayer: Normalizing Language to English...";
+                        SetGridDataRowStatus(account);
+                        ldPlayerTool.ChangeLanguage();
+                    }
+                }
+
+                if (!ldPlayerTool.WaitText("What's on your mind?", 20))
+                {
+                    if (!ldPlayerTool.IsLoggedIn())
+                    {
+                        account.Status = "LDPlayer Error: Not Logged In";
+                        SetGridDataRowStatus(account);
+                    }
+
+                    if (!ldPlayerTool.WaitText("What's on your mind?", 20))
+                    {
+                        account.Status = "LDPlayer: What's on your mind not found";
+                        SetGridDataRowStatus(account);
+                        return;
+                    }
+                }
+
+                // 0. Checkpoint / Lock / Contact
+                if (processActionsData.AutoUnlockCheckpoint)
+                {
+                    account.Status = "LDPlayer: Unlocking Checkpoint...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.UnlockCheckpoint();
+                }
+
+                if (processActionsData.LockTime)
+                {
+                    account.Status = "LDPlayer: Locking Profile...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.LockProfile();
+                }
+
+                if (processActionsData.ContactPrimary || processActionsData.ContactRemovePhone || processActionsData.ContactRemoveInstragram)
+                {
+                    account.Status = "LDPlayer: Managing Contact Info...";
+                    SetGridDataRowStatus(account);
+
+                    // You pass only phone/instagram to your helper currently
+                    ldPlayerTool.RemoveContactInfo(processActionsData.ContactRemovePhone, processActionsData.ContactRemoveInstragram);
+                }
+
+                // GetInfo
+                if (processActionsData.GetInfo)
+                {
+                    account.Status = "LDPlayer: Getting Info...";
+                    SetGridDataRowStatus(account);
+
+                    ldPlayerTool.GetInfo(account);
+
+                    if (processActionsData.CreationDate)
+                    {
+                        var cDate = ldPlayerTool.GetCreationDate();
+                        account.Description += $", Created: {cDate}";
+                    }
+
+                    if (processActionsData.Token)
+                    {
+                        string token = ldPlayerTool.GetAccessToken();
+                        account.Token = token;
+
+                        // NOTE: if your IAccountDao doesn't contain updateToken -> you must add it or rename it
+                        fbAccountViewModel.getAccountDao().updateToken(account.UID, account.Token);
+                    }
+                }
+
+                // Working on Page (Switch page)
+                if (processActionsData.WorkingOnPage && !processActionsData.NoSwitchPage)
+                {
+                    account.Status = "LDPlayer: Switching to Page...";
+                    SetGridDataRowStatus(account);
+
+                    // Your PageConfig uses PageUrls (not Follow.Value)
+                    var pageVal = processActionsData.PageConfig?.PageUrls;
+                    if (string.IsNullOrWhiteSpace(pageVal))
+                        pageVal = "My Page";
+
+                    ldPlayerTool.SwitchToPage(pageVal);
+                }
+
+                // OtherConfig actions
+                if (processActionsData.OtherConfig?.ChangeLanguage ?? false)
+                {
+                    account.Status = "LDPlayer: Changing Language...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.ChangeLanguage();
+                }
+
+                if (processActionsData.OtherConfig?.WatchTime ?? false)
+                {
+                    account.Status = "LDPlayer: Watching Videos...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.WatchTime(5);
+                }
+
+                if (processActionsData.OtherConfig?.ReelPlay ?? false)
+                {
+                    account.Status = "LDPlayer: Playing Reels...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.ReelPlay(5);
+                }
+
+                // Backup groups
+                if (processActionsData.GroupConfig?.Backup?.IsBrowser ?? false)
+                {
+                    account.Status = "LDPlayer: Backup Groups...";
+                    SetGridDataRowStatus(account);
+
+                    string gids = ldPlayerTool.GetGroupIDs();
+                    account.GroupIDs = gids;
+
+                    fbAccountViewModel.getAccountDao().UpdateGroup(account.UID, account.TotalGroup, account.GroupIDs, account.OldGroupIds);
+                }
+
+                // 1. NewsFeed
+                if (processActionsData.PlayNewsFeed || processActionsData.PostTimeline)
+                {
+                    account.Status = "LDPlayer: NewsFeed...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.InteractWithNewsFeed(3, processActionsData.PlayNewsFeed);
+                }
+
+                if (processActionsData.TurnOnPM)
+                {
+                    account.Status = "LDPlayer: Turning on Professional Mode...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.TurnOnPM();
+                }
+
+                // Delete Data (Clear Cache) - your toggle is ProcessActions.ProfileDeleteData
+                if (processActionsData.ProfileDeleteData)
+                {
+                    account.Status = "LDPlayer: Clearing App Cache...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.ClearAppCache("com.facebook.katana");
+                    Thread.Sleep(5000);
+                }
+
+                // New Password - your toggle is ProcessActions.NewPassword
+                if (processActionsData.NewPassword)
+                {
+                    account.Status = "LDPlayer: Changing Password...";
+                    SetGridDataRowStatus(account);
+
+                    var newPass = processActionsData.ProfileConfig?.NewInfo?.Password;
+                    if (string.IsNullOrWhiteSpace(newPass))
+                        newPass = "NewPass123!";
+
+                    ldPlayerTool.ChangePassword(account.Password, newPass);
+                    account.Password = newPass;
+
+                    // NOTE: if your IAccountDao doesn't contain updatePassword -> you must add it or rename it
+                    fbAccountViewModel.getAccountDao().updatePassword(account.UID, account.Password);
+                }
+
+                // Primary Location
+                if (processActionsData.PrimaryLocation)
+                {
+                    account.Status = "LDPlayer: Setting Primary Location...";
+                    SetGridDataRowStatus(account);
+
+                    var loc = processActionsData.ProfileConfig?.NewInfo?.City;
+                    if (string.IsNullOrWhiteSpace(loc))
+                        loc = "London";
+
+                    ldPlayerTool.SetPrimaryLocation(loc);
+                }
+
+                // 2. Profile Info
+                if (processActionsData.NewInfo)
+                {
+                    account.Status = "LDPlayer: Updating Profile...";
+                    SetGridDataRowStatus(account);
+
+                    processActionsData.ProfileConfig = GetCacheConfig<ProfileConfig>("profile:config");
+
+                    var city = processActionsData.ProfileConfig?.NewInfo?.City;
+                    var hometown = processActionsData.ProfileConfig?.NewInfo?.Hometown;
+                    var bio = processActionsData.ProfileConfig?.NewInfo?.Bio;
+
+                    ldPlayerTool.UpdateProfileInfo(city, hometown, bio);
+                }
+
+                // 3. Friends
+                if (processActionsData.AcceptFriends)
+                {
+                    account.Status = "LDPlayer: Accepting Friends...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.AcceptFriendRequests(processActionsData.FriendsConfig?.AcceptNumber ?? 5);
+                }
+
+                if (processActionsData.AddFriends)
+                {
+                    account.Status = "LDPlayer: Adding Suggest Friends...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.AddFriendsBySuggest(processActionsData.FriendsConfig?.AddNumber ?? 5);
+                }
+
+                if (processActionsData.AddFriendsByUID)
+                {
+                    account.Status = "LDPlayer: Adding UID Friends...";
+                    SetGridDataRowStatus(account);
+
+                    string uidsText = processActionsData.FriendsConfig?.FriendsByUID?.UIDs;
+                    if (!string.IsNullOrEmpty(uidsText))
+                    {
+                        string[] uids = uidsText.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        ldPlayerTool.AddFriendsByUID(uids, processActionsData.FriendsConfig?.FriendsByUID?.AddNumber ?? 5);
+                    }
+                }
+
+                // 4. Groups
+                if (processActionsData.IsJoinGroup)
+                {
+                    account.Status = "LDPlayer: Joining Groups...";
+                    SetGridDataRowStatus(account);
+
+                    string[] groupIds = joinGroupIDArr;
+                    if (groupIds != null)
+                    {
+                        foreach (var gid in groupIds)
+                        {
+                            if (IsStop()) break;
+
+                            var answers = processActionsData.GroupConfig?.Join?.Answers ?? "";
+                            ldPlayerTool.JoinGroup(gid, answers);
+                            Thread.Sleep(2000);
+                        }
+                    }
+                }
+
+                if (processActionsData.IsViewGroup)
+                {
+                    account.Status = "LDPlayer: Viewing Group notifications...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.ReadNotifications();
+                }
+
+                if (processActionsData.ReadMessenger)
+                {
+                    account.Status = "LDPlayer: Reading Messenger...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.ReadMessenger();
+                }
+
+                // Page interaction: Create Page (your config uses CreatePage.Names/Categies)
+                if (processActionsData.CreatePage)
+                {
+                    account.Status = "LDPlayer: Creating Page...";
+                    SetGridDataRowStatus(account);
+
+                    var createCfg = processActionsData.PageConfig?.CreatePage;
+                    if (createCfg != null)
+                    {
+                        string name = (createCfg.Names ?? "")
+                            .Split(new[] { '\r', '\n', ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault()?.Trim();
+
+                        string category = (createCfg.Categies ?? "")
+                            .Split(new[] { '\r', '\n', ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault()?.Trim();
+
+                        if (!string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(category))
+                        {
+                            ldPlayerTool.CreatePage(name, category);
+                        }
+                        else
+                        {
+                            account.Status = "LDPlayer: CreatePage missing Names/Categies";
+                            SetGridDataRowStatus(account);
+                        }
+                    }
+                }
+
+                // Create Reel (your config uses CreateReel.Captions)
+                if (processActionsData.PageCreateReel)
+                {
+                    account.Status = "LDPlayer: Creating Reel...";
+                    SetGridDataRowStatus(account);
+
+                    var caption = processActionsData.PageConfig?.CreateReel?.Captions;
+                    if (string.IsNullOrWhiteSpace(caption))
+                        caption = "New Reel";
+
+                    ldPlayerTool.CreateReel("", caption);
+                }
+
+                // Backup Pages
+                if (processActionsData.BackupPage)
+                {
+                    account.Status = "LDPlayer: Backup Pages...";
+                    SetGridDataRowStatus(account);
+
+                    string pages = ldPlayerTool.BackupPages();
+                    account.TotalPage = string.IsNullOrWhiteSpace(pages) ? 0 : pages.Split(',').Length;
+
+                    fbAccountViewModel.getAccountDao().UpdatePage(account.UID, account.TotalPage, pages);
+                }
+
+                // Follow Page / Invite / Remove Admin (your config uses PageUrls)
+                if (processActionsData.FollowPage)
+                {
+                    account.Status = "LDPlayer: Following Page...";
+                    SetGridDataRowStatus(account);
+
+                    var pageVal = processActionsData.PageConfig?.PageUrls ?? "";
+                    if (!string.IsNullOrWhiteSpace(pageVal))
+                        ldPlayerTool.FollowPage(pageVal);
+                }
+
+                if (processActionsData.IsPageInvite)
+                {
+                    account.Status = "LDPlayer: Inviting Friends to Page...";
+                    SetGridDataRowStatus(account);
+
+                    var pageVal = processActionsData.PageConfig?.PageUrls ?? "";
+                    if (!string.IsNullOrWhiteSpace(pageVal))
+                        ldPlayerTool.InviteFriendsToPage(pageVal);
+                }
+
+                if (processActionsData.IsPageRemoveAdmin)
+                {
+                    account.Status = "LDPlayer: Removing Admin from Page...";
+                    SetGridDataRowStatus(account);
+
+                    var pageVal = processActionsData.PageConfig?.PageUrls ?? "";
+                    if (!string.IsNullOrWhiteSpace(pageVal))
+                        ldPlayerTool.RemoveAdminFromPage(pageVal);
+                }
+
+                // 5. Warming (Marketplace/CheckIn)
+                if (processActionsData.Marketplace)
+                {
+                    account.Status = "LDPlayer: Marketplace...";
+                    SetGridDataRowStatus(account);
+
+                    var location = processActionsData.ProfileConfig?.NewInfo?.Marketplace;
+                    if (string.IsNullOrWhiteSpace(location))
+                        location = "London";
+
+                    ldPlayerTool.Marketplace(location);
+                }
+
+                if (processActionsData.CheckIn)
+                {
+                    account.Status = "LDPlayer: CheckIn...";
+                    SetGridDataRowStatus(account);
+
+                    var location = processActionsData.ProfileConfig?.NewInfo?.CheckIn;
+                    if (string.IsNullOrWhiteSpace(location))
+                        location = "London";
+
+                    ldPlayerTool.CheckIn(location);
+                }
+
+                if (processActionsData.LogoutAlDevices)
+                {
+                    account.Status = "LDPlayer: Logging out all devices...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.LogoutAllDevices();
+                }
+
+                if (processActionsData.IsCheckReelInvite)
+                {
+                    account.Status = "LDPlayer: Checking Reel Invite...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.CheckReelInvite();
+                }
+
+                if (processActionsData.IsLeaveGroup)
+                {
+                    account.Status = "LDPlayer: Leaving Groups...";
+                    SetGridDataRowStatus(account);
+
+                    var leaveGroupIdsText = cacheViewModel.GetCacheDao().Get("group:config:group_ids")?.Value?.ToString();
+                    if (!string.IsNullOrEmpty(leaveGroupIdsText))
+                    {
+                        string[] lGids = leaveGroupIdsText.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var gid in lGids)
+                        {
+                            if (IsStop()) break;
+                            ldPlayerTool.LeaveGroup(gid);
+                            Thread.Sleep(2000);
+                        }
+                    }
+                }
+
+                if (processActionsData.BackupFriends)
+                {
+                    account.Status = "LDPlayer: Backup Friends...";
+                    SetGridDataRowStatus(account);
+
+                    string friends = ldPlayerTool.BackupFriends();
+                    account.TotalFriend = string.IsNullOrWhiteSpace(friends) ? 0 : friends.Split(',').Length;
+
+                    // NOTE: if your IAccountDao doesn't contain updateTotalFriend -> you must add it or rename it
+                    fbAccountViewModel.getAccountDao().updateTotalFriend(account.UID, account.TotalFriend);
+                }
+
+                if (processActionsData.ActivtiyLog)
+                {
+                    account.Status = "LDPlayer: Deleting Activity...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.DeleteActivity();
+                }
+
+                if (processActionsData.PublicPost)
+                {
+                    account.Status = "LDPlayer: Setting Public Post...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.PublicPost();
+                }
+
+                if (processActionsData.TurnOnTwoFA)
+                {
+                    account.Status = "LDPlayer: Turning on 2FA...";
+                    SetGridDataRowStatus(account);
+                    ldPlayerTool.TurnOnTwoFA();
+                }
+
+                // 6. Sharing
+                if (processActionsData.IsShareToTimeline || processActionsData.IsShareToGroup || processActionsData.IsShareByGraph)
+                {
+                    account.Status = "LDPlayer: Sharing...";
+                    SetGridDataRowStatus(account);
+                    StartShareVideoLDPlayer(account);
+                }
+
+                account.Status = "LDPlayer Success";
+                SetGridDataRowStatus(account);
+            }
+            catch (Exception ex)
+            {
+                account.Status = "LDPlayer Error: " + ex.Message;
+                SetGridDataRowStatus(account);
             }
         }
+
+
+        //public void StartRunAccountLDPlayer(FbAccount account)
+        //{
+        //    try
+        //    {
+        //        if (IsStop()) return;
+        //        ldPlayerTool.Connect();
+
+        //        // Optional: Clear cache if specified (matching web behavior if desired)
+        //        // ldPlayerTool.ClearAppCache("com.facebook.katana"); 
+
+        //        if (!string.IsNullOrEmpty(account.Proxy))
+        //        {
+        //            account.Status = "LDPlayer: Setting Proxy...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.SetProxy(account.Proxy);
+        //        }
+        //        else
+        //        {
+        //            ldPlayerTool.ClearProxy();
+        //        }
+
+        //        ldPlayerTool.OpenApp("com.facebook.katana");
+        //        account.Status = "LDPlayer Started";
+        //        SetGridDataRowStatus(account);
+
+        //        if (processActionsData.EnglishUS)
+        //        {
+        //            account.Status = "LDPlayer: Checking Language...";
+        //            SetGridDataRowStatus(account);
+        //            if (!ldPlayerTool.IsEnglish())
+        //            {
+        //                account.Status = "LDPlayer: Normalizing Language to English...";
+        //                SetGridDataRowStatus(account);
+        //                ldPlayerTool.ChangeLanguage();
+        //            }
+        //        }
+
+        //        if (!ldPlayerTool.WaitText("What's on your mind?", 20))
+        //        {
+        //            if (!ldPlayerTool.IsLoggedIn())
+        //            {
+        //                account.Status = "LDPlayer Error: Not Logged In";
+        //            }
+        //           if (!ldPlayerTool.WaitText("What's on your mind?", 20))
+        //            {
+        //                account.Status = "LDPlayer: What's on your mind not found";
+        //                SetGridDataRowStatus(account);
+        //                return;
+        //            }
+        //        }
+
+        //        // 0. GetInfo
+        //        if (processActionsData.AutoUnlockCheckpoint)
+        //        {
+        //            account.Status = "LDPlayer: Unlocking Checkpoint...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.UnlockCheckpoint();
+        //        }
+
+        //        if (processActionsData.LockTime)
+        //        {
+        //            account.Status = "LDPlayer: Locking Profile...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.LockProfile();
+        //        }
+
+        //        if (processActionsData.ContactPrimary || processActionsData.ContactRemovePhone || processActionsData.ContactRemoveInstragram)
+        //        {
+        //            account.Status = "LDPlayer: Managing Contact Info...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.RemoveContactInfo(processActionsData.ContactRemovePhone, processActionsData.ContactRemoveInstragram);
+        //        }
+
+        //        if (processActionsData.GetInfo)
+        //        {
+        //            account.Status = "LDPlayer: Getting Info...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.GetInfo(account);
+
+        //            if (processActionsData.CreationDate)
+        //            {
+        //                var cDate = ldPlayerTool.GetCreationDate();
+        //                account.Description += $", Created: {cDate}";
+        //                // Optional: update DB if field exists
+        //            }
+
+        //            if (processActionsData.Token)
+        //            {
+        //                string token = ldPlayerTool.GetAccessToken();
+        //                account.Token = token;
+        //                fbAccountViewModel.getAccountDao().updateToken(account.UID, account.Token);
+        //            }
+        //        }
+
+        //        if (processActionsData.WorkingOnPage)
+        //        {
+        //            if (!processActionsData.NoSwitchPage)
+        //            {
+        //                account.Status = "LDPlayer: Switching to Page...";
+        //                SetGridDataRowStatus(account);
+        //                var pageVal = processActionsData.PageConfig?.Follow?.Value ?? "My Page";
+        //                ldPlayerTool.SwitchToPage(pageVal);
+        //            }
+        //        }
+
+        //        if (processActionsData.OtherConfig?.ChangeLanguage ?? false)
+        //        {
+        //            account.Status = "LDPlayer: Changing Language...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.ChangeLanguage();
+        //        }
+
+        //        if (processActionsData.OtherConfig?.WatchTime ?? false)
+        //        {
+        //            account.Status = "LDPlayer: Watching Videos...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.WatchTime(5); // Default 5 mins
+        //        }
+
+        //        if (processActionsData.OtherConfig?.ReelPlay ?? false)
+        //        {
+        //            account.Status = "LDPlayer: Playing Reels...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.ReelPlay(5); // Default 5 reels
+        //        }
+
+        //        if (processActionsData.GroupConfig?.Backup?.IsBrowser ?? false)
+        //        {
+        //            account.Status = "LDPlayer: Backup Groups...";
+        //            SetGridDataRowStatus(account);
+        //            string gids = ldPlayerTool.GetGroupIDs();
+        //            account.GroupIDs = gids;
+        //            // Update DB 
+        //            fbAccountViewModel.getAccountDao().UpdateGroup(account.UID, account.TotalGroup, account.GroupIDs, account.OldGroupIds);
+        //        }
+
+        //        // 1. NewsFeed
+        //        if (processActionsData.PlayNewsFeed || processActionsData.PostTimeline)
+        //        {
+        //            account.Status = "LDPlayer: NewsFeed...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.InteractWithNewsFeed(3, processActionsData.PlayNewsFeed);
+        //        }
+
+        //        if (processActionsData.TurnOnPM)
+        //        {
+        //            account.Status = "LDPlayer: Turning on Professional Mode...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.TurnOnPM();
+        //        }
+
+        //        //if (processActionsData.ProfileConfig?.DeleteData ?? false)
+        //        //{
+        //        //    account.Status = "LDPlayer: Clearing App Cache...";
+        //        //    SetGridDataRowStatus(account);
+        //        //    ldPlayerTool.ClearAppCache("com.facebook.katana");
+        //        //    Thread.Sleep(5000); // Wait for reset
+        //        //}
+
+        //        //if (processActionsData.ProfileConfig?.NewPassword ?? false)
+        //        //{
+        //        //    account.Status = "LDPlayer: Changing Password...";
+        //        //    SetGridDataRowStatus(account);
+        //        //    var newPass = processActionsData.ProfileConfig?.NewInfo?.Password ?? "NewPass123!";
+        //        //    ldPlayerTool.ChangePassword(account.Password, newPass);
+        //        //    account.Password = newPass;
+        //        //    fbAccountViewModel.getAccountDao().updatePassword(account.UID, account.Password);
+        //        //}
+
+        //        // Delete Data (Clear Cache)
+        //        if (processActionsData.ProfileDeleteData || processActionsData.ProfileConfig?.DeleteData != null)
+        //        {
+        //            account.Status = "LDPlayer: Clearing App Cache...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.ClearAppCache("com.facebook.katana");
+        //            Thread.Sleep(5000);
+        //        }
+
+        //        // New Password
+        //        if (processActionsData.NewPassword)
+        //        {
+        //            account.Status = "LDPlayer: Changing Password...";
+        //            SetGridDataRowStatus(account);
+
+        //            var newPass = processActionsData.ProfileConfig?.NewInfo?.Password;
+        //            if (string.IsNullOrWhiteSpace(newPass))
+        //                newPass = "NewPass123!";
+
+        //            ldPlayerTool.ChangePassword(account.Password, newPass);
+        //            account.Password = newPass;
+
+        //            fbAccountViewModel.getAccountDao().updatePassword(account.UID, account.Password);
+        //        }
+
+
+        //        if (processActionsData.PrimaryLocation)
+        //        {
+        //            account.Status = "LDPlayer: Setting Primary Location...";
+        //            SetGridDataRowStatus(account);
+        //            var loc = processActionsData.ProfileConfig?.NewInfo?.City ?? "London";
+        //            ldPlayerTool.SetPrimaryLocation(loc);
+        //        }
+
+        //        // 2. Profile Info
+        //        if (processActionsData.NewInfo)
+        //        {
+        //            account.Status = "LDPlayer: Updating Profile...";
+        //            SetGridDataRowStatus(account);
+        //            processActionsData.ProfileConfig = GetCacheConfig<ProfileConfig>("profile:config");
+        //            var city = processActionsData.ProfileConfig?.NewInfo?.City;
+        //            var hometown = processActionsData.ProfileConfig?.NewInfo?.Hometown;
+        //            var bio = processActionsData.ProfileConfig?.NewInfo?.Bio;
+        //            ldPlayerTool.UpdateProfileInfo(city, hometown, bio);
+        //        }
+
+        //        // 3. Friends
+        //        if (processActionsData.AcceptFriends)
+        //        {
+        //            account.Status = "LDPlayer: Accepting Friends...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.AcceptFriendRequests(processActionsData.FriendsConfig?.AcceptNumber ?? 5);
+        //        }
+
+        //        if (processActionsData.AddFriends)
+        //        {
+        //            account.Status = "LDPlayer: Adding Suggest Friends...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.AddFriendsBySuggest(processActionsData.FriendsConfig?.AddNumber ?? 5);
+        //        }
+
+        //        if (processActionsData.AddFriendsByUID)
+        //        {
+        //            account.Status = "LDPlayer: Adding UID Friends...";
+        //            SetGridDataRowStatus(account);
+        //            string uidsText = processActionsData.FriendsConfig?.FriendsByUID?.UIDs;
+        //            if (!string.IsNullOrEmpty(uidsText))
+        //            {
+        //                string[] uids = uidsText.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        //                ldPlayerTool.AddFriendsByUID(uids, processActionsData.FriendsConfig?.FriendsByUID?.AddNumber ?? 5);
+        //            }
+        //        }
+
+        //        // 4. Groups
+        //        if (processActionsData.IsJoinGroup)
+        //        {
+        //            account.Status = "LDPlayer: Joining Groups...";
+        //            SetGridDataRowStatus(account);
+        //            string[] groupIds = joinGroupIDArr; // Use existing array
+        //            if (groupIds != null)
+        //            {
+        //                foreach (var gid in groupIds)
+        //                {
+        //                    if (IsStop()) break;
+        //                    var answers = processActionsData.GroupConfig?.Join?.Answers ?? "";
+        //                    ldPlayerTool.JoinGroup(gid, answers);
+        //                    Thread.Sleep(2000);
+        //                }
+        //            }
+        //        }
+
+        //        // 4. Notifications
+        //        if (processActionsData.IsViewGroup)
+        //        {
+        //            account.Status = "LDPlayer: Viewing Group notifications...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.ReadNotifications();
+        //        }
+
+        //        if (processActionsData.ReadMessenger)
+        //        {
+        //            account.Status = "LDPlayer: Reading Messenger...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.ReadMessenger();
+        //        }
+
+        //        // Page interaction
+        //        if (processActionsData.CreatePage)
+        //        {
+        //            account.Status = "LDPlayer: Creating Page...";
+        //            SetGridDataRowStatus(account);
+        //            var pageConfig = processActionsData.PageConfig?.Create;
+        //            if (pageConfig != null)
+        //            {
+        //                ldPlayerTool.CreatePage(pageConfig.Name, pageConfig.Category);
+        //            }
+        //        }
+
+        //        if (processActionsData.PageCreateReel)
+        //        {
+        //            account.Status = "LDPlayer: Creating Reel...";
+        //            SetGridDataRowStatus(account);
+        //            // caption from config
+        //            var caption = processActionsData.PageConfig?.CreateReel?.Caption ?? "New Reel";
+        //            ldPlayerTool.CreateReel("", caption);
+        //        }
+        //        if (processActionsData.BackupPage)
+        //        {
+        //            account.Status = "LDPlayer: Backup Pages...";
+        //            SetGridDataRowStatus(account);
+        //            string pages = ldPlayerTool.BackupPages();
+        //            account.TotalPage = pages.Split(',').Length;
+        //            fbAccountViewModel.getAccountDao().UpdatePage(account.UID, account.TotalPage, pages);
+        //        }
+
+        //        // Page interaction
+        //        if (processActionsData.FollowPage)
+        //        {
+        //            account.Status = "LDPlayer: Following Page...";
+        //            SetGridDataRowStatus(account);
+        //            var pageVal = processActionsData.PageConfig?.Follow?.Value ?? "";
+        //            if (!string.IsNullOrEmpty(pageVal))
+        //            {
+        //                ldPlayerTool.FollowPage(pageVal);
+        //            }
+        //        }
+
+        //        if (processActionsData.IsPageInvite)
+        //        {
+        //            account.Status = "LDPlayer: Inviting Friends to Page...";
+        //            SetGridDataRowStatus(account);
+        //            var pageVal = processActionsData.PageConfig?.Follow?.Value ?? "";
+        //            if (!string.IsNullOrEmpty(pageVal))
+        //            {
+        //                ldPlayerTool.InviteFriendsToPage(pageVal);
+        //            }
+        //        }
+
+        //        if (processActionsData.IsPageRemoveAdmin)
+        //        {
+        //            account.Status = "LDPlayer: Removing Admin from Page...";
+        //            SetGridDataRowStatus(account);
+        //            var pageVal = processActionsData.PageConfig?.Follow?.Value ?? "";
+        //            if (!string.IsNullOrEmpty(pageVal))
+        //            {
+        //                ldPlayerTool.RemoveAdminFromPage(pageVal);
+        //            }
+        //        }
+
+        //        // 5. Warming (Marketplace/CheckIn)
+        //        if (processActionsData.Marketplace)
+        //        {
+        //            account.Status = "LDPlayer: Marketplace...";
+        //            SetGridDataRowStatus(account);
+        //            var location = processActionsData.ProfileConfig?.NewInfo?.Marketplace ?? "London";
+        //            ldPlayerTool.Marketplace(location);
+        //        }
+
+        //        if (processActionsData.CheckIn)
+        //        {
+        //            account.Status = "LDPlayer: CheckIn...";
+        //            SetGridDataRowStatus(account);
+        //            var location = processActionsData.ProfileConfig?.NewInfo?.CheckIn ?? "London";
+        //            ldPlayerTool.CheckIn(location);
+        //        }
+
+        //        if (processActionsData.LogoutAlDevices)
+        //        {
+        //            account.Status = "LDPlayer: Logging out all devices...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.LogoutAllDevices();
+        //        }
+
+        //        if (processActionsData.IsCheckReelInvite)
+        //        {
+        //            account.Status = "LDPlayer: Checking Reel Invite...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.CheckReelInvite();
+        //        }
+
+        //        if (processActionsData.IsLeaveGroup)
+        //        {
+        //            account.Status = "LDPlayer: Leaving Groups...";
+        //            SetGridDataRowStatus(account);
+        //            var leaveGroupIdsText = cacheViewModel.GetCacheDao().Get("group:config:group_ids")?.Value?.ToString();
+        //            if (!string.IsNullOrEmpty(leaveGroupIdsText))
+        //            {
+        //                string[] lGids = leaveGroupIdsText.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        //                foreach (var gid in lGids)
+        //                {
+        //                    if (IsStop()) break;
+        //                    ldPlayerTool.LeaveGroup(gid);
+        //                    Thread.Sleep(2000);
+        //                }
+        //            }
+        //        }
+
+        //        if (processActionsData.BackupFriends)
+        //        {
+        //            account.Status = "LDPlayer: Backup Friends...";
+        //            SetGridDataRowStatus(account);
+        //            string friends = ldPlayerTool.BackupFriends();
+        //            account.TotalFriend = friends.Split(',').Length;
+        //            fbAccountViewModel.getAccountDao().updateTotalFriend(account.UID, account.TotalFriend);
+        //        }
+
+        //        if (processActionsData.ActivtiyLog)
+        //        {
+        //            account.Status = "LDPlayer: Deleting Activity...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.DeleteActivity();
+        //        }
+
+        //        if (processActionsData.PublicPost)
+        //        {
+        //            account.Status = "LDPlayer: Setting Public Post...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.PublicPost();
+        //        }
+
+        //        if (processActionsData.TurnOnTwoFA)
+        //        {
+        //            account.Status = "LDPlayer: Turning on 2FA...";
+        //            SetGridDataRowStatus(account);
+        //            ldPlayerTool.TurnOnTwoFA();
+        //        }
+
+        //        // 6. Sharing
+        //        if (processActionsData.IsShareToTimeline || processActionsData.IsShareToGroup || processActionsData.IsShareByGraph)
+        //        {
+        //            account.Status = "LDPlayer: Sharing...";
+        //            SetGridDataRowStatus(account);
+        //            StartShareVideoLDPlayer(account);
+        //        }
+
+        //        account.Status = "LDPlayer Success";
+        //        SetGridDataRowStatus(account);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        account.Status = "LDPlayer Error: " + ex.Message;
+        //        SetGridDataRowStatus(account);
+        //    }
+        //}
         public void WorkingProcess(IWebDriver webDriver, FbAccount account, bool isNoSwitchPage, bool isCheckReelInvite)
         {
             if (processActionsData.PrimaryLocation)
@@ -3016,7 +4374,8 @@ namespace WpfUI.Views
             {
                 TurnOnPM(driver, data);
             }
-            if (processActionsData.ProfileDeleteData ||
+            if (
+                processActionsData.ProfileDeleteData ||
                 processActionsData.LogoutAlDevices ||
                 processActionsData.LockTime ||
                 processActionsData.NewInfo ||
@@ -3028,16 +4387,8 @@ namespace WpfUI.Views
                 processActionsData.ActivtiyLog
             )
             {
-                try
-                {
-                    string text = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
-                    ProfileConfig profileConfig = JsonConvert.DeserializeObject<ProfileConfig>(text);
-                    processActionsData.ProfileConfig = profileConfig;
-                    flag = true;
-                }
-                catch (Exception)
-                {
-                }
+                processActionsData.ProfileConfig = GetCacheConfig<ProfileConfig>("profile:config");
+                flag = true;
             }
             else if (!processActionsData.ContactRemovePhone && !processActionsData.ContactRemoveMail && !processActionsData.ContactRemoveInstragram && !processActionsData.ContactPrimary)
             {
@@ -3406,15 +4757,7 @@ namespace WpfUI.Views
         {
             if (processActionsData.AddFriends || processActionsData.AcceptFriends || processActionsData.AddFriendsByUID || processActionsData.BackupFriends)
             {
-                try
-                {
-                    string text = cacheViewModel.GetCacheDao().Get("friend:config").Value.ToString();
-                    FriendsConfig friendsConfig = JsonConvert.DeserializeObject<FriendsConfig>(text);
-                    processActionsData.FriendsConfig = friendsConfig;
-                }
-                catch (Exception)
-                {
-                }
+                processActionsData.FriendsConfig = GetCacheConfig<FriendsConfig>("friend:config");
                 IFriendsViewModel friendsViewModel = DIConfig.Get<IFriendsViewModel>();
                 friendsViewModel.Start(this, driver, data);
                 if (!IsStop() && processActionsData.AddFriends)
@@ -3448,15 +4791,7 @@ namespace WpfUI.Views
             {
                 return;
             }
-            try
-            {
-                string text = cacheViewModel.GetCacheDao().Get("page:config").Value.ToString();
-                PageConfig pageConfig = JsonConvert.DeserializeObject<PageConfig>(text);
-                processActionsData.PageConfig = pageConfig;
-            }
-            catch (Exception)
-            {
-            }
+            processActionsData.PageConfig = GetCacheConfig<PageConfig>("page:config");
             IPageViewModel pageViewModel = DIConfig.Get<IPageViewModel>();
             pageViewModel.Start(this, driver, data);
             if (!IsStop() && processActionsData.CreatePage)
@@ -3491,15 +4826,7 @@ namespace WpfUI.Views
         {
             if (processActionsData.ReadMessenger || processActionsData.PostTimeline || processActionsData.PlayNewsFeed || processActionsData.ReadNotification)
             {
-                try
-                {
-                    string text = cacheViewModel.GetCacheDao().Get("newsfeed:config").Value.ToString();
-                    NewsFeedConfig newsFeed = JsonConvert.DeserializeObject<NewsFeedConfig>(text);
-                    processActionsData.NewsFeed = newsFeed;
-                }
-                catch (Exception)
-                {
-                }
+                processActionsData.NewsFeed = GetCacheConfig<NewsFeedConfig>("newsfeed:config");
                 INewsFeedViewModel newsFeedViewModel = DIConfig.Get<INewsFeedViewModel>();
                 newsFeedViewModel.Start(this, driver, data);
                 if (processActionsData.ReadNotification && !IsStop())
@@ -3531,15 +4858,7 @@ namespace WpfUI.Views
         {
             if (processActionsData.IsLeaveGroup || processActionsData.IsJoinGroup || processActionsData.IsBackupGroup || processActionsData.IsViewGroup)
             {
-                try
-                {
-                    string text = cacheViewModel.GetCacheDao().Get("group:config").Value.ToString();
-                    GroupConfig groupConfig = JsonConvert.DeserializeObject<GroupConfig>(text);
-                    processActionsData.GroupConfig = groupConfig;
-                }
-                catch (Exception)
-                {
-                }
+                processActionsData.GroupConfig = GetCacheConfig<GroupConfig>("group:config");
                 IGroupViewModel groupViewModel = DIConfig.Get<IGroupViewModel>();
                 groupViewModel.Start(this, driver, data);
                 if (processActionsData.IsLeaveGroup && !IsStop())
@@ -3585,6 +4904,7 @@ namespace WpfUI.Views
         {
             IShareViewModel shareViewModel = DIConfig.Get<IShareViewModel>();
             shareViewModel.Start(this, data);
+            shareUrlIndex = 0;
             if (processActionsData.IsShareToGroup || processActionsData.IsShareToTimeline)
             {
                 try
@@ -3596,33 +4916,43 @@ namespace WpfUI.Views
                 catch (Exception)
                 {
                 }
-                if (!IsStop())
+                
+                if (shareUrlArr != null)
                 {
-                    string comment = GetComment();
-                    shareViewModel.ShareWatchVideo(driver, GetURL(), comment);
-                    shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchBeforeShare);
-                }
-                if (processActionsData.IsShareToTimeline && !IsStop())
-                {
-                    string caption = GetCaption();
-                    shareViewModel.ShareToTimeline(driver, caption);
-                }
-                if (processActionsData.IsShareToGroup && !IsStop())
-                {
-                    bool isAPIShare = false;
-                    Application.Current.Dispatcher.Invoke(delegate
+                    foreach (var url in shareUrlArr)
                     {
-                        try
+                        if (string.IsNullOrEmpty(url)) continue;
+                        if (IsStop()) break;
+
+                        if (!IsStop())
                         {
-                            isAPIShare = chbShareByGraph.IsChecked.Value;
+                            string comment = GetComment();
+                            shareViewModel.ShareWatchVideo(driver, url, comment);
+                            shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchBeforeShare);
                         }
-                        catch (Exception) { }
-                    });
-                    shareViewModel.ShareToGroup(driver, isAPIShare);
-                }
-                if (!IsStop())
-                {
-                    shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchAfterShare);
+                        if (processActionsData.IsShareToTimeline && !IsStop())
+                        {
+                            string caption = GetCaption();
+                            shareViewModel.ShareToTimeline(driver, caption);
+                        }
+                        if (processActionsData.IsShareToGroup && !IsStop())
+                        {
+                            bool isAPIShare = false;
+                            Application.Current.Dispatcher.Invoke(delegate
+                            {
+                                try
+                                {
+                                    isAPIShare = chbShareByGraph.IsChecked.Value;
+                                }
+                                catch (Exception) { }
+                            });
+                            shareViewModel.ShareToGroup(driver, isAPIShare);
+                        }
+                        if (!IsStop())
+                        {
+                            shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchAfterShare);
+                        }
+                    }
                 }
             }
             if (processActionsData.IsShareWebsite && !IsStop())
@@ -3644,6 +4974,139 @@ namespace WpfUI.Views
             }
             fbAccountViewModel.getAccountDao().updateStatus(data.UID, data.Description, status);
         }
+
+        //public void StartShareVideoLDPlayer(FbAccount data)
+        //{
+        //    if (shareUrlArr != null)
+        //    {
+        //        foreach (var url in shareUrlArr)
+        //        {
+        //            if (string.IsNullOrEmpty(url)) continue;
+        //            if (IsStop()) break;
+
+        //            string caption = GetCaption();
+
+        //            if (processActionsData.IsShareToTimeline || processActionsData.IsShareByGraph)
+        //            {
+        //                if (processActionsData.IsShareByGraph)
+        //                {
+        //                    ldPlayerTool.ShareByGraphLink(url, caption);
+        //                }
+        //                else
+        //                {
+        //                    ldPlayerTool.ShareLink(url, caption);
+        //                }
+        //                Thread.Sleep(5000);
+        //            }
+
+        //            if (processActionsData.IsShareToGroup)
+        //            {
+        //                if (shareGroupIDArr != null)
+        //                {
+        //                    foreach (var gid in shareGroupIDArr)
+        //                    {
+        //                        if (IsStop()) break;
+        //                        ldPlayerTool.ShareToGroup(gid, url, caption);
+        //                        Thread.Sleep(5000);
+        //                    }
+        //                }
+        //            }
+
+        //            if (processActionsData.IsShareProfilePage || processActionsData.IsShareWebsite)
+        //            {
+        //                // Similar to timeline but maybe with different interaction
+        //                ldPlayerTool.ShareLink(url, caption);
+        //                Thread.Sleep(5000);
+        //            }
+        //        }
+        //    }
+        //}
+
+        public void StartShareVideoLDPlayer(FbAccount data)
+        {
+            // 1) URLs: use your existing shareUrlArr if it is already prepared,
+            //    otherwise build it from processActionsData.Share.Urls
+            var urls = shareUrlArr;
+
+            if (urls == null || urls.Length == 0)
+            {
+                var urlsText = processActionsData?.Share?.Urls;
+                if (!string.IsNullOrWhiteSpace(urlsText))
+                {
+                    urls = urlsText
+                        .Split(new[] { '\n', '\r', ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .ToArray();
+                }
+            }
+
+            if (urls == null || urls.Length == 0)
+                return;
+
+            // 2) Group IDs (for ShareToGroup)
+            string groupIdsText = processActionsData?.Share?.ProfilePage?.GroupIDs;
+            string[] shareGroupIDArr = null;
+
+            if (!string.IsNullOrWhiteSpace(groupIdsText))
+            {
+                shareGroupIDArr = groupIdsText
+                    .Split(new[] { '\n', '\r', ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+
+            // 3) Main loop
+            foreach (var url in urls)
+            {
+                if (IsStop()) break;
+                if (string.IsNullOrWhiteSpace(url)) continue;
+
+                string caption = GetCaption(); // keep your existing method
+
+                // Share to Timeline / Graph
+                if (processActionsData.IsShareToTimeline || processActionsData.IsShareByGraph)
+                {
+                    if (processActionsData.IsShareByGraph)
+                        ldPlayerTool.ShareByGraphLink(url, caption);
+                    else
+                        ldPlayerTool.ShareLink(url, caption);
+
+                    Thread.Sleep(5000);
+                }
+
+                // Share to Groups
+                if (processActionsData.IsShareToGroup)
+                {
+                    if (shareGroupIDArr != null && shareGroupIDArr.Length > 0)
+                    {
+                        foreach (var gid in shareGroupIDArr)
+                        {
+                            if (IsStop()) break;
+                            if (string.IsNullOrWhiteSpace(gid)) continue;
+
+                            ldPlayerTool.ShareToGroup(gid, url, caption);
+                            Thread.Sleep(5000);
+                        }
+                    }
+                    else
+                    {
+                        // Optional: helpful status if config missing
+                        data.Status = "ShareToGroup enabled but Share.ProfilePage.GroupIDs is empty";
+                        SetGridDataRowStatus(data);
+                    }
+                }
+
+                // Share to Profile/Page or Website (your current behavior shares link normally)
+                if (processActionsData.IsShareProfilePage || processActionsData.IsShareWebsite)
+                {
+                    ldPlayerTool.ShareLink(url, caption);
+                    Thread.Sleep(5000);
+                }
+            }
+        }
+
 
         public void BackupGroups(IWebDriver driver, FbAccount data)
         {

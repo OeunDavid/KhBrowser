@@ -364,6 +364,15 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 try
                 {
+                    driver.FindElement(By.XPath("//input[@placeholder='Code']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
+                    isWorking = true;
+                }
+                catch (Exception) { }
+            }
+            if (!isWorking)
+            {
+                try
+                {
                     driver.FindElement(By.XPath("//input[@type='text']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
                     isWorking = true;
                 }
@@ -494,6 +503,15 @@ namespace ToolKHBrowser.ToolLib.Tool
                     try
                     {
                         driver.FindElement(By.XPath("//input[@name='approvals_code']"));
+                        isWorking = true;
+                    }
+                    catch (Exception) { }
+                }
+                if (!isWorking)
+                {
+                    try
+                    {
+                        driver.FindElement(By.XPath("//input[@placeholder='Code']"));
                         isWorking = true;
                     }
                     catch (Exception) { }

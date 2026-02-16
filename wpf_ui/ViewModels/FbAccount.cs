@@ -72,6 +72,7 @@ namespace WpfUI.ViewModels
         public string _timeline_source;
         public string _creation_date;
         public string _old_group_ids;
+        private bool _is_selected;
         public int TotalPage
         {
             get { return _total_page; }
@@ -141,6 +142,15 @@ namespace WpfUI.ViewModels
             set
             {
                 _creation_date = value;
+                RaiseProperChanged();
+            }
+        }
+        public bool IsSelected
+        {
+            get { return _is_selected; }
+            set
+            {
+                _is_selected = value;
                 RaiseProperChanged();
             }
         }

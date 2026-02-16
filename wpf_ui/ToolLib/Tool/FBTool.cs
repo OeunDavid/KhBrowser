@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
+using OtpNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,17 +48,44 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        //public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
+        //{
+        //    string runType = ConfigData.GetRunType();
+        //    string result = "";
+        //    Thread.Sleep(1500);
+        //    try
+        //    {
+        //        Actions action = new Actions(driver);
+        //        action.SendKeys(Keys.Escape);
+        //    }
+        //    catch (Exception) { }
+        //    switch (runType)
+        //    {
+        //        case "mbasic":
+        //            result = MBasicTool.LoggedIn(driver, data, isLoginByCookie);
+        //            break;
+        //        case "mobile":
+        //            result = MobileFBTool.LoggedIn(driver, data, isLoginByCookie);
+        //            break;
+        //        default:
+        //            result = WebFBTool.LoggedIn(driver, data, isLoginByCookie);
+        //            break;
+        //    }
+
+        //    return result;
+        //}
         public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
             string result = "";
             Thread.Sleep(1500);
+
             try
             {
-                Actions action = new Actions(driver);
-                action.SendKeys(Keys.Escape);
+                new Actions(driver).SendKeys(Keys.Escape).Perform(); // ✅ FIX
             }
-            catch (Exception) { }
+            catch { }
+
             switch (runType)
             {
                 case "mbasic":
@@ -73,20 +101,48 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return result;
         }
+
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie= false)
+        //public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie= false)
+        //{
+        //    string runType = ConfigData.GetRunType();
+        //    int result = 0;
+        //    Thread.Sleep(1500);
+        //    try
+        //    {
+        //        Actions action = new Actions(driver);
+        //        action.SendKeys(Keys.Escape);
+        //    }
+        //    catch (Exception) { }
+        //    switch (runType)
+        //    {
+        //        case "mbasic":
+        //            result = MBasicTool.Login(driver, data, isLoginByCookie);
+        //            break;
+        //        case "mobile":
+        //            result = MobileFBTool.Login(driver, data, isLoginByCookie);
+        //            break;
+        //        default:
+        //            result = WebFBTool.Login(driver, data, isLoginByCookie);
+        //            break;
+        //    }
+
+        //    return result;
+        //}
+        public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
             int result = 0;
             Thread.Sleep(1500);
+
             try
             {
-                Actions action = new Actions(driver);
-                action.SendKeys(Keys.Escape);
+                new Actions(driver).SendKeys(Keys.Escape).Perform(); // ✅ FIX
             }
-            catch (Exception) { }
+            catch { }
+
             switch (runType)
             {
                 case "mbasic":
@@ -102,138 +158,307 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return result;
         }
+
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        //public static string GetResults(IWebDriver driver, int counter = 4)
+        //{
+        //    try
+        //    {
+        //        ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop");
+        //    }
+        //    catch (Exception) { }
+        //    bool isThread = true;
+        //    string result = "";
+        //    bool isWorking = false;
+        //    string url = "";
+        //    string source = "";
+        //    if (counter > 0)
+        //    {
+        //        isThread = true;
+        //    }
+        //    do
+        //    {
+        //        if (isThread)
+        //        {
+        //            Thread.Sleep(1000);
+        //        }
+        //        try
+        //        {
+        //            source = driver.PageSource.ToString().ToLower().Trim();
+        //        }
+        //        catch (Exception) { }
+        //        try
+        //        {
+        //            url = driver.Url;
+        //        }
+        //        catch (Exception) { }
+        //        if (url.Contains("/checkpoint/"))
+        //        {
+        //            isWorking = true;
+        //            if (url.Contains("/checkpoint/?next"))
+        //            {
+        //                // aprove device
+        //                result = "Approvals";
+        //            }
+        //            else if (url.Contains("956"))
+        //            {
+        //                // locked
+        //                result = "​Lock 956";
+        //                if(source.Contains("code by email"))
+        //                {
+        //                    result += ": Need confirm code by email";
+        //                } else if(source.Contains("your phone"))
+        //                {
+        //                    result += ": Need confirm code by phone";
+        //                } else if(source.Contains("confirm your identity"))
+        //                {
+        //                    result += ": Need confirm identity";
+        //                }
+        //            }
+        //            else if (url.Contains("5049/"))
+        //            {
+        //                // We suspect automated
+        //                //result = "We suspect automated ...";
+        //                IWebElement elDismiss = null;
+        //                try
+        //                {
+        //                    elDismiss= driver.FindElement(By.XPath("//div[@aria-label='Dismiss']"));
+        //                } catch(Exception) { }
+        //                if(elDismiss == null)
+        //                {
+        //                    try
+        //                    {
+        //                        elDismiss = driver.FindElement(By.XPath("/html/body/div[1]/div/div/div/div/div/div/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div"));
+        //                    }
+        //                    catch (Exception) { }
+        //                }
+        //                if(elDismiss != null)
+        //                {
+        //                    WebFBTool.ClickElement(driver, elDismiss);
+        //                    Thread.Sleep(2000);
+        //                    result = "success";
+        //                }
+        //            }
+        //            else if (url.Contains("/checkpoint/8282"))
+        //            {
+        //                // locked
+        //                result = "Lock 2882";
+        //            }
+        //            else if (url.Contains("/checkpoint/disabled"))
+        //            {
+        //                // disabled
+        //                result = "Desabled";
+        //            }
+        //            else
+        //            {
+        //                result = "Checkpoint";
+        //            }
+        //        }
+        //        else if (url.Contains("/login/"))
+        //        {
+        //            // wrong password
+        //            result = "Wrong password";
+        //            if(source.Contains("old password"))
+        //            {
+        //                result += ": Old password";
+        //            } else if(source.Contains("incorrect"))
+        //            {
+        //                result += ": Incorrect username/password";
+        //            }
+        //        }
+        //        else if (url.Contains("two_step_verification") || url.Contains("/checkpoint/"))
+        //        {
+        //            isWorking = true;
+        //            result = "Need 2FA";   // not "Error 2FA"
+        //        }
+
+        //        else if (url.Contains("accountscenter") || url.Contains("login/save-device/?login_source=login"))
+        //        {
+        //            // new layout for set mail
+        //            isWorking = true;
+        //            result = "success";
+        //        }
+        //        else if (url.Contains("show_webview_confirm_dialog") || url.Contains("accountscenter"))
+        //        {
+        //            //Required: Review your data setting
+        //            isWorking = true;
+        //            result = "success";
+        //            StartReviewData(driver);
+        //        }
+        //        else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm") || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
+        //        {
+        //            isWorking = true;
+        //            result = "Confirm";
+        //        }
+        //        else
+        //        {
+        //            if (!isThread)
+        //            {
+        //                result = "success";
+        //                isWorking = true;
+        //            }
+        //            else if (!string.IsNullOrEmpty(GetUserId(driver)))
+        //            {
+        //                result = "success";
+        //                isWorking = true;
+        //            }
+        //        }
+        //    } while (!isWorking && counter-- > 0);
+
+        //    if(result.Contains("success"))
+        //    {
+        //        counter = 10;
+        //        isWorking = false;
+
+        //        do
+        //        {
+        //            result = "success";
+        //            Thread.Sleep(1000);
+        //            try
+        //            {
+        //                source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower();
+        //            }
+        //            catch (Exception) { }
+        //            if (!string.IsNullOrEmpty(source))
+        //            {
+        //                if (source.Contains("what happened") && 
+        //                    (source.Contains("use groups") || 
+        //                    source.Contains("spam") || 
+        //                    source.Contains("we removed")))
+        //                {
+        //                    if (source.Contains("use groups"))
+        //                    {
+        //                        result = "Spam: Can not use groups";
+        //                        isWorking= true;
+        //                    }
+        //                    else if (source.Contains("we removed"))
+        //                    {
+        //                        result = "Spam: Removed content/comment";
+        //                    }
+        //                    else
+        //                    {
+        //                        result = "Need remove spam";
+        //                    }
+        //                    Close(driver);
+        //                    Thread.Sleep(1000);
+        //                } else
+        //                {
+        //                    result = "success";
+        //                    isWorking = true;
+        //                }
+        //            }
+        //        } while(!isWorking && counter-- > 0);
+        //    }
+
+        //    return result;
+        //}
         public static string GetResults(IWebDriver driver, int counter = 4)
         {
-            try
-            {
-                ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop");
-            }
-            catch (Exception) { }
-            bool isThread = true;
+            try { ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop"); } catch { }
+
+            bool isThread = counter > 0;
             string result = "";
             bool isWorking = false;
             string url = "";
             string source = "";
-            if (counter > 0)
-            {
-                isThread = true;
-            }
+
             do
             {
-                if (isThread)
-                {
-                    Thread.Sleep(1000);
-                }
-                try
-                {
-                    source = driver.PageSource.ToString().ToLower().Trim();
-                }
-                catch (Exception) { }
-                try
-                {
-                    url = driver.Url;
-                }
-                catch (Exception) { }
+                if (isThread) Thread.Sleep(1000);
+
+                try { source = (driver.PageSource ?? "").ToLower().Trim(); } catch { source = ""; }
+                try { url = (driver.Url ?? ""); } catch { url = ""; }
+
+                // ✅ CHECKPOINT (includes OTP / approvals / locked / disabled)
                 if (url.Contains("/checkpoint/"))
                 {
                     isWorking = true;
+
                     if (url.Contains("/checkpoint/?next"))
                     {
-                        // aprove device
                         result = "Approvals";
                     }
                     else if (url.Contains("956"))
                     {
-                        // locked
-                        result = "​Lock 956";
-                        if(source.Contains("code by email"))
-                        {
-                            result += ": Need confirm code by email";
-                        } else if(source.Contains("your phone"))
-                        {
-                            result += ": Need confirm code by phone";
-                        } else if(source.Contains("confirm your identity"))
-                        {
-                            result += ": Need confirm identity";
-                        }
+                        result = "Lock 956";
+                        if (source.Contains("code by email")) result += ": Need confirm code by email";
+                        else if (source.Contains("your phone")) result += ": Need confirm code by phone";
+                        else if (source.Contains("confirm your identity")) result += ": Need confirm identity";
                     }
                     else if (url.Contains("5049/"))
                     {
-                        // We suspect automated
-                        //result = "We suspect automated ...";
                         IWebElement elDismiss = null;
-                        try
-                        {
-                            elDismiss= driver.FindElement(By.XPath("//div[@aria-label='Dismiss']"));
-                        } catch(Exception) { }
-                        if(elDismiss == null)
+                        try { elDismiss = driver.FindElement(By.XPath("//div[@aria-label='Dismiss']")); } catch { }
+                        if (elDismiss == null)
                         {
                             try
                             {
                                 elDismiss = driver.FindElement(By.XPath("/html/body/div[1]/div/div/div/div/div/div/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div"));
                             }
-                            catch (Exception) { }
+                            catch { }
                         }
-                        if(elDismiss != null)
+
+                        if (elDismiss != null)
                         {
                             WebFBTool.ClickElement(driver, elDismiss);
                             Thread.Sleep(2000);
                             result = "success";
                         }
+                        else
+                        {
+                            // still checkpoint
+                            result = "Checkpoint";
+                        }
                     }
                     else if (url.Contains("/checkpoint/8282"))
                     {
-                        // locked
                         result = "Lock 2882";
                     }
                     else if (url.Contains("/checkpoint/disabled"))
                     {
-                        // disabled
-                        result = "Desabled";
+                        result = "Disabled";
                     }
                     else
                     {
-                        result = "Checkpoint";
+                        // ✅ VERY IMPORTANT: checkpoint is not auto-fail
+                        // It can be OTP / approvals, so we return a “Need …”
+                        result = "Need 2FA";
                     }
                 }
+                // ✅ LOGIN page
                 else if (url.Contains("/login/"))
                 {
-                    // wrong password
+                    isWorking = true;
                     result = "Wrong password";
-                    if(source.Contains("old password"))
-                    {
-                        result += ": Old password";
-                    } else if(source.Contains("incorrect"))
-                    {
-                        result += ": Incorrect username/password";
-                    }
+                    if (source.Contains("old password")) result += ": Old password";
+                    else if (source.Contains("incorrect")) result += ": Incorrect username/password";
                 }
-                else if (url.Contains("two_step_verification"))
+                // ✅ 2FA page
+                else if (url.Contains("two_step_verification") || url.Contains("two_factor"))
                 {
                     isWorking = true;
-                    result = "Error 2FA";
-                    if (source.Contains("Enter the characters"))
+                    result = "Need 2FA";
+                    if (source.Contains("enter the characters") || source.Contains("captcha"))
                     {
                         result = "Need enter captcha";
                     }
                 }
+                // ✅ safe device / accountscenter
                 else if (url.Contains("accountscenter") || url.Contains("login/save-device/?login_source=login"))
                 {
-                    // new layout for set mail
                     isWorking = true;
                     result = "success";
                 }
-                else if (url.Contains("show_webview_confirm_dialog") || url.Contains("accountscenter"))
+                else if (url.Contains("show_webview_confirm_dialog"))
                 {
-                    //Required: Review your data setting
                     isWorking = true;
                     result = "success";
                     StartReviewData(driver);
                 }
-                else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm") || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
+                else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm")
+                      || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
                 {
                     isWorking = true;
                     result = "Confirm";
@@ -251,9 +476,11 @@ namespace ToolKHBrowser.ToolLib.Tool
                         isWorking = true;
                     }
                 }
+
             } while (!isWorking && counter-- > 0);
 
-            if(result.Contains("success"))
+            // keep your spam check block as-is (unchanged)
+            if (result.Contains("success"))
             {
                 counter = 10;
                 isWorking = false;
@@ -262,22 +489,18 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     result = "success";
                     Thread.Sleep(1000);
-                    try
-                    {
-                        source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower();
-                    }
-                    catch (Exception) { }
+
+                    try { source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower(); } catch { source = ""; }
+
                     if (!string.IsNullOrEmpty(source))
                     {
-                        if (source.Contains("what happened") && 
-                            (source.Contains("use groups") || 
-                            source.Contains("spam") || 
-                            source.Contains("we removed")))
+                        if (source.Contains("what happened") &&
+                            (source.Contains("use groups") || source.Contains("spam") || source.Contains("we removed")))
                         {
                             if (source.Contains("use groups"))
                             {
                                 result = "Spam: Can not use groups";
-                                isWorking= true;
+                                isWorking = true;
                             }
                             else if (source.Contains("we removed"))
                             {
@@ -287,19 +510,22 @@ namespace ToolKHBrowser.ToolLib.Tool
                             {
                                 result = "Need remove spam";
                             }
+
                             Close(driver);
                             Thread.Sleep(1000);
-                        } else
+                        }
+                        else
                         {
                             result = "success";
                             isWorking = true;
                         }
                     }
-                } while(!isWorking && counter-- > 0);
+                } while (!isWorking && counter-- > 0);
             }
 
             return result;
         }
+
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
@@ -489,67 +715,123 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static void UseData(IWebDriver driver, string dataMode="")
+        //public static void UseData(IWebDriver driver, string dataMode="")
+        //{
+        //    if (dataMode == "data" || dataMode == "free")
+        //    {
+        //        string url = "";
+        //        try
+        //        {
+        //            url = driver.Url;
+        //        }
+        //        catch (Exception) { }
+        //        if (!url.Contains("/zero/"))
+        //        {
+        //            if (dataMode == "data")
+        //            {
+        //                try
+        //                {
+        //                    //driver.Navigate().GoToUrl("https://mobile.facebook.com/mobile/zero/carrier_page/settings_page/");
+        //                    driver.Navigate().GoToUrl("https://m.facebook.com/zero/policy/optin?_rdc=1&_rdr");
+        //                }
+        //                catch (Exception) { }
+        //            }
+        //            else
+        //            {
+        //                try
+        //                {
+        //                    driver.Navigate().GoToUrl("https://free.facebook.com/zero/toggle/welcome/?source=bookmark&_rdc=1&_rdr");
+        //                }
+        //                catch (Exception) { }
+        //            }
+        //        }
+        //        FBTool.WaitingPageLoading(driver);
+        //        Thread.Sleep(1000);
+        //        if (dataMode=="data")
+        //        {
+        //            try
+        //            {
+        //                url = driver.Url;
+        //            }
+        //            catch (Exception) { }
+        //            if (url.Contains("free.facebook.com"))
+        //            {
+        //                try
+        //                {
+        //                    driver.Navigate().GoToUrl("https://mobile.facebook.com/mobile/zero/carrier_page/settings_page/");
+        //                }
+        //                catch (Exception) { }
+        //                FBTool.WaitingPageLoading(driver);
+        //                Thread.Sleep(1000);
+        //                UseData1(driver);
+        //            }
+        //            else
+        //            {
+        //                UseData(driver);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            FreeMode(driver);
+        //        }
+        //    }
+        //}
+        public static void UseData(IWebDriver driver, string dataMode = "")
         {
-            if (dataMode == "data" || dataMode == "free")
+            if (dataMode != "data" && dataMode != "free")
+                return;
+
+            // ✅ FIX: Do NOT interrupt 2FA / checkpoint / login
+            string url = "";
+            try { url = (driver.Url ?? "").ToLower(); } catch { url = ""; }
+
+            if (url.Contains("/checkpoint/")
+                || url.Contains("two_step_verification")
+                || url.Contains("two_factor")
+                || url.Contains("/login/"))
             {
-                string url = "";
-                try
+                return;
+            }
+
+            if (!url.Contains("/zero/"))
+            {
+                if (dataMode == "data")
                 {
-                    url = driver.Url;
-                }
-                catch (Exception) { }
-                if (!url.Contains("/zero/"))
-                {
-                    if (dataMode == "data")
-                    {
-                        try
-                        {
-                            //driver.Navigate().GoToUrl("https://mobile.facebook.com/mobile/zero/carrier_page/settings_page/");
-                            driver.Navigate().GoToUrl("https://m.facebook.com/zero/policy/optin?_rdc=1&_rdr");
-                        }
-                        catch (Exception) { }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            driver.Navigate().GoToUrl("https://free.facebook.com/zero/toggle/welcome/?source=bookmark&_rdc=1&_rdr");
-                        }
-                        catch (Exception) { }
-                    }
-                }
-                FBTool.WaitingPageLoading(driver);
-                Thread.Sleep(1000);
-                if (dataMode=="data")
-                {
-                    try
-                    {
-                        url = driver.Url;
-                    }
-                    catch (Exception) { }
-                    if (url.Contains("free.facebook.com"))
-                    {
-                        try
-                        {
-                            driver.Navigate().GoToUrl("https://mobile.facebook.com/mobile/zero/carrier_page/settings_page/");
-                        }
-                        catch (Exception) { }
-                        FBTool.WaitingPageLoading(driver);
-                        Thread.Sleep(1000);
-                        UseData1(driver);
-                    }
-                    else
-                    {
-                        UseData(driver);
-                    }
+                    try { driver.Navigate().GoToUrl("https://m.facebook.com/zero/policy/optin?_rdc=1&_rdr"); } catch { }
                 }
                 else
                 {
-                    FreeMode(driver);
+                    try { driver.Navigate().GoToUrl("https://free.facebook.com/zero/toggle/welcome/?source=bookmark&_rdc=1&_rdr"); } catch { }
                 }
             }
+
+            WaitingPageLoading(driver);
+            Thread.Sleep(1000);
+
+            if (dataMode == "data")
+            {
+                try { url = (driver.Url ?? "").ToLower(); } catch { url = ""; }
+
+                if (url.Contains("free.facebook.com"))
+                {
+                    try { driver.Navigate().GoToUrl("https://mobile.facebook.com/mobile/zero/carrier_page/settings_page/"); } catch { }
+                    WaitingPageLoading(driver);
+                    Thread.Sleep(1000);
+                    UseData1(driver);
+                }
+                else
+                {
+                    // ✅ FIX: your old code called the wrong overload UseData(driver)
+                    // This version calls the correct flow to click "OK, Use Data"
+                    UseData(driver);
+                }
+            }
+            else
+            {
+                FreeMode(driver);
+            }
         }
+
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
@@ -805,20 +1087,79 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static void QuitBrowser(IWebDriver driver, string browserKey = "", string uid= "")
+        //public static void QuitBrowser(IWebDriver driver, string browserKey = "", string uid= "")
+        //{
+        //    try
+        //    {
+        //        ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop");
+        //    }
+        //    catch (Exception) { }
+        //    WaitingPageLoading(driver);
+        //    Thread.Sleep(500);
+        //    try
+        //    {
+        //        driver.Quit();
+        //    }
+        //    catch (Exception) { }
+        //    string cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:no_clear_cache").Value.ToString();
+        //    if (cache != "True")
+        //    {
+        //        if (!string.IsNullOrEmpty(browserKey))
+        //        {
+        //            LocalData.ClearCache(browserKey);
+        //        }
+        //    }
+        //    if(!string.IsNullOrEmpty(uid) && (browserKey.Contains("@") || browserKey.StartsWith("+") || browserKey.StartsWith("0")))
+        //    {
+        //        Thread.Sleep(1000);
+        //        //string newBrowserKey= ConfigData.GetBrowserKey(uid);
+        //        //string sou = ConfigData.GetBrowserDataDirectory() + "\\" + browserKey;
+        //        //try
+        //        //{
+        //        //    string des = ConfigData.GetBrowserDataDirectory() + "\\" + newBrowserKey;
+
+        //        //    Directory.Move(sou, des);
+        //        //    Thread.Sleep(1000);
+        //        //    Directory.Delete(sou, true);
+        //        //}
+        //        //catch (Exception) { }
+        //        CloneDataProfile(browserKey, uid);
+        //    }
+        //}
+        public static void QuitBrowser(IWebDriver driver, string browserKey = "", string uid = "", bool forceQuit = false)
         {
+            // ✅ If not forcing, don't close when user must enter OTP / checkpoint
+            if (!forceQuit)
+            {
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { url = ""; }
+
+                bool needHuman =
+                    url.Contains("/checkpoint/") ||
+                    url.Contains("two_step_verification") ||
+                    url.Contains("two_factor") ||
+                    url.Contains("auth") ||
+                    url.Contains("security");
+
+                if (needHuman)
+                {
+                    // keep browser open for user to type OTP
+                    return;
+                }
+            }
+
             try
             {
                 ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop");
             }
-            catch (Exception) { }
+            catch { }
+
             WaitingPageLoading(driver);
             Thread.Sleep(500);
-            try
-            {
-                driver.Quit();
-            }
-            catch (Exception) { }
+
+            try { driver.Quit(); } catch { }
+
+            // keep your cache / clone logic
             string cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:no_clear_cache").Value.ToString();
             if (cache != "True")
             {
@@ -827,23 +1168,14 @@ namespace ToolKHBrowser.ToolLib.Tool
                     LocalData.ClearCache(browserKey);
                 }
             }
-            if(!string.IsNullOrEmpty(uid) && (browserKey.Contains("@") || browserKey.StartsWith("+") || browserKey.StartsWith("0")))
+
+            if (!string.IsNullOrEmpty(uid) && (browserKey.Contains("@") || browserKey.StartsWith("+") || browserKey.StartsWith("0")))
             {
                 Thread.Sleep(1000);
-                //string newBrowserKey= ConfigData.GetBrowserKey(uid);
-                //string sou = ConfigData.GetBrowserDataDirectory() + "\\" + browserKey;
-                //try
-                //{
-                //    string des = ConfigData.GetBrowserDataDirectory() + "\\" + newBrowserKey;
-
-                //    Directory.Move(sou, des);
-                //    Thread.Sleep(1000);
-                //    Directory.Delete(sou, true);
-                //}
-                //catch (Exception) { }
                 CloneDataProfile(browserKey, uid);
             }
         }
+
         public static void CloneDataProfile(string browserKey, string uid)
         {
             string newBrowserKey = ConfigData.GetBrowserKey(uid);
@@ -1465,5 +1797,87 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return userId;
         }
+        public static bool WaitForLoginSuccess(IWebDriver driver, int timeoutSeconds = 180)
+        {
+            var end = DateTime.Now.AddSeconds(timeoutSeconds);
+
+            while (DateTime.Now < end)
+            {
+                if (!string.IsNullOrEmpty(GetUserId(driver)))
+                    return true;
+
+                Thread.Sleep(1000);
+            }
+            return false;
+        }
+        public static bool WaitForUserComplete2FA(IWebDriver driver, FbAccount data, int timeoutSeconds = 180)
+        {
+            data.Description = "Need 2FA: Please enter 6-digit code in the browser";
+
+            var end = DateTime.Now.AddSeconds(timeoutSeconds);
+            while (DateTime.Now < end)
+            {
+                // ✅ once c_user exists, login is done
+                if (!string.IsNullOrEmpty(GetUserId(driver)))
+                {
+                    data.Description = "2FA completed";
+                    return true;
+                }
+
+                Thread.Sleep(1000);
+            }
+
+            data.Description = "2FA timeout (not completed)";
+            return false;
+        }
+
+        public static string GenerateFacebook2FA(string secret)
+        {
+            secret = secret.Replace(" ", "").Trim();
+
+            var secretBytes = Base32Encoding.ToBytes(secret);
+            var totp = new Totp(secretBytes);
+
+            return totp.ComputeTotp();
+        }
+        public static bool Is2FA(IWebDriver driver)
+        {
+            try
+            {
+                var url = (driver.Url ?? "").ToLower();
+                if (url.Contains("two_step_verification") || url.Contains("two_factor"))
+                    return true;
+
+                // sometimes Facebook uses checkpoint for approvals/2FA
+                if (url.Contains("/checkpoint/"))
+                    return true;
+
+                return false;
+            }
+            catch { return false; }
+        }
+        public static bool IsTwoFaPage(IWebDriver driver)
+        {
+            string url = "";
+            try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+            if (url.Contains("two_step_verification") || url.Contains("two_factor"))
+                return true;
+
+            // Sometimes FB uses checkpoint flows for OTP
+            if (url.Contains("/checkpoint/"))
+            {
+                try
+                {
+                    var src = (driver.PageSource ?? "").ToLower();
+                    if (src.Contains("authentication app") || src.Contains("two-factor") || src.Contains("6-digit"))
+                        return true;
+                }
+                catch { }
+            }
+
+            return false;
+        }
+
     }
 }

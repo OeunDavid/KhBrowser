@@ -65,6 +65,9 @@ namespace ToolKHBrowser.ViewModels
         public bool CheckIn { get; set; }
         public bool Marketplace { get; set; }
         public bool TurnOnPM { get; set; }
+        public bool IsCheckReelInvite { get; set; }
+        public bool NoSwitchPage { get; set; }
+        public bool IsShareByGraph { get; set; }
 
         public bool RecoveryPhoneNumber { get; set; }
 
@@ -78,8 +81,17 @@ namespace ToolKHBrowser.ViewModels
         
         public ContactConfig ContactConfig { get; set; }
         public RecoveryConfig RecoveryConfig { get; set; }
+        public OtherConfig OtherConfig { get; set; }
 
         public bool WorkingOnPage { get; set; }
+        public bool IsPageInvite { get; set; }
+        public bool IsPageRemoveAdmin { get; set; }
+    }
+    public class OtherConfig
+    {
+        public bool WatchTime { get; set; }
+        public bool ReelPlay { get; set; }
+        public bool ChangeLanguage { get; set; }
     }
     public class RecoveryConfig
     {
@@ -162,7 +174,9 @@ namespace ToolKHBrowser.ViewModels
 
         public string CheckIn { get; set; }
         public string Marketplace { get; set; }
+        public string Password { get; set; }
     }
+
     public class TwoFA
     {
         public bool Web { get; set; }
@@ -189,11 +203,31 @@ namespace ToolKHBrowser.ViewModels
         public int AddNumber { get; set; }
         public string UIDs { get; set; }
     }
+    //public class PageConfig
+    //{
+    //    public string PageUrls { get; set; }
+    //    public CreatePageConfig CreatePage { get; set; }
+    //    public CreateReelConfig CreateReel { get; set; }
+
+    //}
+
     public class PageConfig
     {
         public string PageUrls { get; set; }
         public CreatePageConfig CreatePage { get; set; }
         public CreateReelConfig CreateReel { get; set; }
+
+        // ✅ ALIAS for code that expects PageConfig.Create
+        [JsonIgnore]
+        public CreatePageConfig Create => CreatePage;
+
+        // ✅ ALIAS for code that expects PageConfig.Follow.Value
+        [JsonIgnore]
+        public PageFollowConfig Follow => new PageFollowConfig { Value = PageUrls };
+    }
+    public class PageFollowConfig
+    {
+        public string Value { get; set; }
     }
     public class CreateReelConfig
     {
@@ -201,6 +235,7 @@ namespace ToolKHBrowser.ViewModels
         public string SourceFolder { get; set; }
         public string Hashtag { get; set; }
         public string Captions { get; set; }
+        public string Caption => Captions;
     }
     public class CreatePageConfig
     {

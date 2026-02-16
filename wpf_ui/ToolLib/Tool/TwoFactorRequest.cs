@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ToolLib.Http;
+
 
 namespace ToolLib.Tool
 {
@@ -16,15 +16,9 @@ namespace ToolLib.Tool
         {
             try
             {
-                token = Regex.Replace(token, @"\s+", "");
-                var http = ToolDiConfig.Get<HttpHelper>();
-                var url = "http://2fa.live/tok/" + token;
-                var response = http.Get(url);
-                var resp = response.GetResponse<Dictionary<string, object>>();
-
-                return resp["token"]+"";        
+                return ToolKHBrowser.Helper.TwoFaHelper.GenerateCode(token);  
             } catch(Exception e) {
-                log.Error("error call to 2fa : "+token, e);
+                log.Error("error generate 2fa locally : "+token, e);
             }
             return "";
         }

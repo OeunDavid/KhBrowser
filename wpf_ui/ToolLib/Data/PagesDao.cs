@@ -27,7 +27,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@uid", uid}
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_PAGES_DELETE_BY_UID, p);
+            return _dataDao.execute(SQLConstant.PageSQL.TABLE_PAGES_DELETE_BY_UID, p);
         }
         public int add(Pages data)
         {
@@ -39,7 +39,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@status", data.Status},
             };
 
-            return _dataDao.execute(SQLConstant.TABLE_PAGES_INSERT, p);
+            return _dataDao.execute(SQLConstant.PageSQL.TABLE_PAGES_INSERT, p);
         }
         public DataTable GetRecordsByUID(string uid)
         {
@@ -47,7 +47,7 @@ namespace ToolKHBrowser.ToolLib.Data
                 {"@uid", uid }
             };
 
-            string sql = SQLConstant.TABLE_PAGES_SELECT_BY_UID;
+            string sql = SQLConstant.PageSQL.TABLE_PAGES_SELECT_BY_UID;
             DataTable table = _dataDao.query(sql, p);
 
             return table;

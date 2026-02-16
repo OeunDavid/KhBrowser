@@ -36,9 +36,16 @@ namespace WpfUI
             InitializeComponent();
             licenseDay = 0;
 
-            //loginAsync("100092972165738", "55reg@2023@#$");
+            try
+            {
+                dataDao.ensureDatabaseReady();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error initializing database: " + ex.Message);
+            }
 
-            RunSQL();
+            //RunSQL();
 
             detectPermission();
         }
@@ -205,59 +212,6 @@ namespace WpfUI
         {
             return true;
         }
-        public void RunSQL()
-        {
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_OLD_GROUP_IDS);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_TIMELINE_SOURCE);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_REEL_SOURCE_VIDEO);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_PRIMARY_LOCATION);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_MAIL_PASS);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_PAGES_CREATE);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_PAGE_IDS);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_PAGE);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_ACCOUNT_ADD_COLUMN_NOTE);
-            }
-            catch (Exception) { }
-            try
-            {
-                dataDao.execute(SQLConstant.TABLE_GROUPSS_CREATE);
-            }
-            catch (Exception) { }
-        }
         public void detectPermission()
         {
             string version = "8.4";
@@ -275,6 +229,8 @@ namespace WpfUI
         }
         public void copyFile()
         {
+            // This was for SQLite file backup. SQL Server backups should be handled via SQL Server management or scripts.
+            /*
             string prefix = DateTime.Now.ToFileTime().ToString();
             string path = System.Environment.CurrentDirectory;
             string sou = path + "\\core_db.db";
@@ -294,6 +250,7 @@ namespace WpfUI
                 File.Copy(sou, des, true);
             }
             catch (Exception) { }
+            */
         }
         private void ButtonFechar_Click(object sender, RoutedEventArgs e)
         {
