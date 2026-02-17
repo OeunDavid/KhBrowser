@@ -44,7 +44,9 @@ namespace WpfUI.ToolLib.Tool
             string userAgent = "")
         {
             // ✅ your real exe name
-            string driverExe = "microsoftedgedriver.exe";
+            //string driverExe = "microsoftedgedriver.exe";
+            string driverExe = "msedgedriver.exe";
+
 
             string driverDir = ConfigData.GetPathDriver();
             string driverPath = Path.Combine(driverDir, driverExe);

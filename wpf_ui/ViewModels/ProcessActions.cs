@@ -44,6 +44,7 @@ namespace ToolKHBrowser.ViewModels
         public bool ReadMessenger { get; set; }
         public bool PostTimeline { get; set; }
         public bool PlayNewsFeed { get; set; }
+        public bool AutoScroll { get; set; }
 
         public bool CreatePage { get; set; }
         public bool FollowPage { get; set; }

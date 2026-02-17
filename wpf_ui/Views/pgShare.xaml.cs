@@ -133,7 +133,7 @@ namespace ToolKHBrowser.Views
 
         private void btnSaveConfig_Click(object sender, RoutedEventArgs e)
         {
-            var url = txtLinkURL.Text.Trim();
+            var url = txtLinkURL.Text.Trim().ToString();
             var comment = txtComments.Text;
             var caption = txtCaptions.Text;
             var hashtag = txtHashtag.Text;
@@ -158,8 +158,8 @@ namespace ToolKHBrowser.Views
             var groupShareRandom = chbShareGroupRandom.IsChecked.Value;
             var groupShareName = chbShareGroupByName.IsChecked.Value;
 
-            var object_id = txtProfilePageCommentObjectId.Text.Trim();
-            var groupIds = txtGroupID.Text.Trim();
+            var object_id = txtProfilePageCommentObjectId.Text.Trim().ToString();
+            var groupIds = txtGroupID.Text.Trim().ToString();
             var pageNewToken = chbShareProfilePageNewToken.IsChecked.Value;
 
             var page = chbShareWebsiteToPage.IsChecked.Value;
@@ -169,7 +169,7 @@ namespace ToolKHBrowser.Views
             var randomPicture = chbShareWebsiteRandomImage.IsChecked.Value;
             var randomContent = chbShareWebsiteRandomContent.IsChecked.Value;
             var groupWithoutJoin = chbShareWebsiteWithoutJoinGroups.IsChecked.Value;
-            var folder = txtShareWebsiteFolderImage.Text.Trim();
+            var folder = txtShareWebsiteFolderImage.Text.Trim().ToString();
 
             Sharer shareObj = new Sharer();
             ShareToGroups toGroupObj = new ShareToGroups();

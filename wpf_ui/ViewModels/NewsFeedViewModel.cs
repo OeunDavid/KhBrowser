@@ -68,29 +68,52 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Start(frmMain form, IWebDriver driver, FbAccount data)
         {
-            this.form = form;
+            this.form = form ?? throw new ArgumentNullException(nameof(form));
             this.data = data;
             this.driver = driver;
-            this.processActionData = this.form.processActionsData;
-            sourceFolderFileIndex = 0;
-            try
-            {
-                sourceFolderFileIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("newsfeed:source_index").Value.ToString());
-            }
-            catch (Exception) { }
-            try
-            {
-                captionIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("newsfeed:caption_index").Value.ToString());
-            }
-            catch (Exception) { }
 
+            // safe defaults
+            sourceFolderFileIndex = 0;
+            captionIndex = 0;
+            captionArr = Array.Empty<string>();
             random = new Random();
+
+            // processActionsData can be null
+            this.processActionData = this.form.processActionsData;
+
+            // ✅ SAFE: cache dao might be null
+            var cacheDao = this.form.cacheViewModel?.GetCacheDao();
+
+            // ✅ SAFE: Get(...) might return null, Value might be null
             try
             {
-                captionArr = this.processActionData.NewsFeed.Timeline.Captions.Split('\n');
+                var item = cacheDao?.Get("newsfeed:source_index");
+                if (item?.Value != null && int.TryParse(item.Value.ToString(), out var idx))
+                    sourceFolderFileIndex = idx;
             }
-            catch (Exception) { }
+            catch { }
+
+            try
+            {
+                var item = cacheDao?.Get("newsfeed:caption_index");
+                if (item?.Value != null && int.TryParse(item.Value.ToString(), out var idx))
+                    captionIndex = idx;
+            }
+            catch { }
+
+            // ✅ SAFE: nested objects might be null
+            try
+            {
+                var captions = this.processActionData?.NewsFeed?.Timeline?.Captions;
+                if (!string.IsNullOrWhiteSpace(captions))
+                {
+                    captionArr = captions
+                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+            }
+            catch { }
         }
+
         public void ReadNotification()
         {
             bool isWorking = false;

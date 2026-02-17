@@ -109,7 +109,7 @@ namespace ToolKHBrowser.Views
 
         private void btnSaveConfig_Click(object sender, RoutedEventArgs e)
         {
-            var sourceFolder = txtGroupSourceFolder.Text.Trim();
+            var sourceFolder = txtGroupSourceFolder.Text.Trim().ToString();
             var comment = txtViewGroupComments.Text;
             var caption = txtGroupCaption.Text;
 

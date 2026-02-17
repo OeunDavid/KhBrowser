@@ -128,9 +128,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Margin="5,2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Use LDPlayer</TextBlock>
-                        <ToggleButton Grid.Column="1" x:Name="chbUseLDPlayer" IsChecked="False" Height="12"
-                                      Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0" />
+                       
                     </Grid>
                 </Grid>
 
@@ -194,6 +192,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="481*"/>
+                    <ColumnDefinition Width="226*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
@@ -511,6 +511,20 @@
                                 <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Timeline"/></TextBlock>
                             </StackPanel>
                             <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedPostTimeline" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Auto Scroll"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbAutoScroll" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
                         <Button x:Name="btnSettings" Height="30" Width="auto" Margin="6"   IsEnabled="True" Background="CornflowerBlue" Click="btnSettings_Click">
                             <StackPanel Orientation="Horizontal">
@@ -1031,7 +1045,24 @@
                                 <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Temp"/></TextBlock>
                             </StackPanel>
                             <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbCleanTemp" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                            
                         </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Grid.Column="0" Margin="5,2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center">Use LDPlayer</TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" x:Name="chbUseLDPlayer" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0" />
+                            
+                            
+                        </Grid>
+
                     </StackPanel>
                 </Grid>
 
@@ -1080,6 +1111,7 @@
                 </Grid>
             </Grid>
         </Grid>
+
         <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

@@ -2012,6 +2012,7 @@ namespace WpfUI.Views
             processActions.ReadNotification = chbNewsFeedReadNotification.IsChecked.Value;
             processActions.PostTimeline = chbNewsFeedPostTimeline.IsChecked.Value;
             processActions.PlayNewsFeed = chbNewsFeedPlay.IsChecked.Value;
+            processActions.AutoScroll = chbAutoScroll.IsChecked.Value;
             processActions.CreatePage = chbPageCreate.IsChecked.Value;
             processActions.FollowPage = chbPageFollow.IsChecked.Value;
             processActions.BackupPage = chbPageBackup.IsChecked.Value;
@@ -4822,9 +4823,46 @@ namespace WpfUI.Views
             fbAccountViewModel.getAccountDao().updateStatus(data.UID, data.Description, status);
         }
 
+        public void StartAutoScroll(IWebDriver driver, FbAccount account)
+        {
+            try
+            {
+                account.Status = "Auto Scroll";
+                SetGridDataRowStatus(account);
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
+
+                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                Random rnd = new Random();
+
+                while (!IsStop())
+                {
+                    try
+                    {
+                        // Scroll down by a random amount between 300 and 700 pixels
+                        int scrollAmount = rnd.Next(300, 700);
+                        js.ExecuteScript($"window.scrollBy(0, {scrollAmount});");
+
+                        // Wait for a random time between 2 and 5 seconds
+                        int sleepTime = rnd.Next(2000, 5000);
+                        Thread.Sleep(sleepTime);
+
+                        // Occasionally scroll up a bit to simulate reading/pausing (10% chance)
+                        if (rnd.Next(0, 10) == 0)
+                        {
+                            int scrollUp = rnd.Next(100, 300);
+                            js.ExecuteScript($"window.scrollBy(0, -{scrollUp});");
+                            Thread.Sleep(rnd.Next(1000, 2000));
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception) { }
+        }
+
         public void StartNewsFeedConfig(IWebDriver driver, FbAccount data)
         {
-            if (processActionsData.ReadMessenger || processActionsData.PostTimeline || processActionsData.PlayNewsFeed || processActionsData.ReadNotification)
+            if (processActionsData.ReadMessenger || processActionsData.PostTimeline || processActionsData.PlayNewsFeed || processActionsData.ReadNotification || processActionsData.AutoScroll)
             {
                 processActionsData.NewsFeed = GetCacheConfig<NewsFeedConfig>("newsfeed:config");
                 INewsFeedViewModel newsFeedViewModel = DIConfig.Get<INewsFeedViewModel>();
@@ -4844,6 +4882,10 @@ namespace WpfUI.Views
                 if (processActionsData.PlayNewsFeed && !IsStop())
                 {
                     newsFeedViewModel.Play();
+                }
+                if (processActionsData.AutoScroll && !IsStop())
+                {
+                    StartAutoScroll(driver, data);
                 }
                 int status = 1;
                 if (data.Status == "Die")
