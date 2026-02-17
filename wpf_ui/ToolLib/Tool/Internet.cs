@@ -329,7 +329,11 @@ namespace ToolKHBrowser.ToolLib.Tool
         }
         public static void ResetIP(IWebDriver driver = null)
         {
-            BrowserCodeResetIP(DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:configModem").Value.ToString());
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:configModem");
+            if (cache != null && cache.Value != null)
+            {
+                BrowserCodeResetIP(cache.Value.ToString());
+            }
             WaitingInternet();
             Thread.Sleep(2000);
         }

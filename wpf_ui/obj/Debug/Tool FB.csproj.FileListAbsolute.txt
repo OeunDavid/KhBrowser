@@ -93,7 +93,6 @@ C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\pgShare.baml
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\pgStore.baml
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\pgUserAgent.baml
-C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\App.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\frmConfiguration.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\frmDashboard.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\MainWindow.g.cs
@@ -125,6 +124,7 @@ C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\About.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\wdConfirmDialog.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Views\wdDialogForm.g.cs
+C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\App.g.cs
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Tool KH Browser_MarkupCompile.cache
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\Tool KH Browser_MarkupCompile.lref
 C:\Users\user\OneDrive\Documents\Facebook_Tool\KhBrowser\wpf_ui\obj\Debug\App.baml

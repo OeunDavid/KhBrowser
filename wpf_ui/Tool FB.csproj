@@ -204,16 +204,15 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="App.xaml">
+    <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
+    </ApplicationDefinition>
     <Compile Include="DIConfig.cs" />
     <Compile Include="Helper\TwoFaHelper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="ToolLib\Cmd\AdbCommand.cs" />
     <Compile Include="ToolLib\Data\Account.cs" />
     <Compile Include="ToolLib\Data\AccountDao.cs" />

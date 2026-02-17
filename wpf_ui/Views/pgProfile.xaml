@@ -10,369 +10,371 @@
         Height="820"
         Title="pgProfile">
 
-    <StackPanel Background="Black">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="700"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Activity Log --------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="250"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Group posts, Comments"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtDeleteActivityLogGroups" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="700"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Data --------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Unfriends"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtUnfriends" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Suggest"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtSuggest" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Request"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtRequest" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="35"/>
-                        <ColumnDefinition Width="75"/>
-                        <ColumnDefinition Width="35"/>
-                        <ColumnDefinition Width="60"/>
-                        <ColumnDefinition Width="35"/>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="35"/>
-                        <ColumnDefinition Width="75"/>
-                        <ColumnDefinition Width="35"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                    </Grid.RowDefinitions>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Profile Picture"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfilePicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Cover Picture"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="3" x:Name="chbCoverPicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="All Picture"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="5" x:Name="chbAllPicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="6" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post and Tag"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="7" x:Name="chbDeletePostTag" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="8" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Mobile Phone"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="9" x:Name="chbRemoveMobilePhone" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Info --------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Profile Folder"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtProfileSource" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Cover Folder"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtCoverSource" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Check-in"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtCheckIn" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Marketplace"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtMarketplace" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="220"/>
-                        <ColumnDefinition Width="220"/>
-                        <ColumnDefinition Width="220"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Bio(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtBio" Grid.Row="1" Grid.Column="0" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="School(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtSchool" Grid.Row="1" Grid.Column="1" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="2">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="College(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtCollege" Grid.Row="1" Grid.Column="2" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="220"/>
-                        <ColumnDefinition Width="220"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="City(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtCity" Grid.Row="1" Grid.Column="0" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Hometown(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtHometown" Grid.Row="1" Grid.Column="1" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Turn on 2FA ------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Process Type"/></TextBlock>
-                    </StackPanel>
-                    <Grid Grid.Row="0" Grid.Column="1">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="65"></ColumnDefinition>
-                            <ColumnDefinition Width="65"></ColumnDefinition>
-                            <ColumnDefinition Width="70"></ColumnDefinition>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Background="Black">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="700"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Activity Log --------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="250"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <RadioButton x:Name="chbTurnOnTwofaByWeb" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web I</RadioButton>
-                        <RadioButton x:Name="chbTurnOnTwofaByWebII" Grid.Row="0" Grid.Column="1"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web II</RadioButton>
-                        <RadioButton x:Name="chbTurnOnTwofaByMbasic" Grid.Row="0" Grid.Column="2"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Mbasic</RadioButton>
-                    </Grid>                    
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Enter Password"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbEnterPassword" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="600"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Password ------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Run Type"/></TextBlock>
-                    </StackPanel>
-                    <Grid Grid.Row="0" Grid.Column="1">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="75"></ColumnDefinition>
-                            <ColumnDefinition Width="75"></ColumnDefinition>
-                            <ColumnDefinition Width="75"></ColumnDefinition>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <RadioButton x:Name="chbPasswordWeb" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web 1</RadioButton>
-                        <RadioButton x:Name="chbPasswordWeb2" Grid.Row="0" Grid.Column="1"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web 2</RadioButton>
-                        <RadioButton x:Name="chbPasswordMbasic" Grid.Row="0" Grid.Column="2"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Mbasic</RadioButton>
-                        <RadioButton x:Name="chbPasswordNewLayout" Grid.Row="0" Grid.Column="3"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">New Layout</RadioButton>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Group posts, Comments"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtDeleteActivityLogGroups" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
                     </Grid>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Password"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtNewPassword" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <StackPanel Margin="5">
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="700"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Data --------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Unfriends"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtUnfriends" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Suggest"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtSuggest" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Request"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtRequest" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="0" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="35"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="35"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="35"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="35"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="35"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Profile Picture"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbProfilePicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Cover Picture"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="3" x:Name="chbCoverPicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="All Picture"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="5" x:Name="chbAllPicture" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="6" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post and Tag"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="7" x:Name="chbDeletePostTag" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="8" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Mobile Phone"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="9" x:Name="chbRemoveMobilePhone" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
 
-                <Button x:Name="btnSaveConfig" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveConfig_Click" >
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
-                        <TextBlock Margin="0" Text="Save Config" TextAlignment="Left" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
-    </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Info --------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Profile Folder"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtProfileSource" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Cover Folder"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtCoverSource" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Check-in"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtCheckIn" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Marketplace"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtMarketplace" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="220"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Bio(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtBio" Grid.Row="1" Grid.Column="0" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="School(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtSchool" Grid.Row="1" Grid.Column="1" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="2">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="College(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtCollege" Grid.Row="1" Grid.Column="2" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="220"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="City(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtCity" Grid.Row="1" Grid.Column="0" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Hometown(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtHometown" Grid.Row="1" Grid.Column="1" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Turn on 2FA ------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Process Type"/></TextBlock>
+                        </StackPanel>
+                        <Grid Grid.Row="0" Grid.Column="1">
+                            <Grid.ColumnDefinitions >
+                                <ColumnDefinition Width="65"></ColumnDefinition>
+                                <ColumnDefinition Width="65"></ColumnDefinition>
+                                <ColumnDefinition Width="70"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <RadioButton x:Name="chbTurnOnTwofaByWeb" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web I</RadioButton>
+                            <RadioButton x:Name="chbTurnOnTwofaByWebII" Grid.Row="0" Grid.Column="1"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web II</RadioButton>
+                            <RadioButton x:Name="chbTurnOnTwofaByMbasic" Grid.Row="0" Grid.Column="2"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Mbasic</RadioButton>
+                        </Grid>                    
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Enter Password"/></TextBlock>
+                        </StackPanel>
+                        <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbEnterPassword" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="600"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Password ------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Run Type"/></TextBlock>
+                        </StackPanel>
+                        <Grid Grid.Row="0" Grid.Column="1">
+                            <Grid.ColumnDefinitions >
+                                <ColumnDefinition Width="75"></ColumnDefinition>
+                                <ColumnDefinition Width="75"></ColumnDefinition>
+                                <ColumnDefinition Width="75"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <RadioButton x:Name="chbPasswordWeb" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web 1</RadioButton>
+                            <RadioButton x:Name="chbPasswordWeb2" Grid.Row="0" Grid.Column="1"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Web 2</RadioButton>
+                            <RadioButton x:Name="chbPasswordMbasic" Grid.Row="0" Grid.Column="2"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Mbasic</RadioButton>
+                            <RadioButton x:Name="chbPasswordNewLayout" Grid.Row="0" Grid.Column="3"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">New Layout</RadioButton>
+                        </Grid>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Password"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtNewPassword" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <StackPanel Margin="5">
+
+                    <Button x:Name="btnSaveConfig" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveConfig_Click" >
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
+                            <TextBlock Margin="0" Text="Save Config" TextAlignment="Left" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

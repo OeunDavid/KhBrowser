@@ -88,14 +88,23 @@ namespace ToolKHBrowser.ViewModels
             this.processActionData = this.form.processActionsData;
 
             shareGroupIndex = 0;
+            shareArrGroupIDs = Array.Empty<string>();
+
             try
             {
-                shareGroupIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("share:groupIndex").Value);
+                var cache = this.form.cacheViewModel.GetCacheDao().Get("share:groupIndex");
+                if (cache != null && cache.Value != null)
+                {
+                    shareGroupIndex = Int32.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception) { }
             try
             {
-                shareArrGroupIDs = this.form.processActionsData.Share.ProfilePage.GroupIDs.Split('\n');
+                if (processActionData != null && processActionData.Share != null && processActionData.Share.ProfilePage != null && !string.IsNullOrEmpty(processActionData.Share.ProfilePage.GroupIDs))
+                {
+                    shareArrGroupIDs = this.form.processActionsData.Share.ProfilePage.GroupIDs.Split('\n');
+                }
             }
             catch (Exception) { }
         }
@@ -109,7 +118,10 @@ namespace ToolKHBrowser.ViewModels
             } else
             {
                 char[] emojiStr = "⭐☹️✋✌️☝️✊✍️❤️‍❣️☘️".ToCharArray();
-                str = emojiStr[random.Next(0,emojiStr.Length - 1)].ToString();
+                if (emojiStr != null && emojiStr.Length > 0)
+                {
+                    str = emojiStr[random.Next(0, emojiStr.Length)].ToString();
+                }
             }
 
             return str;
@@ -131,13 +143,15 @@ namespace ToolKHBrowser.ViewModels
         {
             string[] str = "Wise,thoughts,parables,quotes,aphorisms,about,love,about,life,Puerto,Ricans,United,Davenport,Kissimmee,Orlando,Fraud,Scam,Travel,Agencies,Buying and selling in Valle de,Pedregal,Puebla and Monarca,Maestro,Autoparts,Atlanta,Entrepreneurs,Advice,Guidance,Networking for the Elite".Split(',');
 
-            return str[random.Next(0, str.Length - 1)].ToString().ToLower();
+            if (str.Length == 0) return "";
+            return str[random.Next(0, str.Length)].ToString().ToLower();
         }
         public string GetHashTag()
         {
             string[] str = "life,fbviral,good,wow,omg,easy,lower,swag,low,high,love,wear,car,viral,like,virals,viral,watch,much,video,watching,videos,lover,liker,lifer,follower,follow,maper,reel,reels,music".Split(',');
 
-            return str[random.Next(0, str.Length - 1)].ToString().ToLower();
+            if (str.Length == 0) return "";
+            return str[random.Next(0, str.Length)].ToString().ToLower();
         }
         public string GetMixCaption(string caption = "", bool emojiUrl = true)
         {
@@ -180,6 +194,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void APIShareToGroup(IWebDriver driver)
         {
+            if (processActionData == null || processActionData.Share == null || processActionData.Share.GroupNumber == null || processActionData.Share.DelayEachShare == null)
+                return;
+
             //
             data.Description = "API Share to Groups ";
 
@@ -279,6 +296,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void ShareToGroup(IWebDriver driver, bool shareByGraph = false)
         {
+            if (processActionData == null || processActionData.Share == null || processActionData.Share.GroupNumber == null || processActionData.Share.DelayEachShare == null)
+                return;
+
             bool isWorking = false;
             if(shareByGraph)
             {
@@ -299,7 +319,7 @@ namespace ToolKHBrowser.ViewModels
             string str_path6 = "/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div";
             string str_path7 = "/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div";
             string str_path8 = "/html/body/div[1]/div/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div";
-            string str_path9 = "/html/body/div[1]/div/div[1]/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div";
+            string str_path9 = "/html/body/div[1]/div/div[1]/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div[3]/form/div/div[1]/div/div/div[1]/div/div[2]/div[1]/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div/div/div/div/span/br";
 
             string des = data.Description;
             bool isContinue, isShare = true;
@@ -1380,7 +1400,11 @@ namespace ToolKHBrowser.ViewModels
             int index = 0;
             try
             {
-                index = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get(key).Value);
+                var cache = this.form.cacheViewModel.GetCacheDao().Get(key);
+                if (cache != null && cache.Value != null)
+                {
+                    index = Int32.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception) { }
             try
@@ -1410,7 +1434,11 @@ namespace ToolKHBrowser.ViewModels
             key = key + "link";
             try
             {
-                index = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get(key).Value);
+                var cache = this.form.cacheViewModel.GetCacheDao().Get(key);
+                if (cache != null && cache.Value != null)
+                {
+                    index = Int32.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception) { }
             try
@@ -1453,9 +1481,9 @@ namespace ToolKHBrowser.ViewModels
             if(processActionData.Share.Website.RandomContent && !string.IsNullOrEmpty(folder))
             {
                 string[] folders = System.IO.Directory.GetDirectories(@folder);
-                if(folders.Count() > 0)
+                if(folders != null && folders.Length > 0)
                 {
-                    folder = folders[random.Next(0,folders.Length-1)];
+                    folder = folders[random.Next(0, folders.Length)];
 
                     string pathContent = folder+"\\caption.txt";
                     string pathLink = folder+"\\link.txt";
@@ -1592,7 +1620,10 @@ namespace ToolKHBrowser.ViewModels
                     }
                     else
                     {
-                        link1 = urlArr[random.Next(0, urlArr.Length - 1)];
+                        if (urlArr != null && urlArr.Length > 0)
+                        {
+                            link1 = urlArr[random.Next(0, urlArr.Length)];
+                        }
                     }
                     cap = cap.TrimStart();
 
@@ -1633,7 +1664,9 @@ namespace ToolKHBrowser.ViewModels
 
                     try
                     {
-                        driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/groups/" + groupId + "/buy_sell_discussion");
+                        string safeUrl = FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId);
+                        if (!safeUrl.EndsWith("/")) safeUrl += "/";
+                        driver.Navigate().GoToUrl(safeUrl + "buy_sell_discussion");
                     }
                     catch (Exception) { }
                     FBTool.WaitingPageLoading(driver);
@@ -1690,7 +1723,11 @@ namespace ToolKHBrowser.ViewModels
                 FBTool.WaitingPageLoading(driver);
                 Thread.Sleep(1000);
 
-                string link1 = urlArr[random.Next(0, urlArr.Length - 1)];
+                string link1 = "";
+                if (urlArr != null && urlArr.Length > 0)
+                {
+                    link1 = urlArr[random.Next(0, urlArr.Length)];
+                }
 
                 WebFBTool.ShareWebsiteToPage(driver, pastLink, link1, caption, multipleImageStr);
             }

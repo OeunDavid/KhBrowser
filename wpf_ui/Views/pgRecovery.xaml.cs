@@ -38,18 +38,22 @@ namespace ToolKHBrowser.Views
         {
             try
             {
-                var str = cacheViewModel.GetCacheDao().Get("recovery:config").Value.ToString();
-                if (!string.IsNullOrEmpty(str))
+                var cache = cacheViewModel.GetCacheDao().Get("recovery:config");
+                if (cache != null && cache.Value != null)
                 {
-                    RecoveryConfig recoveryObj = JsonConvert.DeserializeObject<RecoveryConfig>(str);
+                    var str = cache.Value.ToString();
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        RecoveryConfig recoveryObj = JsonConvert.DeserializeObject<RecoveryConfig>(str);
 
-                    txt5SimApiKey.Password = recoveryObj.PhoneNumber.FiveSim.APIKey;
-                    txt5SimCountry.Text = recoveryObj.PhoneNumber.FiveSim.Country;
-                    txt5SimOperator.Text = recoveryObj.PhoneNumber.FiveSim.Opterator;
-                    txt5SimProduct.Text = recoveryObj.PhoneNumber.FiveSim.Product;
+                        txt5SimApiKey.Password = recoveryObj.PhoneNumber.FiveSim.APIKey;
+                        txt5SimCountry.Text = recoveryObj.PhoneNumber.FiveSim.Country;
+                        txt5SimOperator.Text = recoveryObj.PhoneNumber.FiveSim.Opterator;
+                        txt5SimProduct.Text = recoveryObj.PhoneNumber.FiveSim.Product;
 
-                    chb5Sim.IsChecked = recoveryObj.FiveSime;
-                    txtNewPassword.Text = recoveryObj.Password;
+                        chb5Sim.IsChecked = recoveryObj.FiveSime;
+                        txtNewPassword.Text = recoveryObj.Password;
+                    }
                 }
             } catch(Exception) { }
         }

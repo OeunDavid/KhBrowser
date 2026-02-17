@@ -88,42 +88,76 @@ namespace ToolKHBrowser.ViewModels
 
             try
             {
-                createNameIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("page:config:name_index").Value.ToString());
+                var cache = this.form.cacheViewModel.GetCacheDao().Get("page:config:name_index");
+                if (cache != null && cache.Value != null)
+                {
+                    int.TryParse(cache.Value.ToString(), out createNameIndex);
+                }
             }
             catch (Exception) { }
             try
             {
-                createCategoryIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("page:config:category_index").Value.ToString());
+                var cache = this.form.cacheViewModel.GetCacheDao().Get("page:config:category_index");
+                if (cache != null && cache.Value != null)
+                {
+                    int.TryParse(cache.Value.ToString(), out createCategoryIndex);
+                }
             }
             catch (Exception) { }
             try
             {
-                createBioIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("page:config:bio_index").Value.ToString());
+                var cache = this.form.cacheViewModel.GetCacheDao().Get("page:config:bio_index");
+                if (cache != null && cache.Value != null)
+                {
+                    int.TryParse(cache.Value.ToString(), out createBioIndex);
+                }
             }
             catch (Exception) { }
+            if (this.processActionData == null || this.processActionData.PageConfig == null)
+                return;
+
             try
             {
-                pageUrlArr = this.processActionData.PageConfig.PageUrls.Split('\n');
+                if (!string.IsNullOrEmpty(this.processActionData.PageConfig.PageUrls))
+                {
+                    pageUrlArr = this.processActionData.PageConfig.PageUrls.Split('\n');
+                }
             }
             catch (Exception) { }
-            try
+
+            if (this.processActionData.PageConfig.CreatePage != null)
             {
-                pageNameArr = this.processActionData.PageConfig.CreatePage.Names.Split('\n');
+                try
+                {
+                    if (!string.IsNullOrEmpty(this.processActionData.PageConfig.CreatePage.Names))
+                    {
+                        pageNameArr = this.processActionData.PageConfig.CreatePage.Names.Split('\n');
+                    }
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(this.processActionData.PageConfig.CreatePage.Categies))
+                    {
+                        pageCategoriesArr = this.processActionData.PageConfig.CreatePage.Categies.Split('\n');
+                    }
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(this.processActionData.PageConfig.CreatePage.Bio))
+                    {
+                        pageBioArr = this.processActionData.PageConfig.CreatePage.Bio.Split('\n');
+                    }
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
-            try
-            {
-                pageCategoriesArr = this.processActionData.PageConfig.CreatePage.Categies.Split('\n');
-            }
-            catch (Exception) { }
-            try
-            {
-                pageBioArr = this.processActionData.PageConfig.CreatePage.Bio.Split('\n');
-            }
-            catch (Exception) { }
         }
         public void CreateReel(bool isNoSwitchPage = false)
         {
+            if (processActionData == null || processActionData.PageConfig == null || processActionData.PageConfig.CreateReel == null)
+                return;
+
             int create = processActionData.PageConfig.CreateReel.CreateNumber;
             if(create > 0)
             {
@@ -158,7 +192,7 @@ namespace ToolKHBrowser.ViewModels
                         data.Description = des + " " + totalCreate;
                     }
                 }
-                else
+                else if (!string.IsNullOrEmpty(data.PageIds))
                 {
                     string[] pageArr = data.PageIds.Split(',');
                     bool isBreak = false;
@@ -190,7 +224,10 @@ namespace ToolKHBrowser.ViewModels
                                         note = arr[0].Trim();
                                     }
                                     note += ":" + follower;
-                                    accountDao.addNote(data.UID, note);
+                                    if (accountDao != null)
+                                    {
+                                        accountDao.addNote(data.UID, note);
+                                    }
                                     data.Note = note;
                                 }
                                 catch (Exception) { }
@@ -606,6 +643,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Create()
         {
+            if (processActionData == null || processActionData.PageConfig == null || processActionData.PageConfig.CreatePage == null)
+                return;
+
             data.Description = "Create Page";
             for (int j = 1; j <= processActionData.PageConfig.CreatePage.CreateNumber; j++)
             {
@@ -632,6 +672,7 @@ namespace ToolKHBrowser.ViewModels
         public void Follow()
         {
             data.Description = "Follow Page";
+            if (pageUrlArr == null) return;
             for(int i = 0; i < pageUrlArr.Length; i++)
             {
                 if (IsStop())
@@ -670,7 +711,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = pageNameArr[random.Next(0,pageNameArr.Length-1)];
+                if (pageNameArr != null && pageNameArr.Length > 0)
+                {
+                    str = pageNameArr[random.Next(0, pageNameArr.Length)];
+                }
                 //if (createNameIndex >= pageNameArr.Length)
                 //{
                 //    createNameIndex = 0;
@@ -689,7 +733,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = pageCategoriesArr[random.Next(0, pageCategoriesArr.Length - 1)];
+                if (pageCategoriesArr != null && pageCategoriesArr.Length > 0)
+                {
+                    str = pageCategoriesArr[random.Next(0, pageCategoriesArr.Length)];
+                }
                 //if (createCategoryIndex >= pageCategoriesArr.Length)
                 //{
                 //    createCategoryIndex = 0;
@@ -708,7 +755,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = pageBioArr[random.Next(0, pageBioArr.Length - 1)];
+                if (pageBioArr != null && pageBioArr.Length > 0)
+                {
+                    str = pageBioArr[random.Next(0, pageBioArr.Length)];
+                }
                 //if (createBioIndex >= pageBioArr.Length)
                 //{
                 //    createBioIndex = 0;

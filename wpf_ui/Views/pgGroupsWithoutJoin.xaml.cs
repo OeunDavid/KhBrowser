@@ -39,8 +39,8 @@ namespace ToolKHBrowser.Views
         {
             try
             {
-                var str = cacheViewModel.GetCacheDao().Get("group:without:join").Value.ToString();
-                txtGroupIDs.Text = str;
+                var cache = cacheViewModel.GetCacheDao().Get("group:without:join");
+                txtGroupIDs.Text = cache?.Value?.ToString() ?? "";
             }
             catch (Exception) { }
         }

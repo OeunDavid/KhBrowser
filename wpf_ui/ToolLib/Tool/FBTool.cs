@@ -1160,7 +1160,8 @@ namespace ToolKHBrowser.ToolLib.Tool
             try { driver.Quit(); } catch { }
 
             // keep your cache / clone logic
-            string cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:no_clear_cache").Value.ToString();
+            var cacheObj = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:no_clear_cache");
+            string cache = cacheObj?.Value?.ToString() ?? "";
             if (cache != "True")
             {
                 if (!string.IsNullOrEmpty(browserKey))
@@ -1877,6 +1878,35 @@ namespace ToolKHBrowser.ToolLib.Tool
             }
 
             return false;
+        }
+
+        public static string GetSafeGroupUrl(string baseUrl, string groupId)
+        {
+            if (string.IsNullOrWhiteSpace(groupId))
+                return baseUrl;
+
+            groupId = groupId.Trim();
+
+            // If it's already a full URL, don't prepend baseUrl/groups/
+            if (groupId.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                groupId.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                // Optionally normalize base (e.g. if we are on web but got mobile link, we might want to swap)
+                // For now, return as-is if it's a valid FB group link
+                return groupId;
+            }
+
+            // If it's just a numeric ID or slug, construction should be: baseUrl + "/groups/" + groupId
+            // But we must be careful: some places in code might already pass "/groups/ID" or "groups/ID"
+            if (groupId.StartsWith("groups/", StringComparison.OrdinalIgnoreCase))
+                groupId = groupId.Substring(7);
+            if (groupId.StartsWith("/groups/", StringComparison.OrdinalIgnoreCase))
+                groupId = groupId.Substring(8);
+
+            // Strip trailing slashes
+            groupId = groupId.Trim('/');
+
+            return baseUrl.TrimEnd('/') + "/groups/" + groupId;
         }
 
     }

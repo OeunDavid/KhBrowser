@@ -34,17 +34,22 @@ namespace ToolKHBrowser.Views
         }
         public void LoadData()
         {
-            var str = cacheViewModel.GetCacheDao().Get("friend:config").Value.ToString();
-            if (!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("friend:config");
+            if (cache != null && cache.Value != null)
             {
-                FriendsConfig friendsObj = JsonConvert.DeserializeObject<FriendsConfig>(str);
-                var uids = cacheViewModel.GetCacheDao().Get("friend:config:uids").Value.ToString();
+                var str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    FriendsConfig friendsObj = JsonConvert.DeserializeObject<FriendsConfig>(str);
+                    var cacheUids = cacheViewModel.GetCacheDao().Get("friend:config:uids");
+                    var uids = cacheUids?.Value?.ToString() ?? "";
 
-                txtAddFriends.Value = friendsObj.AddNumber;
-                txtAcceptFriends.Value = friendsObj.AcceptNumber;
+                    txtAddFriends.Value = friendsObj.AddNumber;
+                    txtAcceptFriends.Value = friendsObj.AcceptNumber;
 
-                txtAddFriendByUIDNumber.Value = friendsObj.FriendsByUID.AddNumber;
-                txtUID.Text = uids;
+                    txtAddFriendByUIDNumber.Value = friendsObj.FriendsByUID.AddNumber;
+                    txtUID.Text = uids;
+                }
             }
         }
 

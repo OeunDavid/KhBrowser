@@ -15,6 +15,7 @@ namespace WpfUI
     /// </summary>
     public partial class App : Application
     {
+        /*
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
@@ -24,5 +25,6 @@ namespace WpfUI
             application.InitializeComponent();
             application.Run();
         }
+        */
     }
 }

@@ -112,7 +112,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         {
             try
             {
-                driver.Navigate().GoToUrl(Constant.FB_MOBILE_URL + "/groups/" + groupId);
+                driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_MOBILE_URL, groupId));
             }
             catch (Exception) { }
 

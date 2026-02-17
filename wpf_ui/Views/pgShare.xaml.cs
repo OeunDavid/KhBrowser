@@ -36,10 +36,13 @@ namespace ToolKHBrowser.Views
         }
         public void LoadData()
         {
-            var str= cacheViewModel.GetCacheDao().Get("share:config").Value.ToString();
-            if(!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("share:config");
+            if (cache != null && cache.Value != null)
             {
-                Sharer shareObj = JsonConvert.DeserializeObject<Sharer>(str);
+                var str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    Sharer shareObj = JsonConvert.DeserializeObject<Sharer>(str);
 
                 txtLinkURL.Text = shareObj.Urls;
                 txtComments.Text = shareObj.Comments;
@@ -127,6 +130,7 @@ namespace ToolKHBrowser.Views
                         chbShareWebsiteWithoutJoinGroups.IsChecked = shareObj.Website.GroupWithoutJoin;
                     }
                     catch (Exception) { }
+                }
                 }
             }
         }

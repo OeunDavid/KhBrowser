@@ -601,7 +601,10 @@ namespace WpfUI.Views
         }
         public void ClearAllCache()
         {
-            var dir = cacheViewModel.GetCacheDao().Get("config:microsoftEdgeProfile").Value.ToString();
+            var cache = cacheViewModel.GetCacheDao().Get("config:microsoftEdgeProfile");
+            if (cache == null || cache.Value == null) return;
+
+            string dir = cache.Value.ToString();
             string[] folders = System.IO.Directory.GetDirectories(@dir);
 
             for (int i = 0; i < folders.Count(); i++)
@@ -1835,7 +1838,11 @@ namespace WpfUI.Views
             int index = 0;
             try
             {
-                index= Int32.Parse(cacheViewModel.GetCacheDao().Get("share:groupIndex").Value);
+                var cache = cacheViewModel.GetCacheDao().Get("share:groupIndex");
+                if (cache != null && cache.Value != null)
+                {
+                    index = Int32.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception) { }
             try
@@ -2007,6 +2014,7 @@ namespace WpfUI.Views
             processActions.IsLeaveGroup = chbGroupLeave.IsChecked.Value;
             processActions.IsJoinGroup = chbGroupJoin.IsChecked.Value;
             processActions.IsViewGroup = chbGroupView.IsChecked.Value;
+            processActions.AutoScrollGroup = chbAutoScrollGroup.IsChecked.Value;
             processActions.IsBackupGroup = chbGroupBackup.IsChecked.Value;
             processActions.ReadMessenger = chbNewsFeedReadMessenger.IsChecked.Value;
             processActions.ReadNotification = chbNewsFeedReadNotification.IsChecked.Value;
@@ -2016,6 +2024,7 @@ namespace WpfUI.Views
             processActions.CreatePage = chbPageCreate.IsChecked.Value;
             processActions.FollowPage = chbPageFollow.IsChecked.Value;
             processActions.BackupPage = chbPageBackup.IsChecked.Value;
+            processActions.AutoScrollPage = chbAutoScrollPage.IsChecked.Value;
             processActions.PageCreateReel = chbPageCreateReel.IsChecked.Value;
             processActions.ProfileDeleteData = chbProfileDeleteData.IsChecked.Value;
             processActions.ActivtiyLog = chbDeleteActivity.IsChecked.Value;
@@ -2053,31 +2062,95 @@ namespace WpfUI.Views
             return processActions;
         }
 
+        //public void StartProcess()
+        //{
+        //    running = processActionsData.Thread;
+        //    if (processActionsData.ResetIP <= running && running != processActionsData.Thread)
+        //    {
+        //        processActionsData.Thread = running;
+        //        Application.Current.Dispatcher.Invoke(delegate
+        //        {
+        //            try
+        //            {
+        //                ((NumericBox<int>)(object)txtThread).Value = running;
+        //            }
+        //            catch (Exception)
+        //            {
+        //            }
+        //        });
+        //    }
+        //    if (processActionsData.ContactPrimary || processActionsData.ContactRemovePhone || processActionsData.ContactRemoveInstragram)
+        //    {
+        //        yandexVerifyArr = new Dictionary<int, YandexVerify>();
+        //        processActionsData.ContactConfig = GetCacheConfig<ContactConfig>("contact:config");
+
+        //        if (processActionsData.ContactPrimary && processActionsData.ContactConfig.Yandex)
+        //        {
+        //            YandexLogin(processActionsData.ContactConfig.YandexConfig.Mail, processActionsData.ContactConfig.YandexConfig.Password);
+        //            for (int i = 0; i < processActionsData.Thread; i++)
+        //            {
+        //                yandexVerifyArr.Add(i, new YandexVerify()
+        //                {
+        //                    Code = "",
+        //                    Status = false,
+        //                    MailPrimary = ""
+        //                });
+        //            }
+
+        //            // auto get code from mail.yandex
+
+        //            Thread thread1 = new Thread(GetYandexCodeFromDriver);
+        //            thread1.Start();
+        //        }
+        //    }
+        //    for (int i = 0; i < processActionsData.Thread; i++)
+        //    {
+        //        if (IsStop())
+        //        {
+        //            break;
+        //        }
+        //        Thread thread = new Thread(StartRunAccount);
+        //        thread.Start();
+        //        Thread.Sleep(1000);
+        //    }
+        //}
+
         public void StartProcess()
         {
+            // ✅ read UI toggle safely on UI thread
+            bool autoScroll = false;
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                try
+                {
+                    autoScroll = chbAutoScroll.IsChecked.HasValue && chbAutoScroll.IsChecked.Value;
+                }
+                catch { autoScroll = false; }
+            });
+
+            // ✅ store into your process config
+            processActionsData.AutoScroll = autoScroll;
+
             running = processActionsData.Thread;
+
             if (processActionsData.ResetIP <= running && running != processActionsData.Thread)
             {
                 processActionsData.Thread = running;
                 Application.Current.Dispatcher.Invoke(delegate
                 {
-                    try
-                    {
-                        ((NumericBox<int>)(object)txtThread).Value = running;
-                    }
-                    catch (Exception)
-                    {
-                    }
+                    try { ((NumericBox<int>)(object)txtThread).Value = running; } catch { }
                 });
             }
+
             if (processActionsData.ContactPrimary || processActionsData.ContactRemovePhone || processActionsData.ContactRemoveInstragram)
             {
                 yandexVerifyArr = new Dictionary<int, YandexVerify>();
                 processActionsData.ContactConfig = GetCacheConfig<ContactConfig>("contact:config");
 
-                if (processActionsData.ContactPrimary && processActionsData.ContactConfig.Yandex)
+                if (processActionsData.ContactPrimary && processActionsData.ContactConfig != null && processActionsData.ContactConfig.Yandex)
                 {
                     YandexLogin(processActionsData.ContactConfig.YandexConfig.Mail, processActionsData.ContactConfig.YandexConfig.Password);
+
                     for (int i = 0; i < processActionsData.Thread; i++)
                     {
                         yandexVerifyArr.Add(i, new YandexVerify()
@@ -2088,23 +2161,23 @@ namespace WpfUI.Views
                         });
                     }
 
-                    // auto get code from mail.yandex
-
                     Thread thread1 = new Thread(GetYandexCodeFromDriver);
                     thread1.Start();
                 }
             }
+
             for (int i = 0; i < processActionsData.Thread; i++)
             {
-                if (IsStop())
-                {
-                    break;
-                }
+                if (IsStop()) break;
+
                 Thread thread = new Thread(StartRunAccount);
+                thread.IsBackground = true;
                 thread.Start();
+
                 Thread.Sleep(1000);
             }
         }
+
 
         public void RunOneMoreThread()
         {
@@ -3740,7 +3813,7 @@ namespace WpfUI.Views
         }
         public void CheckReelInvite(IWebDriver driver, FbAccount account)
         {
-            string[] pageArr = account.PageIds.Split(',');
+            string[] pageArr = (account.PageIds ?? "").Split(',');
             for (int i = 0; i < pageArr.Length; i++)
             {
                 string[] page = pageArr[i].Trim().Split('|');
@@ -3840,8 +3913,12 @@ namespace WpfUI.Views
         {
             try
             {
-                string text = cacheViewModel.GetCacheDao().Get("recovery:config").Value.ToString();
-                processActionsData.RecoveryConfig = JsonConvert.DeserializeObject<RecoveryConfig>(text);
+                var cache = cacheViewModel.GetCacheDao().Get("recovery:config");
+                if (cache != null && cache.Value != null)
+                {
+                    string text = cache.Value.ToString();
+                    processActionsData.RecoveryConfig = JsonConvert.DeserializeObject<RecoveryConfig>(text);
+                }
             }
             catch (Exception)
             {
@@ -4029,8 +4106,12 @@ namespace WpfUI.Views
         {
             try
             {
-                string text = cacheViewModel.GetCacheDao().Get("recovery:config").Value.ToString();
-                processActionsData.RecoveryConfig = JsonConvert.DeserializeObject<RecoveryConfig>(text);
+                var cache = cacheViewModel.GetCacheDao().Get("recovery:config");
+                if (cache != null && cache.Value != null)
+                {
+                    string text = cache.Value.ToString();
+                    processActionsData.RecoveryConfig = JsonConvert.DeserializeObject<RecoveryConfig>(text);
+                }
             }
             catch (Exception)
             {
@@ -4272,7 +4353,11 @@ namespace WpfUI.Views
             {
                 try
                 {
-                    num = int.Parse(cacheViewModel.GetCacheDao().Get("contact:config:index").Value.ToString());
+                    var cache = cacheViewModel.GetCacheDao().Get("contact:config:index");
+                    if (cache != null && cache.Value != null)
+                    {
+                        num = int.Parse(cache.Value.ToString());
+                    }
                     cacheViewModel.GetCacheDao().Set("contact:config:index", (num + 1).ToString() ?? "");
                 }
                 catch (Exception)
@@ -4332,7 +4417,11 @@ namespace WpfUI.Views
             data.Description += ", Get Info";
             if (string.IsNullOrEmpty(data.Token))
             {
-                Token(driver, data);
+                try
+                {
+                    Token(driver, data);
+                }
+                catch { }
             }
             if (!string.IsNullOrEmpty(data.Token))
             {
@@ -4363,7 +4452,8 @@ namespace WpfUI.Views
             if (!IsStop())
             {
                 data.Description = "Get Token";
-                data.Token = WebFBTool.GetTokenLocator(driver, data.TwoFA.Trim());
+                string twoFA = (data.TwoFA ?? "").Trim();
+                data.Token = WebFBTool.GetTokenLocator(driver, twoFA);
                 //data.Token = WebFBTool.GetToken(driver,false);
                 fbAccountViewModel.getAccountDao().UpdateToken(data.UID, data.Token);
             }
@@ -4400,11 +4490,11 @@ namespace WpfUI.Views
             {
                 profileViewModel.Start(this, driver, data);
             }
-            if (!IsStop() && processActionsData.CheckIn)
+            if (!IsStop() && processActionsData.CheckIn && processActionsData.ProfileConfig != null && processActionsData.ProfileConfig.NewInfo != null)
             {
                 WebFBTool.Checkin(driver, processActionsData.ProfileConfig.NewInfo.CheckIn);
             }
-            if (!IsStop() && processActionsData.Marketplace)
+            if (!IsStop() && processActionsData.Marketplace && processActionsData.ProfileConfig != null && processActionsData.ProfileConfig.NewInfo != null)
             {
                 WebFBTool.Marketplace(driver, processActionsData.ProfileConfig.NewInfo.Marketplace);
             }
@@ -4547,9 +4637,9 @@ namespace WpfUI.Views
         }
         public void Contact(IWebDriver driver, FbAccount data)
         {
-            if (processActionsData.ContactPrimary)
+            if (processActionsData.ContactPrimary && processActionsData.ContactConfig != null)
             {
-                if (processActionsData.ContactConfig.Hotmail)
+                if (processActionsData.ContactConfig.Hotmail && processActionsData.ContactConfig.HotmailConfig != null)
                 {
                     if (!string.IsNullOrEmpty(processActionsData.ContactConfig.HotmailConfig.ApiKey) || hotmailListArr.Length > 0)
                     {
@@ -4603,7 +4693,7 @@ namespace WpfUI.Views
                         }
                     }
                 }
-                else if (processActionsData.ContactConfig.Yandex)
+                else if (processActionsData.ContactConfig.Yandex && processActionsData.ContactConfig.YandexConfig != null)
                 {
                     bool flag = true;
                     if (processActionsData.ContactConfig.NewLayout)
@@ -4655,7 +4745,7 @@ namespace WpfUI.Views
             }
             if (processActionsData.ContactRemovePhone)
             {
-                if (processActionsData.ContactConfig.NewLayout)
+                if (processActionsData.ContactConfig != null && processActionsData.ContactConfig.NewLayout)
                 {
                     NewLayOutRemovePhone(driver, data.Password);
                 }
@@ -4788,7 +4878,7 @@ namespace WpfUI.Views
 
         public void StartPage(IWebDriver driver, FbAccount data, bool isNoSwitchPage = false)
         {
-            if (!processActionsData.CreatePage && !processActionsData.FollowPage && !processActionsData.BackupPage && !processActionsData.PageCreateReel)
+            if (!processActionsData.CreatePage && !processActionsData.FollowPage && !processActionsData.BackupPage && !processActionsData.PageCreateReel && !processActionsData.AutoScrollPage)
             {
                 return;
             }
@@ -4815,6 +4905,10 @@ namespace WpfUI.Views
             {
                 pageViewModel.CreateReel(isNoSwitchPage);
             }
+            if (!IsStop() && processActionsData.AutoScrollPage)
+            {
+                StartAutoScroll(driver, data);
+            }
             int status = 1;
             if (data.Status == "Die")
             {
@@ -4838,21 +4932,81 @@ namespace WpfUI.Views
                 {
                     try
                     {
-                        // Scroll down by a random amount between 300 and 700 pixels
-                        int scrollAmount = rnd.Next(300, 700);
-                        js.ExecuteScript($"window.scrollBy(0, {scrollAmount});");
-
-                        // Wait for a random time between 2 and 5 seconds
-                        int sleepTime = rnd.Next(2000, 5000);
-                        Thread.Sleep(sleepTime);
-
-                        // Occasionally scroll up a bit to simulate reading/pausing (10% chance)
-                        if (rnd.Next(0, 10) == 0)
+                        // Check if Comment button is visible on the page (Primary condition)
+                        bool hasComment = false;
+                        try
                         {
-                            int scrollUp = rnd.Next(100, 300);
-                            js.ExecuteScript($"window.scrollBy(0, -{scrollUp});");
-                            Thread.Sleep(rnd.Next(1000, 2000));
+                            // Using broad XPaths for Comment buttons commonly found on Facebook
+                            hasComment = driver.FindElements(By.XPath("//div[@aria-label='Leave a comment' or @aria-label='Bình luận' or @aria-label='Comment' or @aria-label='បញ្ចេញមតិ']")).Any(e => e.Displayed);
                         }
+                        catch { }
+
+                        if (!hasComment)
+                        {
+                            // If Comment button is not visible, scroll down to find next post
+                            int scrollAmount = rnd.Next(300, 600);
+                            js.ExecuteScript($"window.scrollBy(0, {scrollAmount});");
+
+                            // Quick wait to allow content to load
+                            Thread.Sleep(rnd.Next(1000, 2000));
+                            continue; // Skip and check again
+                        }
+
+                        // Interaction Logic: Like and Comment if configured
+                        try
+                        {
+                            var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
+                            if (cache != null && cache.Value != null)
+                            {
+                                var confStr = cache.Value.ToString();
+                                if (!string.IsNullOrEmpty(confStr))
+                                {
+                                    var newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(confStr);
+                                    if (newsfeedObj != null && newsfeedObj.NewsFeed != null)
+                                    {
+                                        bool doLike = newsfeedObj.NewsFeed.React.Like;
+                                        bool doComment = newsfeedObj.NewsFeed.React.Comment;
+                                        bool doRandom = newsfeedObj.NewsFeed.React.Random;
+
+                                        if (doRandom)
+                                        {
+                                            doLike = rnd.Next(0, 2) == 0;
+                                            doComment = rnd.Next(0, 2) == 0;
+                                        }
+
+                                        // Like interaction
+                                        if (doLike)
+                                        {
+                                            WebFBTool.LikePost(driver);
+                                            Thread.Sleep(rnd.Next(1000, 2000));
+                                        }
+
+                                        // Comment interaction - One comment per post
+                                        if (doComment && !string.IsNullOrEmpty(newsfeedObj.NewsFeed.Comments))
+                                        {
+                                            var comments = newsfeedObj.NewsFeed.Comments.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                            if (comments.Length > 0)
+                                            {
+                                                string randomComment = comments[rnd.Next(comments.Length)];
+                                                bool success = WebFBTool.PostComment(driver, randomComment);
+                                                if (success)
+                                                {
+                                                    Thread.Sleep(rnd.Next(2000, 4000));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch { }
+
+                        // After interacting with ONE post, scroll significantly to move to the NEXT post
+                        int nextPostScroll = rnd.Next(800, 1200);
+                        js.ExecuteScript($"window.scrollBy(0, {nextPostScroll});");
+
+                        // Simulate reading time before looking for next interaction
+                        Thread.Sleep(rnd.Next(3000, 5000));
                     }
                     catch { }
                 }
@@ -4898,7 +5052,7 @@ namespace WpfUI.Views
 
         public void StartGroup(IWebDriver driver, FbAccount data)
         {
-            if (processActionsData.IsLeaveGroup || processActionsData.IsJoinGroup || processActionsData.IsBackupGroup || processActionsData.IsViewGroup)
+            if (processActionsData.IsLeaveGroup || processActionsData.IsJoinGroup || processActionsData.IsBackupGroup || processActionsData.IsViewGroup || processActionsData.AutoScrollGroup)
             {
                 processActionsData.GroupConfig = GetCacheConfig<GroupConfig>("group:config");
                 IGroupViewModel groupViewModel = DIConfig.Get<IGroupViewModel>();
@@ -4922,6 +5076,10 @@ namespace WpfUI.Views
                 {
                     data.Description += ", View Groups";
                     groupViewModel.ViewGroup();
+                }
+                if (processActionsData.AutoScrollGroup && !IsStop())
+                {
+                    StartAutoScroll(driver, data);
                 }
                 int status = 1;
                 if (data.Status == "Die")
@@ -4970,7 +5128,10 @@ namespace WpfUI.Views
                         {
                             string comment = GetComment();
                             shareViewModel.ShareWatchVideo(driver, url, comment);
-                            shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchBeforeShare);
+                            if (processActionsData.Share.Groups != null)
+                            {
+                                shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchBeforeShare);
+                            }
                         }
                         if (processActionsData.IsShareToTimeline && !IsStop())
                         {
@@ -4992,7 +5153,10 @@ namespace WpfUI.Views
                         }
                         if (!IsStop())
                         {
-                            shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchAfterShare);
+                            if (processActionsData.Share.Groups != null)
+                            {
+                                shareViewModel.ShareWatchDelay(driver, processActionsData.Share.Groups.WatchAfterShare);
+                            }
                         }
                     }
                 }
@@ -5307,7 +5471,11 @@ namespace WpfUI.Views
             int num = 0;
             try
             {
-                num = int.Parse(cacheViewModel.GetCacheDao().Get("profile:config:profile_index").Value.ToString());
+                var cache = cacheViewModel.GetCacheDao().Get("profile:config:profile_index");
+                if (cache != null && cache.Value != null)
+                {
+                    num = int.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception)
             {
@@ -5347,7 +5515,11 @@ namespace WpfUI.Views
             int num = 0;
             try
             {
-                num = int.Parse(cacheViewModel.GetCacheDao().Get("profile:config:cover_index").Value.ToString());
+                var cache = cacheViewModel.GetCacheDao().Get("profile:config:cover_index");
+                if (cache != null && cache.Value != null)
+                {
+                    num = int.Parse(cache.Value.ToString());
+                }
             }
             catch (Exception)
             {
@@ -5369,38 +5541,32 @@ namespace WpfUI.Views
         public string GetSourceTimeline(string source = "", bool deleteAfterPost = true)
         {
             string result = "";
-            if (!string.IsNullOrEmpty(source) && Directory.Exists(source))
+            if (!string.IsNullOrEmpty(source))
             {
-                string tmp = source + "//tmp";
-                if (!Directory.Exists(tmp))
+                if (System.IO.File.Exists(source)) return source;
+
+                if (Directory.Exists(source))
                 {
-                    Directory.CreateDirectory(tmp);
-                }
-                try
-                {
-                    string[] arr = LocalData.GetFile(source);
-                    if (arr.Length > 0)
+                    try
                     {
-                        string pathFile = arr[random.Next(0, arr.Length - 1)];
-                        string fileName = System.IO.Path.GetFileName(pathFile);
-                        result = tmp + "//" + fileName;
-                        if (deleteAfterPost)
+                        string[] arr = LocalData.GetFile(source);
+                        if (arr.Length > 0)
                         {
-                            File.Move(pathFile, result);
-                        } else
-                        {
-                            File.Copy(pathFile, result);
+                            result = arr[random.Next(0, arr.Length)];
                         }
-
-                        Thread.Sleep(2000);
                     }
-                }
-                catch (Exception) { }
+                    catch (Exception) { }
 
-                return result;
+                    return result;
+                }
             }
             try
             {
+                if (System.IO.File.Exists(processActionsData.NewsFeed.Timeline.SourceFolder))
+                {
+                    return processActionsData.NewsFeed.Timeline.SourceFolder;
+                }
+
                 if (timelineArr == null)
                 {
                     timelineArr = LocalData.GetFiles(processActionsData.NewsFeed.Timeline.SourceFolder);
@@ -5447,7 +5613,11 @@ namespace WpfUI.Views
             int num = 0;
             try
             {
-                num = int.Parse(cacheViewModel.GetCacheDao().Get("newsfeed:config:timeline_index").Value.ToString());
+                var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config:timeline_index");
+                if (cache != null && cache.Value != null)
+                {
+                    int.TryParse(cache.Value.ToString(), out num);
+                }
             }
             catch (Exception)
             {
@@ -5470,32 +5640,32 @@ namespace WpfUI.Views
         public string GetSourceReelVideo(string sourceFolder = "")
         {
             string result = "";
-            if (!string.IsNullOrEmpty(sourceFolder) && Directory.Exists(sourceFolder))
+            if (!string.IsNullOrEmpty(sourceFolder))
             {
-                string tmp = sourceFolder + "//tmp";
-                if (!Directory.Exists(tmp))
+                if (System.IO.File.Exists(sourceFolder)) return sourceFolder;
+                if (Directory.Exists(sourceFolder))
                 {
-                    Directory.CreateDirectory(tmp);
-                }
-                try
-                {
-                    string[] arr = LocalData.GetFile(sourceFolder);
-                    if (arr.Length > 0)
+
+                    try
                     {
-                        string pathFile = arr[random.Next(0, arr.Length - 1)];
-                        string fileName = System.IO.Path.GetFileName(pathFile);
-                        result = tmp + "//" + fileName;
-
-                        File.Move(pathFile, result);
-                        Thread.Sleep(2000);
+                        string[] arr = LocalData.GetFile(sourceFolder);
+                        if (arr.Length > 0)
+                        {
+                            result = arr[random.Next(0, arr.Length)];
+                        }
                     }
-                }
-                catch (Exception) { }
+                    catch (Exception) { }
 
-                return result;
+                    return result;
+                }
             }
             try
             {
+                if (System.IO.File.Exists(processActionsData.PageConfig.CreateReel.SourceFolder))
+                {
+                    return processActionsData.PageConfig.CreateReel.SourceFolder;
+                }
+
                 if (sourceReelVideoArr == null)
                 {
                     sourceReelVideoArr = LocalData.GetFiles(processActionsData.PageConfig.CreateReel.SourceFolder);
@@ -5543,7 +5713,11 @@ namespace WpfUI.Views
             int num = 0;
             try
             {
-                num = int.Parse(cacheViewModel.GetCacheDao().Get("page:config:reel_caption_index").Value.ToString());
+                var cache = cacheViewModel.GetCacheDao().Get("page:config:reel_caption_index");
+                if (cache != null && cache.Value != null)
+                {
+                    int.TryParse(cache.Value.ToString(), out num);
+                }
             }
             catch (Exception)
             {
@@ -5563,26 +5737,99 @@ namespace WpfUI.Views
             return result;
         }
 
+        //public string[] GetJoinGroupIDArr()
+        //{
+        //    string[] result = null;
+        //    var cache = cacheViewModel.GetCacheDao().Get("group:config:group_ids");
+        //    string text = cache?.Value?.ToString() ?? "";
+        //    if (!string.IsNullOrEmpty(text))
+        //    {
+        //        try
+        //        {
+        //            result = text.Split('\n');
+        //        }
+        //        catch (Exception)
+        //        {
+        //        }
+        //    }
+        //    return result;
+        //}
         public string[] GetJoinGroupIDArr()
         {
-            string[] result = null;
-            string text = cacheViewModel.GetCacheDao().Get("group:config:group_ids").Value.ToString();
-            if (!string.IsNullOrEmpty(text))
+            var cache = cacheViewModel.GetCacheDao().Get("group:config:group_ids");
+            var text = cache != null && cache.Value != null ? cache.Value.ToString() : "";
+
+            if (string.IsNullOrWhiteSpace(text))
+                return new string[0];
+
+            var lines = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var list = new List<string>();
+            foreach (var line in lines)
             {
-                try
-                {
-                    result = text.Split('\n');
-                }
-                catch (Exception)
-                {
-                }
+                var url = NormalizeFacebookGroupUrl(line);
+                if (!string.IsNullOrWhiteSpace(url))
+                    list.Add(url);
             }
-            return result;
+
+            return list.ToArray();
         }
+
+        private string NormalizeFacebookGroupUrl(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+
+            var s = input.Trim();
+
+            // Fix weird pasted: "https://www.facebook.com/groups/https://www.facebook.com/groups/123"
+            var idx = s.LastIndexOf("/groups/", StringComparison.OrdinalIgnoreCase);
+            if (idx > 0)
+                s = "https://www.facebook.com" + s.Substring(idx);
+
+            // Ensure protocol for cases like "www.facebook.com/groups/123"
+            if (s.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
+                s = "https://" + s;
+
+            // Remove query + fragment early
+            var q = s.IndexOf("?", StringComparison.Ordinal);
+            if (q >= 0) s = s.Substring(0, q);
+
+            var hash = s.IndexOf("#", StringComparison.Ordinal);
+            if (hash >= 0) s = s.Substring(0, hash);
+
+            s = s.Trim();
+
+            // If it's only "/groups/123" or "groups/123"
+            if (s.StartsWith("/")) s = s.Substring(1);
+            if (s.StartsWith("groups/", StringComparison.OrdinalIgnoreCase))
+                s = "https://www.facebook.com/" + s;
+
+            // If user pasted only ID/slug (no http)
+            if (!s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                !s.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return "https://www.facebook.com/groups/" + s.Trim().Trim('/');
+            }
+            var m = System.Text.RegularExpressions.Regex.Match(
+                s,
+                @"facebook\.com\/groups\/([^\/\?\#]+)",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            if (m.Success)
+            {
+                var groupKey = m.Groups[1].Value.Trim().Trim('/');
+                return "https://www.facebook.com/groups/" + groupKey;
+            }
+
+            // fallback: return cleaned input
+            return s.TrimEnd('/');
+        }
+
         public string[] GetHotmailFromListArr()
         {
             string[] result = null;
-            string text = cacheViewModel.GetCacheDao().Get("contact:config:mail_list").Value.ToString();
+            var cache = cacheViewModel.GetCacheDao().Get("contact:config:mail_list");
+            string text = cache?.Value?.ToString() ?? "";
             if (!string.IsNullOrEmpty(text))
             {
                 try

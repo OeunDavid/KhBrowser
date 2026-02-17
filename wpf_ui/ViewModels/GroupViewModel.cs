@@ -79,38 +79,124 @@ namespace ToolKHBrowser.ViewModels
         {
             return this.groupsDao;
         }
-        public void Start(frmMain form,IWebDriver driver, FbAccount data)
+        //public void Start(frmMain form,IWebDriver driver, FbAccount data)
+        //{
+        //    this.form = form;
+        //    this.data = data;
+        //    this.driver = driver;
+        //    this.processActionData = this.form.processActionsData;
+        //    sourceFolderFileIndex = 0;
+        //    try
+        //    {
+        //        sourceFolderFileIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("group:view:source_index").Value.ToString());
+        //    }
+        //    catch (Exception) { }
+
+        //    random = new Random();
+        //    try
+        //    {
+        //        joinAnswerArr = this.processActionData.GroupConfig.Join.Answers.Split('\n');
+        //    }
+        //    catch (Exception) { }
+        //    try
+        //    {
+        //        commentArr = this.processActionData.GroupConfig.View.Comments.Split('\n');
+        //    }
+        //    catch (Exception) { }
+        //    try
+        //    {
+        //        captionArr = this.processActionData.GroupConfig.View.Captions.Split('\n');
+        //    }
+        //    catch (Exception) { }
+        //}
+
+        public void Start(frmMain form, IWebDriver driver, FbAccount data)
         {
+            if (form == null)
+                throw new ArgumentNullException("form");
+
             this.form = form;
             this.data = data;
             this.driver = driver;
-            this.processActionData = this.form.processActionsData;
+
             sourceFolderFileIndex = 0;
-            try
-            {
-                sourceFolderFileIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("group:view:source_index").Value.ToString());
-            }
-            catch (Exception) { }
+            joinAnswerArr = new string[0];
+            commentArr = new string[0];
+            captionArr = new string[0];
 
             random = new Random();
+
+            this.processActionData = this.form.processActionsData;
+
+            // SAFE cacheDao
+            var cacheDao = this.form.cacheViewModel != null
+                ? this.form.cacheViewModel.GetCacheDao()
+                : null;
+
             try
             {
-                joinAnswerArr = this.processActionData.GroupConfig.Join.Answers.Split('\n');
+                if (cacheDao != null)
+                {
+                    var item = cacheDao.Get("group:view:source_index");
+                    if (item != null && item.Value != null)
+                    {
+                        int idx;
+                        if (int.TryParse(item.Value.ToString(), out idx))
+                            sourceFolderFileIndex = idx;
+                    }
+                }
             }
-            catch (Exception) { }
+            catch { }
+
+            // SAFE join answers
             try
             {
-                commentArr = this.processActionData.GroupConfig.View.Comments.Split('\n');
+                if (this.processActionData != null &&
+                    this.processActionData.GroupConfig != null &&
+                    this.processActionData.GroupConfig.Join != null &&
+                    !string.IsNullOrWhiteSpace(this.processActionData.GroupConfig.Join.Answers))
+                {
+                    joinAnswerArr = this.processActionData.GroupConfig.Join.Answers
+                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                }
             }
-            catch (Exception) { }
+            catch { }
+
+            // SAFE comments
             try
             {
-                captionArr = this.processActionData.GroupConfig.View.Captions.Split('\n');
+                if (this.processActionData != null &&
+                    this.processActionData.GroupConfig != null &&
+                    this.processActionData.GroupConfig.View != null &&
+                    !string.IsNullOrWhiteSpace(this.processActionData.GroupConfig.View.Comments))
+                {
+                    commentArr = this.processActionData.GroupConfig.View.Comments
+                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                }
             }
-            catch (Exception) { }
+            catch { }
+
+            // SAFE captions
+            try
+            {
+                if (this.processActionData != null &&
+                    this.processActionData.GroupConfig != null &&
+                    this.processActionData.GroupConfig.View != null &&
+                    !string.IsNullOrWhiteSpace(this.processActionData.GroupConfig.View.Captions))
+                {
+                    captionArr = this.processActionData.GroupConfig.View.Captions
+                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+            }
+            catch { }
         }
+
+
         public void LeaveGroup()
         {
+            if (processActionData == null || processActionData.GroupConfig == null || processActionData.GroupConfig.Leave == null)
+                return;
+
             if(processActionData.GroupConfig.Leave.IsMembership)
             {
                 WebFBTool.LeaveGroupII(driver);
@@ -150,7 +236,7 @@ namespace ToolKHBrowser.ViewModels
                         {
                             try
                             {
-                                driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/" + groupId);
+                                driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
                             }
                             catch (Exception) { }
                             FBTool.WaitingPageLoading(driver);
@@ -163,7 +249,7 @@ namespace ToolKHBrowser.ViewModels
                     {
                         try
                         {
-                            driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/" + groupId);
+                            driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
                         }
                         catch (Exception) { }
                         FBTool.WaitingPageLoading(driver);
@@ -174,7 +260,7 @@ namespace ToolKHBrowser.ViewModels
                     {
                         try
                         {
-                            driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/" + groupId);
+                            driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
                         }
                         catch (Exception) { }
                         FBTool.WaitingPageLoading(driver);
@@ -208,7 +294,9 @@ namespace ToolKHBrowser.ViewModels
         {
             try
             {
-                driver.Navigate().GoToUrl("https://m.facebook.com/groups/" + groupId + "/madminpanel/pending");
+                string url = FBTool.GetSafeGroupUrl("https://m.facebook.com", groupId);
+                if (!url.EndsWith("/")) url += "/";
+                driver.Navigate().GoToUrl(url + "madminpanel/pending");
             }
             catch (Exception) { }
             FBTool.WaitingPageLoading(driver);
@@ -231,6 +319,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void JoinGroup()
         {
+            if (processActionData == null || processActionData.GroupConfig == null || processActionData.GroupConfig.Join == null)
+                return;
+
             int joinGroup = processActionData.GroupConfig.Join.NumberOfJoin;
             if (joinGroup > 0)
             {
@@ -276,7 +367,7 @@ namespace ToolKHBrowser.ViewModels
                     {
                         try
                         {
-                            driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/" + groupId);
+                            driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
                         }
                         catch (Exception) { }
                         FBTool.WaitingPageLoading(driver);
@@ -287,7 +378,7 @@ namespace ToolKHBrowser.ViewModels
                     {
                         try
                         {
-                            driver.Navigate().GoToUrl(Constant.FB_MOBILE_URL + "/" + groupId);
+                            driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_MOBILE_URL, groupId));
                         }
                         catch (Exception) { }
                         FBTool.WaitingPageLoading(driver);
@@ -315,6 +406,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void ViewGroup()
         {
+            if (processActionData == null || processActionData.GroupConfig == null || processActionData.GroupConfig.View == null)
+                return;
+
             string des = data.Description;
 
             int sN = this.form.processActionsData.GroupConfig.View.GroupNumber.NumberStart;
@@ -360,7 +454,7 @@ namespace ToolKHBrowser.ViewModels
                 {
                     try
                     {
-                        driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/" + groupId);
+                        driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
                     }
                     catch (Exception) { }
                     FBTool.WaitingPageLoading(driver);
@@ -378,7 +472,7 @@ namespace ToolKHBrowser.ViewModels
                 {
                     try
                     {
-                        driver.Navigate().GoToUrl(Constant.FB_MOBILE_URL + "/" + groupId);
+                        driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_MOBILE_URL, groupId));
                     }
                     catch (Exception) { }
                     FBTool.WaitingPageLoading(driver);
@@ -441,7 +535,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = commentArr[random.Next(0, commentArr.Length - 1)];
+                if (commentArr != null && commentArr.Length > 0)
+                {
+                    str = commentArr[random.Next(0, commentArr.Length)];
+                }
             }
             catch (Exception) { }
 
@@ -452,7 +549,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = captionArr[random.Next(0, captionArr.Length - 1)];
+                if (captionArr != null && captionArr.Length > 0)
+                {
+                    str = captionArr[random.Next(0, captionArr.Length)];
+                }
             }
             catch (Exception) { }
 
@@ -463,7 +563,10 @@ namespace ToolKHBrowser.ViewModels
             string answer = "";
             try
             {
-                answer = joinAnswerArr[random.Next(0, joinAnswerArr.Length - 1)];
+                if (joinAnswerArr != null && joinAnswerArr.Length > 0)
+                {
+                    answer = joinAnswerArr[random.Next(0, joinAnswerArr.Length)];
+                }
             }
             catch (Exception) { }
 

@@ -36,65 +36,72 @@ namespace ToolKHBrowser.Views
         }
         public void LoadData()
         {
-            var str = cacheViewModel.GetCacheDao().Get("newsfeed:config").Value.ToString();
-            if (!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
+            if (cache != null && cache.Value != null)
             {
-                NewsFeedConfig newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(str);
+                string str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    NewsFeedConfig newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(str);
 
-                try
-                {
-                    txtPlayTimeStart.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberStart.ToString());
-                    txtPlayTimeEnd.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberEnd.ToString());
+                    try
+                    {
+                        txtPlayTimeStart.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberStart.ToString());
+                        txtPlayTimeEnd.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberEnd.ToString());
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        chbReachNone.IsChecked = newsfeedObj.NewsFeed.React.None;
+                        chbReachLike.IsChecked = newsfeedObj.NewsFeed.React.Like;
+                        chbReachComment.IsChecked = newsfeedObj.NewsFeed.React.Comment;
+                        chbReachRandom.IsChecked = newsfeedObj.NewsFeed.React.Random;
+
+                        txtComments.Text = newsfeedObj.NewsFeed.Comments;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        txtSourceFolder.Text = newsfeedObj.Timeline.SourceFolder;
+                        txtCaption.Text = newsfeedObj.Timeline.Captions;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        txtTimelineMinNumber.Value = Int32.Parse(newsfeedObj.Timeline.MinNumber.ToString());
+                        txtTimelineMaxNumber.Value = Int32.Parse(newsfeedObj.Timeline.MaxNumber.ToString());
+                        chbDeleteAfterPost.IsChecked = newsfeedObj.Timeline.DeleteAfterPost;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        chbMessageSoundNone.IsChecked = newsfeedObj.Messenger.MessageSound.None;
+                        chbMessageSoundOn.IsChecked = newsfeedObj.Messenger.MessageSound.On;
+                        chbMessageSoundOff.IsChecked = newsfeedObj.Messenger.MessageSound.Off;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        chbCallSoundNone.IsChecked = newsfeedObj.Messenger.MessageCallSound.None;
+                        chbCallSoundOn.IsChecked = newsfeedObj.Messenger.MessageCallSound.On;
+                        chbCallSoundOff.IsChecked = newsfeedObj.Messenger.MessageCallSound.Off;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        chbPopUpSoundNone.IsChecked = newsfeedObj.Messenger.MessagePopup.None;
+                        chbPopUpSoundOn.IsChecked = newsfeedObj.Messenger.MessagePopup.On;
+                        chbPopUpSoundOff.IsChecked = newsfeedObj.Messenger.MessagePopup.Off;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        chbActiveStatusNone.IsChecked = newsfeedObj.Messenger.ActiveStatus.None;
+                        chbActiveStatusOn.IsChecked = newsfeedObj.Messenger.ActiveStatus.On;
+                        chbActiveStatusOff.IsChecked = newsfeedObj.Messenger.ActiveStatus.Off;
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
-                try
-                {
-                    chbReachNone.IsChecked = newsfeedObj.NewsFeed.React.None;
-                    chbReachLike.IsChecked = newsfeedObj.NewsFeed.React.Like;
-                    chbReachRandom.IsChecked = newsfeedObj.NewsFeed.React.Random;
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtSourceFolder.Text = newsfeedObj.Timeline.SourceFolder;
-                    txtCaption.Text = newsfeedObj.Timeline.Captions;
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtTimelineMinNumber.Value = Int32.Parse(newsfeedObj.Timeline.MinNumber.ToString());
-                    txtTimelineMaxNumber.Value = Int32.Parse(newsfeedObj.Timeline.MaxNumber.ToString());
-                    chbDeleteAfterPost.IsChecked = newsfeedObj.Timeline.DeleteAfterPost;
-                }
-                catch (Exception) { }
-                try
-                {
-                    chbMessageSoundNone.IsChecked = newsfeedObj.Messenger.MessageSound.None;
-                    chbMessageSoundOn.IsChecked = newsfeedObj.Messenger.MessageSound.On;
-                    chbMessageSoundOff.IsChecked = newsfeedObj.Messenger.MessageSound.Off;
-                }
-                catch (Exception) { }
-                try
-                {
-                    chbCallSoundNone.IsChecked = newsfeedObj.Messenger.MessageCallSound.None;
-                    chbCallSoundOn.IsChecked = newsfeedObj.Messenger.MessageCallSound.On;
-                    chbCallSoundOff.IsChecked = newsfeedObj.Messenger.MessageCallSound.Off;
-                }
-                catch (Exception) { }
-                try
-                {
-                    chbPopUpSoundNone.IsChecked = newsfeedObj.Messenger.MessagePopup.None;
-                    chbPopUpSoundOn.IsChecked = newsfeedObj.Messenger.MessagePopup.On;
-                    chbPopUpSoundOff.IsChecked = newsfeedObj.Messenger.MessagePopup.Off;
-                }
-                catch (Exception) { }
-                try
-                {
-                    chbActiveStatusNone.IsChecked = newsfeedObj.Messenger.ActiveStatus.None;
-                    chbActiveStatusOn.IsChecked = newsfeedObj.Messenger.ActiveStatus.On;
-                    chbActiveStatusOff.IsChecked = newsfeedObj.Messenger.ActiveStatus.Off;
-                }
-                catch (Exception) { }
             }
         }
 
@@ -107,6 +114,7 @@ namespace ToolKHBrowser.Views
             React reactObj = new React();
             reactObj.None = chbReachNone.IsChecked.Value;
             reactObj.Like = chbReachLike.IsChecked.Value;
+            reactObj.Comment = chbReachComment.IsChecked.Value;
             reactObj.Random = chbReachRandom.IsChecked.Value;
 
             MessageCallSound callSoundObj = new MessageCallSound();
@@ -139,6 +147,7 @@ namespace ToolKHBrowser.Views
             PlayOnNewsFeedConfig playObj = new PlayOnNewsFeedConfig();
             playObj.React = reactObj;
             playObj.PlayTime = numberObj;
+            playObj.Comments = txtComments.Text;
 
             Messenger messengerObj = new Messenger();
             messengerObj.MessageCallSound = callSoundObj;
@@ -156,6 +165,26 @@ namespace ToolKHBrowser.Views
             cacheViewModel.GetCacheDao().Set("newsfeed:config", output);
 
             MessageBox.Show("Your config has been save successfully.");
+        }
+        private void btnBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
+                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
+                dialog.CheckFileExists = true;
+                dialog.CheckPathExists = true;
+                
+                if (!string.IsNullOrEmpty(txtSourceFolder.Text) && System.IO.Directory.Exists(txtSourceFolder.Text))
+                {
+                    dialog.InitialDirectory = txtSourceFolder.Text;
+                }
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    txtSourceFolder.Text = dialog.FileName;
+                }
+            }
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {

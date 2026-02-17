@@ -40,9 +40,14 @@ namespace WpfUI.Views
         }
         private void loadData()
         {
-            txtMicrosoftEdgeProfile.Text = cacheViewModel.GetCacheDao().Get("config:microsoftEdgeProfile").Value.ToString();
-            txtLicenseKey.Text = cacheViewModel.GetCacheDao().Get("config:licenseKey").Value.ToString();
-            txtConfigModem.Text = cacheViewModel.GetCacheDao().Get("config:configModem").Value.ToString();
+            var cacheEdge = cacheViewModel.GetCacheDao().Get("config:microsoftEdgeProfile");
+            txtMicrosoftEdgeProfile.Text = cacheEdge?.Value?.ToString() ?? "";
+
+            var cacheLicense = cacheViewModel.GetCacheDao().Get("config:licenseKey");
+            txtLicenseKey.Text = cacheLicense?.Value?.ToString() ?? "";
+
+            var cacheModem = cacheViewModel.GetCacheDao().Get("config:configModem");
+            txtConfigModem.Text = cacheModem?.Value?.ToString() ?? "";
 
             int showScreen = ConfigData.GetShowScreen();
             if(showScreen==3)
@@ -90,7 +95,7 @@ namespace WpfUI.Views
                 chbDefaultRunTypeMbasic.IsChecked = true;
             }
 
-            string dataMode = cacheViewModel.GetCacheDao().Get("config:dataMode").Value.ToString();
+            string dataMode = cacheViewModel.GetCacheDao().Get("config:dataMode")?.Value?.ToString() ?? "";
             if (dataMode == "data")
             {
                 chbDataModeUseData.IsChecked = true;
@@ -99,12 +104,12 @@ namespace WpfUI.Views
             {
                 chbDataModeFree.IsChecked = true;
             }
-            string browserType = cacheViewModel.GetCacheDao().Get("config:browserType").Value.ToString();
+            string browserType = cacheViewModel.GetCacheDao().Get("config:browserType")?.Value?.ToString() ?? "";
             if (browserType == "chrome")
             {
                 chbBrowserChrome.IsChecked = true;
             }
-            string deviceType = cacheViewModel.GetCacheDao().Get("config:deviceType").Value.ToString();
+            string deviceType = cacheViewModel.GetCacheDao().Get("config:deviceType")?.Value?.ToString() ?? "";
             if (deviceType == "app")
             {
                 chbDeviceTypeApp.IsChecked = true;
