@@ -70,6 +70,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Add()
         {
+            if (processActionData == null || processActionData.FriendsConfig == null)
+                return;
+
             int num = processActionData.FriendsConfig.AddNumber;
             if(num > 0)
             {
@@ -150,6 +153,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Accept()
         {
+            if (processActionData == null || processActionData.FriendsConfig == null)
+                return;
+
             int num = processActionData.FriendsConfig.AcceptNumber;
             if (num > 0)
             {
@@ -159,6 +165,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void AddByUID()
         {
+            if (processActionData == null || processActionData.FriendsConfig == null || processActionData.FriendsConfig.FriendsByUID == null)
+                return;
+
             int num = processActionData.FriendsConfig.FriendsByUID.AddNumber;
             if(num > 0)
             {
@@ -189,7 +198,10 @@ namespace ToolKHBrowser.ViewModels
         public string GetUID()
         {
             string str = "";
-            var uids = form.cacheViewModel.GetCacheDao().Get("friend:config:uids").Value.ToString();
+            var cache = form.cacheViewModel.GetCacheDao().Get("friend:config:uids");
+            if (cache == null || cache.Value == null) return "";
+
+            var uids = cache.Value.ToString();
             if (!string.IsNullOrEmpty(uids))
             {
                 try

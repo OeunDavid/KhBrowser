@@ -54,26 +54,27 @@ namespace ToolLib.Tool
         }
         public static string GetPathTMP()
         {
-            return GetPath() + "/tmp";
+            return Path.Combine(GetPath(), "tmp");
         }
         public static string GetPathDriver()
         {
-            return GetPath() + "/driver";
+            return ConfigData.GetPathDriver();
         }
         public static string GetBrowserDataDirectory()
         {
             return ConfigData.GetBrowserDataDirectory();
         }
-        public static void CatchGroupNoPending(string gId, string fileName= "cache_group_page_profile.txt")
+        public static void CatchGroupNoPending(string gId, string fileName = "cache_group_page_profile.txt")
         {
-            string path = GetPath() + "\\" + @fileName;
-            if(File.Exists(path))
+            try
             {
+                string path = Path.Combine(GetPath(), fileName);
                 using (StreamWriter stream = File.AppendText(path))
                 {
                     stream.WriteLine(gId);
                 }
-            }            
+            }
+            catch { }
         }
         public static string[] GetFiles(string dir)
         {
@@ -86,7 +87,7 @@ namespace ToolLib.Tool
                 catch (Exception) { }
             }
 
-            return null;
+            return new string[0];
         }
         public static void DeleteFile(string file)
         {
@@ -100,7 +101,11 @@ namespace ToolLib.Tool
         {
             try
             {
-                Directory.Delete(GetBrowserDataDirectory() + "\\" + profile, true);
+                string path = Path.Combine(GetBrowserDataDirectory(), profile);
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
             }
             catch (Exception) { }
         }
@@ -140,35 +145,40 @@ namespace ToolLib.Tool
                 "Default\\Session Storage",
                 "Default\\optimization_guide_prediction_model_downloads"
             };
-            foreach(var dir in cacheList)
+            foreach (var dir in cacheList)
             {
                 string folder = profile;
-                if(!profile.Contains(":")) 
+                if (!profile.Contains(":"))
                 {
-                    folder = GetBrowserDataDirectory() + "\\" + profile;
+                    folder = Path.Combine(GetBrowserDataDirectory(), profile);
                 }
 
                 try
                 {
-                    Directory.Delete(folder + "\\" + dir, true);
+                    string target = Path.Combine(folder, dir);
+                    if (Directory.Exists(target))
+                    {
+                        Directory.Delete(target, true);
+                    }
                 }
                 catch (Exception) { }
-            }            
+            }
         }
         public static string[] getArrayList(string dir)
         {
-            string[] arr = null;
             if (!string.IsNullOrEmpty(dir))
             {
                 if (File.Exists(dir))
                 {
                     string str = LocalData.ReadTextFromTextFile(dir.Trim(), true);
-
-                    arr = str.Trim().Split('\n');
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        return str.Trim().Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
                 }
             }
 
-            return arr;
+            return new string[0];
         }
         public static string GetDomain()
         {
@@ -182,73 +192,37 @@ namespace ToolLib.Tool
         }
         public static string[] GetFile(string dir)
         {
-            if (!string.IsNullOrEmpty(dir) && !File.Exists(dir))
+            if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
             {
                 try
                 {
                     return Directory.GetFiles(dir);
                 }
-                catch(Exception) { }
+                catch (Exception) { }
             }
 
-            return null;
+            return new string[0];
         }
         public static string ReadTextFromTextFile(string file_name, bool isDir = false)
         {
-            string line = "", str = "";
-            string path = file_name;
-            if (!isDir)
-            {
-                path = GetPath() + "/" + file_name;
-            }
+            string path = isDir ? file_name : Path.Combine(GetPath(), file_name);
+
+            if (!File.Exists(path)) return "";
+
             try
             {
-                StreamReader sr = new StreamReader(path);
-                line = sr.ReadLine();
-                if (!string.IsNullOrEmpty(line))
+                using (StreamReader sr = new StreamReader(path))
                 {
-                    str = line;
+                    return sr.ReadToEnd();
                 }
-                while (line != null)
-                {
-                    //Read the next line
-                    line = sr.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        str += "\r\n" + line;
-                    }
-                }
-                sr.Close();
             }
             catch (Exception) { }
 
-            return str;
+            return "";
         }
         public static void Write(string file_name, string text, string path = "")
         {
-            if (string.IsNullOrEmpty(path))
-            {
-                path = GetPath();
-            }
-            try
-            {
-                //Pass the filepath and filename to the StreamWriter Constructor
-                StreamWriter sw = new StreamWriter(@path + "/" + file_name);
-                //Write a line of text
-                sw.WriteLine(text);
-                //Write a second line of text
-                //sw.WriteLine("From the StreamWriter class");
-                //Close the file
-                sw.Close();
-            }
-            catch (Exception)
-            {
-                //Console.WriteLine("Exception: " + e.Message);
-            }
-            finally
-            {
-                //Console.WriteLine("Executing finally block.");
-            }
+            ConfigData.Write(file_name, text, path);
         }
         public static void WriteTMP(string file_name, string text)
         {
@@ -264,35 +238,20 @@ namespace ToolLib.Tool
             {
                 path = GetPath();
             }
-            string line = "";
+
+            string fullPath = Path.Combine(path, file_name);
+            if (!File.Exists(fullPath)) return "";
 
             try
             {
-                //Pass the file path and file name to the StreamReader constructor
-                StreamReader sr = new StreamReader(path + "/" + file_name);
-                //Read the first line of text
-                line = sr.ReadLine();
-                //Continue to read until you reach end of file
-                /*while (line != null)
+                using (StreamReader sr = new StreamReader(fullPath))
                 {
-                    //Read the next line
-                    line = sr.ReadLine();
+                    return sr.ReadLine();
                 }
-                */
-                //close the file
-                sr.Close();
-                //Console.ReadLine();
             }
-            catch (Exception)
-            {
-                //Console.WriteLine("Exception: " + e.Message);
-            }
-            finally
-            {
-                //Console.WriteLine("Executing finally block.");
-            }
+            catch (Exception) { }
 
-            return line;//JsonSerializer.Serialize(line);
+            return "";
         }
         public static string GetHotmailCodeVerify_HotmailBox(string hotmail, string password)
         {

@@ -38,30 +38,40 @@ namespace ToolKHBrowser.Views
         {
             try
             {
-                var str = cacheViewModel.GetCacheDao().Get("contact:config").Value.ToString();
-                if (!string.IsNullOrEmpty(str))
+                var cacheConfig = cacheViewModel.GetCacheDao().Get("contact:config");
+                if (cacheConfig != null && cacheConfig.Value != null)
                 {
-                    ContactConfig contactObj = JsonConvert.DeserializeObject<ContactConfig>(str);
-                    int index = Int32.Parse(cacheViewModel.GetCacheDao().Get("contact:config:index").Value.ToString());
-
-                    txtYandexIndex.Value = index;
-                    txtYandexMail.Text = contactObj.YandexConfig.Mail;
-                    txtYandexPassword.Password = contactObj.YandexConfig.Password;
-                    txtYandexProtocol.Text = contactObj.YandexConfig.Protocol;
-                    try
+                    string str = cacheConfig.Value.ToString();
+                    if (!string.IsNullOrEmpty(str))
                     {
-                        txtYandexFix.Text = contactObj.YandexConfig.TextFix;
-                    } catch(Exception) { }
+                        ContactConfig contactObj = JsonConvert.DeserializeObject<ContactConfig>(str);
+                        var cacheIndex = cacheViewModel.GetCacheDao().Get("contact:config:index");
+                        int index = 0;
+                        if (cacheIndex != null && cacheIndex.Value != null)
+                        {
+                            Int32.TryParse(cacheIndex.Value.ToString(), out index);
+                        }
 
-                    txtHotmailApiKey.Password = contactObj.HotmailConfig.ApiKey;
-                    txtHotmailDomain.Text = contactObj.HotmailConfig.DomainName;
+                        txtYandexIndex.Value = index;
+                        txtYandexMail.Text = contactObj.YandexConfig.Mail;
+                        txtYandexPassword.Password = contactObj.YandexConfig.Password;
+                        txtYandexProtocol.Text = contactObj.YandexConfig.Protocol;
+                        try
+                        {
+                            txtYandexFix.Text = contactObj.YandexConfig.TextFix;
+                        } catch(Exception) { }
 
-                    chbYandex.IsChecked = contactObj.Yandex;
-                    chbHotmail.IsChecked = contactObj.Hotmail;
-                    chbPrimaryNewLayout.IsChecked = contactObj.NewLayout;
+                        txtHotmailApiKey.Password = contactObj.HotmailConfig.ApiKey;
+                        txtHotmailDomain.Text = contactObj.HotmailConfig.DomainName;
 
-                    var mailList = cacheViewModel.GetCacheDao().Get("contact:config:mail_list").Value.ToString();
-                    txtMailList.Text = mailList;
+                        chbYandex.IsChecked = contactObj.Yandex;
+                        chbHotmail.IsChecked = contactObj.Hotmail;
+                        chbPrimaryNewLayout.IsChecked = contactObj.NewLayout;
+
+                        var cacheMail = cacheViewModel.GetCacheDao().Get("contact:config:mail_list");
+                        var mailList = cacheMail?.Value?.ToString() ?? "";
+                        txtMailList.Text = mailList;
+                    }
                 }
             } catch(Exception) { }
         }

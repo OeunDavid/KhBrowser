@@ -2150,7 +2150,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         {
             try
             {
-                driver.Navigate().GoToUrl(Constant.FB_WEB_URL + "/groups/" + groupId);
+                driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
             }
             catch (Exception) { }
 
@@ -3440,8 +3440,11 @@ namespace ToolKHBrowser.ToolLib.Tool
                 isWorking = false;
                 try
                 {
-                    elements.ElementAt(elements.Count - 1).FindElement(By.TagName("br")).SendKeys(comment + OpenQA.Selenium.Keys.Enter);
-                    isWorking = true;                    
+                    if (elements != null && elements.Count > 0)
+                    {
+                        elements.ElementAt(elements.Count - 1).FindElement(By.TagName("br")).SendKeys(comment + OpenQA.Selenium.Keys.Enter);
+                        isWorking = true;
+                    }
                 }
                 catch (Exception) { }
                 //if(!isWorking)
@@ -3672,7 +3675,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         {
             try
             {
-                driver.FindElement(By.XPath("//div[@aria-label='Like']")).Click();
+                driver.FindElement(By.XPath("//div[@aria-label='Like' or @aria-label='Thích' or @aria-label='ចូលចិត្ត']")).Click();
                 Thread.Sleep(1000);
             }
             catch (Exception) { }

@@ -150,6 +150,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Play()
         {
+            if (processActionData == null || processActionData.NewsFeed == null || processActionData.NewsFeed.NewsFeed == null)
+                return;
+
             try
             {
                 driver.Navigate().GoToUrl(Constant.FB_WEB_URL);
@@ -186,6 +189,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Messenger()
         {
+            if (processActionData == null || processActionData.NewsFeed == null || processActionData.NewsFeed.Messenger == null)
+                return;
+
             bool isWorking = ReadMessenger();
             
             if(isWorking)
@@ -485,6 +491,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Timeline()
         {
+            if (processActionData == null || processActionData.NewsFeed == null || processActionData.NewsFeed.Timeline == null)
+                return;
+
             int min = 1, max = 1;
             try
             {

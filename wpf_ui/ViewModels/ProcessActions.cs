@@ -23,8 +23,9 @@ namespace ToolKHBrowser.ViewModels
 
         public bool IsLeaveGroup { get; set; }
         public bool IsJoinGroup { get; set; }
-        public bool IsBackupGroup { get; set; }
         public bool IsViewGroup { get; set; }
+        public bool AutoScrollGroup { get; set; }
+        public bool IsBackupGroup { get; set; }
 
         public bool EnglishUS { get; set; }
         public bool LockTime { get; set; }
@@ -49,6 +50,7 @@ namespace ToolKHBrowser.ViewModels
         public bool CreatePage { get; set; }
         public bool FollowPage { get; set; }
         public bool BackupPage { get; set; }
+        public bool AutoScrollPage { get; set; }
         public bool PageCreateReel { get; set; }
 
         public bool AddFriends { get; set; }
@@ -263,6 +265,7 @@ namespace ToolKHBrowser.ViewModels
     {
         public React React { get; set; }
         public NumberRank PlayTime { get; set; }
+        public string Comments { get; set; }
     }
     public class Messenger
     {
@@ -414,6 +417,7 @@ namespace ToolKHBrowser.ViewModels
     public class React
     {
         public bool Like { get; set; }
+        public bool Comment { get; set; }
         public bool None { get; set; }
         public bool Random { get; set; }
     }

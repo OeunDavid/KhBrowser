@@ -35,12 +35,16 @@ namespace ToolLib
 
         public bool Connect(string ipPort = "127.0.0.1:5555")
         {
-            var result = _adb.execute(_adbDir, "connect", ipPort);
-            if (result != null && result.StandardOutput.Contains("connected"))
+            try
             {
-                _deviceId = ipPort;
-                return true;
+                var result = _adb.execute(_adbDir, "connect", ipPort);
+                if (result != null && result.StandardOutput.Contains("connected"))
+                {
+                    _deviceId = ipPort;
+                    return true;
+                }
             }
+            catch (Exception) { }
             return false;
         }
 
@@ -100,7 +104,7 @@ namespace ToolLib
             for (int i = 0; i < timeoutSeconds; i++)
             {
                 if (IsStopSignal()) return false;
-                string source = GetPageSource();
+                string source = GetPageSource() ?? "";
                 if (source.Contains(text)) return true;
                 Thread.Sleep(1000);
             }
@@ -109,29 +113,53 @@ namespace ToolLib
 
         private string FindElementBounds(string xml, string text)
         {
-            // Simple parsing to avoid XML dependency issues
-            // Format: text="NAME" ... bounds="[x1,y1][x2,y2]"
-            int textIndex = xml.IndexOf($"text=\"{text}\"", StringComparison.OrdinalIgnoreCase);
-            if (textIndex == -1) return "";
+            try
+            {
+                if (string.IsNullOrEmpty(xml) || string.IsNullOrEmpty(text)) return "";
+                // Simple parsing to avoid XML dependency issues
+                // Format: text="NAME" ... bounds="[x1,y1][x2,y2]"
+                int textIndex = xml.IndexOf($"text=\"{text}\"", StringComparison.OrdinalIgnoreCase);
+                if (textIndex == -1)
+                {
+                    // Fallback to content-desc
+                    textIndex = xml.IndexOf($"content-desc=\"{text}\"", StringComparison.OrdinalIgnoreCase);
+                    if (textIndex == -1) return "";
+                }
 
-            int boundsIndex = xml.IndexOf("bounds=\"", textIndex);
-            if (boundsIndex == -1) return "";
+                int boundsIndex = xml.IndexOf("bounds=\"", textIndex);
+                if (boundsIndex == -1) return "";
 
-            int start = boundsIndex + 8;
-            int end = xml.IndexOf("\"", start);
-            return xml.Substring(start, end - start);
+                int start = boundsIndex + 8;
+                int end = xml.IndexOf("\"", start);
+                if (end > start)
+                {
+                    return xml.Substring(start, end - start);
+                }
+            }
+            catch { }
+            return "";
         }
 
         private System.Drawing.Point GetCenter(string bounds)
         {
-            // Format: [x1,y1][x2,y2]
-            var parts = bounds.Replace("[", "").Replace("]", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            int x1 = int.Parse(parts[0]);
-            int y1 = int.Parse(parts[1]);
-            int x2 = int.Parse(parts[2]);
-            int y2 = int.Parse(parts[3]);
-
-            return new System.Drawing.Point((x1 + x2) / 2, (y1 + y2) / 2);
+            try
+            {
+                if (string.IsNullOrEmpty(bounds)) return new System.Drawing.Point(0, 0);
+                // Format: [x1,y1][x2,y2]
+                var parts = bounds.Replace("[", "").Replace("]", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 4)
+                {
+                    if (int.TryParse(parts[0], out int x1) &&
+                        int.TryParse(parts[1], out int y1) &&
+                        int.TryParse(parts[2], out int x2) &&
+                        int.TryParse(parts[3], out int y2))
+                    {
+                        return new System.Drawing.Point((x1 + x2) / 2, (y1 + y2) / 2);
+                    }
+                }
+            }
+            catch { }
+            return new System.Drawing.Point(0, 0);
         }
 
         public void ShareLink(string url, string caption)
@@ -1026,13 +1054,20 @@ namespace ToolLib
             Thread.Sleep(2000);
             Swipe(500, 1500, 500, 500);
             // Look for "Joined Facebook"
-            string source = GetPageSource();
+            string source = GetPageSource() ?? "";
             if (source.Contains("Joined Facebook"))
             {
-                // Basic extraction logic
-                int index = source.IndexOf("Joined Facebook");
-                int end = source.IndexOf("\"", index + 16);
-                return source.Substring(index, end - index);
+                try
+                {
+                    // Basic extraction logic
+                    int index = source.IndexOf("Joined Facebook");
+                    int end = source.IndexOf("\"", index + 16);
+                    if (end > index)
+                    {
+                        return source.Substring(index, end - index);
+                    }
+                }
+                catch { }
             }
             return "Unknown";
         }
@@ -1124,22 +1159,24 @@ namespace ToolLib
         public string GetPageSource()
         {
             if (string.IsNullOrEmpty(_deviceId)) return "";
-            // Delete old dump first
-            _adb.execute(_adbDir, "-s", _deviceId, "shell", "rm", "/sdcard/view.xml");
-            
-            var result = _adb.execute(_adbDir, "-s", _deviceId, "shell", "uiautomator", "dump", "/sdcard/view.xml");
-            if (result != null)
+            try
             {
-                var content = _adb.execute(_adbDir, "-s", _deviceId, "shell", "cat", "/sdcard/view.xml");
-                // ADB might return "UI hierchary dumped to: /sdcard/view.xml" as first line, need to clean
-                string output = content?.StandardOutput ?? "";
-                if (output.Contains("<?xml"))
+                // Delete old dump first
+                _adb.execute(_adbDir, "-s", _deviceId, "shell", "rm", "/sdcard/view.xml");
+
+                var result = _adb.execute(_adbDir, "-s", _deviceId, "shell", "uiautomator", "dump", "/sdcard/view.xml");
+                if (result != null && result.StandardOutput != null && result.StandardOutput.Contains("dumped"))
                 {
-                    int start = output.IndexOf("<?xml");
-                    return output.Substring(start);
+                    var content = _adb.execute(_adbDir, "-s", _deviceId, "shell", "cat", "/sdcard/view.xml");
+                    string output = content?.StandardOutput ?? "";
+                    if (output.Contains("<?xml"))
+                    {
+                        int start = output.IndexOf("<?xml");
+                        return output.Substring(start);
+                    }
                 }
-                return output;
             }
+            catch (Exception) { }
             return "";
         }
     }

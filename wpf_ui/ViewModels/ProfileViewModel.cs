@@ -95,44 +95,71 @@ namespace ToolKHBrowser.ViewModels
 
             try
             {
-                profileIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("profile:config:profile_index").Value.ToString());
+                var cacheP = this.form.cacheViewModel.GetCacheDao().Get("profile:config:profile_index");
+                if (cacheP != null && cacheP.Value != null)
+                {
+                    profileIndex = Int32.Parse(cacheP.Value.ToString());
+                }
             }
             catch (Exception) { }
             try
             {
-                coverIndex = Int32.Parse(this.form.cacheViewModel.GetCacheDao().Get("profile:config:cover_index").Value.ToString());
+                var cacheC = this.form.cacheViewModel.GetCacheDao().Get("profile:config:cover_index");
+                if (cacheC != null && cacheC.Value != null)
+                {
+                    coverIndex = Int32.Parse(cacheC.Value.ToString());
+                }
             }
             catch (Exception) { }
-            try
+            this.processActionData = this.form.processActionsData;
+
+            bioArr = Array.Empty<string>();
+            cityArr = Array.Empty<string>();
+            hometownArr = Array.Empty<string>();
+            schoolArr = Array.Empty<string>();
+            collegeArr = Array.Empty<string>();
+
+            if (processActionData != null && processActionData.ProfileConfig != null && processActionData.ProfileConfig.NewInfo != null)
             {
-                bioArr = processActionData.ProfileConfig.NewInfo.Bio.Split('\n');
+                try
+                {
+                    if (!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.Bio))
+                        bioArr = processActionData.ProfileConfig.NewInfo.Bio.Split('\n');
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.City))
+                        cityArr = processActionData.ProfileConfig.NewInfo.City.Split('\n');
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.Hometown))
+                        hometownArr = processActionData.ProfileConfig.NewInfo.Hometown.Split('\n');
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.School))
+                        schoolArr = processActionData.ProfileConfig.NewInfo.School.Split('\n');
+                }
+                catch (Exception) { }
+                try
+                {
+                    if (!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.College))
+                        collegeArr = processActionData.ProfileConfig.NewInfo.College.Split('\n');
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
-            try
-            {
-                cityArr = processActionData.ProfileConfig.NewInfo.City.Split('\n');
-            }
-            catch (Exception) { }
-            try
-            {
-                hometownArr = processActionData.ProfileConfig.NewInfo.Hometown.Split('\n');
-            }
-            catch (Exception) { }
-            try
-            {
-                schoolArr = processActionData.ProfileConfig.NewInfo.School.Split('\n');
-            }
-            catch (Exception) { }
-            try
-            {
-                collegeArr = processActionData.ProfileConfig.NewInfo.College.Split('\n');
-            }
-            catch (Exception) { }
 
             random = new Random();
         }
         public void ActivityLog()
         {
+            if (processActionData == null || processActionData.ProfileConfig == null || processActionData.ProfileConfig.ActivityLog == null)
+                return;
+
             int num = 0;
             try
             {
@@ -387,6 +414,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void TwoFA()
         {
+            if (processActionData == null || processActionData.ProfileConfig == null || processActionData.ProfileConfig.TwoFA == null)
+                return;
+
             if (data.TwoFA.Length < 20)
             {
                 data.Description = "Turn on 2FA";
@@ -413,6 +443,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Info()
         {
+            if (processActionData == null || processActionData.ProfileConfig == null || processActionData.ProfileConfig.NewInfo == null)
+                return;
+
             data.Description = "Update Info";
             if(!string.IsNullOrEmpty(processActionData.ProfileConfig.NewInfo.SourceProfile))
             {
@@ -476,6 +509,9 @@ namespace ToolKHBrowser.ViewModels
         }
         public void Delete()
         {
+            if (processActionData == null || processActionData.ProfileConfig == null || processActionData.ProfileConfig.DeleteData == null)
+                return;
+
             data.Description = "Delete Data";
             if(!IsStop() && processActionData.ProfileConfig.DeleteData.Unfriend > 0)
             {
@@ -517,7 +553,10 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
-                str = arr[random.Next(0, arr.Length - 1)];
+                if (arr != null && arr.Length > 0)
+                {
+                    str = arr[random.Next(0, arr.Length)];
+                }
             }
             catch (Exception) { }
 

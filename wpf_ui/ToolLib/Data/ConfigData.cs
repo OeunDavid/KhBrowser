@@ -14,10 +14,12 @@ namespace WpfUI.ToolLib.Data
     {
         public static string GetPath()
         {
-            string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
-
-            return strWorkPath;
+            try
+            {
+                string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                return System.IO.Path.GetDirectoryName(strExeFilePath);
+            }
+            catch { return AppDomain.CurrentDomain.BaseDirectory; }
         }
         public static string GetBrowserKey(string uid)
         {
@@ -25,11 +27,12 @@ namespace WpfUI.ToolLib.Data
         }
         public static string GetPathDriver()
         {
-            return GetPath() + "/driver";
+            return Path.Combine(GetPath(), "driver");
         }
         public static string GetBrowserDataDirectory()
         {
-            var die= DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:microsoftEdgeProfile").Value.ToString();
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:microsoftEdgeProfile");
+            string die = cache?.Value?.ToString() ?? "";
             if(string.IsNullOrEmpty(die))
             {
                 die= Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Microsoft\\Edge\\User Data";
@@ -55,11 +58,13 @@ namespace WpfUI.ToolLib.Data
         }
         public static string GetRunType()
         {
-            return DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:runType").Value.ToString();
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:runType");
+            return cache?.Value?.ToString() ?? "web";
         }
         public static string GetBrowserType()
         {
-            string browserType= DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:browserType").Value.ToString();
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:browserType");
+            string browserType = cache?.Value?.ToString() ?? "edge";
             if(browserType == "chrome")
             {
                 return "chrome";
@@ -70,7 +75,8 @@ namespace WpfUI.ToolLib.Data
         public static bool IsLoginByCookie()
         {
             bool cookie = false;
-            string loginType = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:loginType").Value.ToString();
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:loginType");
+            string loginType = cache?.Value?.ToString() ?? "";
             if (loginType == "cookie")
             {
                 cookie = true;
@@ -81,7 +87,8 @@ namespace WpfUI.ToolLib.Data
         public static bool IsUseImage()
         {
             bool image = true;
-            string useImage = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:useImage").Value.ToString();
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:useImage");
+            string useImage = cache?.Value?.ToString() ?? "";
             if (useImage == "no")
             {
                 image = false;
@@ -89,35 +96,26 @@ namespace WpfUI.ToolLib.Data
 
             return image;
         }
-        public static string ReadTextFromTextFile(string file_name, string path="")
+        public static string ReadTextFromTextFile(string file_name, string path = "")
         {
-            string line = "", str = "";
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 path = GetPath();
             }
+
+            string fullPath = Path.Combine(path, file_name);
+            if (!File.Exists(fullPath)) return "";
+
             try
             {
-                StreamReader sr = new StreamReader(path + "/" + file_name);
-                line = sr.ReadLine();
-                if (!string.IsNullOrEmpty(line))
+                using (StreamReader sr = new StreamReader(fullPath))
                 {
-                    str = line;
+                    return sr.ReadToEnd();
                 }
-                while (line != null)
-                {
-                    //Read the next line
-                    line = sr.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        str += "\r\n" + line;
-                    }
-                }
-                sr.Close();
             }
             catch (Exception) { }
 
-            return str;
+            return "";
         }
         public static void Write(string file_name, string text, string path = "")
         {
@@ -125,25 +123,22 @@ namespace WpfUI.ToolLib.Data
             {
                 path = GetPath();
             }
+
             try
             {
-                //Pass the filepath and filename to the StreamWriter Constructor
-                StreamWriter sw = new StreamWriter(@path + "/" + file_name);
-                //Write a line of text
-                sw.WriteLine(text);
-                //Write a second line of text
-                //sw.WriteLine("From the StreamWriter class");
-                //Close the file
-                sw.Close();
+                string fullPath = Path.Combine(path, file_name);
+                string directory = Path.GetDirectoryName(fullPath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                using (StreamWriter sw = new StreamWriter(fullPath))
+                {
+                    sw.WriteLine(text);
+                }
             }
-            catch (Exception)
-            {
-                //Console.WriteLine("Exception: " + e.Message);
-            }
-            finally
-            {
-                //Console.WriteLine("Executing finally block.");
-            }
+            catch (Exception) { }
         }
     }
 }

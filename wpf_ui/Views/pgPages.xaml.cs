@@ -34,10 +34,14 @@ namespace ToolKHBrowser.Views
         }
         public void LoadData()
         {
-            var str = cacheViewModel.GetCacheDao().Get("page:config").Value.ToString();
-            if (!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("page:config");
+            if (cache != null && cache.Value != null)
             {
-                PageConfig pageObj = JsonConvert.DeserializeObject<PageConfig>(str);
+                var str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    PageConfig pageObj = JsonConvert.DeserializeObject<PageConfig>(str);
+                    if (pageObj == null) return;
 
                 try
                 {
@@ -76,6 +80,7 @@ namespace ToolKHBrowser.Views
                     }
                     catch (Exception) { }
                 }
+                }
             }
         }
 
@@ -103,6 +108,26 @@ namespace ToolKHBrowser.Views
             cacheViewModel.GetCacheDao().Set("page:config", output);
 
             MessageBox.Show("Your config has been save successfully.");
+        }
+        private void btnBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
+                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
+                dialog.CheckFileExists = true;
+                dialog.CheckPathExists = true;
+
+                if (!string.IsNullOrEmpty(txtCreateReelSourceFolder.Text) && System.IO.Directory.Exists(txtCreateReelSourceFolder.Text))
+                {
+                    dialog.InitialDirectory = txtCreateReelSourceFolder.Text;
+                }
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    txtCreateReelSourceFolder.Text = dialog.FileName;
+                }
+            }
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {

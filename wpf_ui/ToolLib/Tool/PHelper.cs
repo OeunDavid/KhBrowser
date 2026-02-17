@@ -15,10 +15,14 @@ namespace ToolKHBrowser.ToolLib.Tool
         static ICacheViewModel cacheViewModel = DIConfig.Get<ICacheViewModel>();
         public static Sharer GetShareConfig()
         {
-            var str = cacheViewModel.GetCacheDao().Get("share:config").Value.ToString();
-            if (!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("share:config");
+            if (cache != null && cache.Value != null)
             {
-                return JsonConvert.DeserializeObject<Sharer>(str);
+                var str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    return JsonConvert.DeserializeObject<Sharer>(str);
+                }
             }
 
             return new Sharer();

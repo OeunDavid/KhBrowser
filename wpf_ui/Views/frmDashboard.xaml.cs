@@ -38,8 +38,11 @@ namespace WpfUI.Views
         }
         public void renderData()
         {
-            string totalShareTimeline = cacheViewModel.GetCacheDao().Get("share:shareToTimeline").Total.ToString("#,###");
-            string totalShareGroup = cacheViewModel.GetCacheDao().Get("share:shareToGroup").Total.ToString("#,###");
+            var cacheTimeline = cacheViewModel.GetCacheDao().Get("share:shareToTimeline");
+            var cacheGroup = cacheViewModel.GetCacheDao().Get("share:shareToGroup");
+
+            string totalShareTimeline = (cacheTimeline?.Total ?? 0).ToString("#,###");
+            string totalShareGroup = (cacheGroup?.Total ?? 0).ToString("#,###");
             string totalAccountLive = fbAccountViewModel.getAccountDao().getTotalAccountLive().ToString("#,###");
             string totalAccountDie = fbAccountViewModel.getAccountDao().getTotalAccountDie().ToString("#,###");
             

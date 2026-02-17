@@ -10,6 +10,8 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Threading;
+using System.Diagnostics;
+using System.Linq;
 using WpfUI.ToolLib.Data;
 using WpfUI.ViewModels;
 
@@ -111,9 +113,51 @@ namespace WpfUI.ToolLib.Tool
                 options.Proxy = proxy;
             }
 
-            IWebDriver driver = new EdgeDriver(edge_driver_service, options);
-            Thread.Sleep(800);
+            IWebDriver driver = null;
+            try
+            {
+                driver = new EdgeDriver(edge_driver_service, options);
+            }
+            catch (Exception ex)
+            {
+                // if failed, try to kill existing processes and retry ONCE
+                if (ex.Message.Contains("DevToolsActivePort") || ex.Message.Contains("session not created"))
+                {
+                    KillBrowserProcesses("msedge", "msedgedriver");
+                    Thread.Sleep(2000);
+                    try
+                    {
+                        driver = new EdgeDriver(edge_driver_service, options);
+                    }
+                    catch { }
+                }
+            }
+
+            if (driver != null)
+                Thread.Sleep(800);
+
             return driver;
+        }
+
+        private void KillBrowserProcesses(params string[] processNames)
+        {
+            try
+            {
+                foreach (var name in processNames)
+                {
+                    var processes = Process.GetProcessesByName(name);
+                    foreach (var p in processes)
+                    {
+                        try
+                        {
+                            p.Kill();
+                            p.WaitForExit(3000);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
         }
         //public IWebDriver GetEdgeDriver(string browser_key = "", int num_request = 3, int num_open = 6, string str_proxy = "", bool useImage= true, bool isShowBrowser = true, string userAgent= "")
         //{
@@ -297,9 +341,22 @@ namespace WpfUI.ToolLib.Tool
             ChromeOptions options = new ChromeOptions();
 
             var cacheViewModel = DIConfig.Get<ICacheViewModel>();
-            int width = cacheViewModel.GetCacheDao().Get("screen:width").Total;
-            int height = cacheViewModel.GetCacheDao().Get("screen:height").Total;
-            string deviceType = cacheViewModel.GetCacheDao().Get("config:deviceType").Value;
+            int width = 0;
+            int height = 0;
+            string deviceType = "";
+
+            try
+            {
+                width = cacheViewModel.GetCacheDao().Get("screen:width").Total;
+                height = cacheViewModel.GetCacheDao().Get("screen:height").Total;
+
+                var cacheDevice = cacheViewModel.GetCacheDao().Get("config:deviceType");
+                if (cacheDevice != null && cacheDevice.Value != null)
+                {
+                    deviceType = cacheDevice.Value.ToString();
+                }
+            }
+            catch (Exception) { }
 
             if (width <= 0)
             {
@@ -466,7 +523,19 @@ namespace WpfUI.ToolLib.Tool
 
                 Thread.Sleep(1000);
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("DevToolsActivePort") || ex.Message.Contains("session not created"))
+                {
+                    KillBrowserProcesses("chrome", "chromedriver");
+                    Thread.Sleep(2000);
+                    try
+                    {
+                        driver = new ChromeDriver(driver_service, options);
+                    }
+                    catch { }
+                }
+            }
             if (driver != null)
             {
                 try

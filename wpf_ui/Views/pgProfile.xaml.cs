@@ -35,28 +35,38 @@ namespace ToolKHBrowser.Views
         }
         public void LoadData()
         {
-            var str = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
-            if (!string.IsNullOrEmpty(str))
+            var cache = cacheViewModel.GetCacheDao().Get("profile:config");
+            if (cache != null && cache.Value != null)
             {
-                ProfileConfig profileObj = JsonConvert.DeserializeObject<ProfileConfig>(str);
+                var str = cache.Value.ToString();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    ProfileConfig profileObj = JsonConvert.DeserializeObject<ProfileConfig>(str);
+                if (profileObj == null) return;
 
-                txtUnfriends.Value = profileObj.DeleteData.Unfriend;
-                txtSuggest.Value = profileObj.DeleteData.Suggest;
-                txtRequest.Value = profileObj.DeleteData.Request;
+                if (profileObj.DeleteData != null)
+                {
+                    txtUnfriends.Value = profileObj.DeleteData.Unfriend;
+                    txtSuggest.Value = profileObj.DeleteData.Suggest;
+                    txtRequest.Value = profileObj.DeleteData.Request;
 
-                chbProfilePicture.IsChecked = profileObj.DeleteData.Profile;
-                chbCoverPicture.IsChecked = profileObj.DeleteData.Cover;
-                chbAllPicture.IsChecked = profileObj.DeleteData.Picture;
-                chbDeletePostTag.IsChecked = profileObj.DeleteData.Tag;
-                chbRemoveMobilePhone.IsChecked = profileObj.DeleteData.Phone;
+                    chbProfilePicture.IsChecked = profileObj.DeleteData.Profile;
+                    chbCoverPicture.IsChecked = profileObj.DeleteData.Cover;
+                    chbAllPicture.IsChecked = profileObj.DeleteData.Picture;
+                    chbDeletePostTag.IsChecked = profileObj.DeleteData.Tag;
+                    chbRemoveMobilePhone.IsChecked = profileObj.DeleteData.Phone;
+                }
 
-                txtProfileSource.Text = profileObj.NewInfo.SourceProfile;
-                txtCoverSource.Text = profileObj.NewInfo.SourceCover;
-                txtBio.Text = profileObj.NewInfo.Bio;
-                txtSchool.Text = profileObj.NewInfo.School;
-                txtCollege.Text = profileObj.NewInfo.College;
-                txtCity.Text = profileObj.NewInfo.City;
-                txtHometown.Text = profileObj.NewInfo.Hometown;
+                if (profileObj.NewInfo != null)
+                {
+                    txtProfileSource.Text = profileObj.NewInfo.SourceProfile;
+                    txtCoverSource.Text = profileObj.NewInfo.SourceCover;
+                    txtBio.Text = profileObj.NewInfo.Bio;
+                    txtSchool.Text = profileObj.NewInfo.School;
+                    txtCollege.Text = profileObj.NewInfo.College;
+                    txtCity.Text = profileObj.NewInfo.City;
+                    txtHometown.Text = profileObj.NewInfo.Hometown;
+                }
 
                 chbTurnOnTwofaByWeb.IsChecked = profileObj.TwoFA.Web;
                 chbTurnOnTwofaByWebII.IsChecked = profileObj.TwoFA.WebII;
@@ -95,6 +105,7 @@ namespace ToolKHBrowser.Views
                     txtMarketplace.Text = profileObj.NewInfo.Marketplace;
                 }
                 catch (Exception) { }
+                }
             }
         }
 
