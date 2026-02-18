@@ -65,3 +65,27 @@ Desktop.ini
 ############################
 packages/
 *.nupkg
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build folders
+bin/
+obj/
+
+# WPF generated files
+*.baml
+*.cache
+*.g.cs
+*.g.i.cs
+
+# Publish folder
+app.publish/
+
+# Debug/Release folders
+Debug/
+Release/
