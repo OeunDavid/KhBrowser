@@ -51,6 +51,10 @@ namespace ToolKHBrowser.ViewModels
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        void PostGroup();
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
         IGroupsDao GetGroupsDao();
     }
     public class GroupViewModel : IGroupViewModel
@@ -396,6 +400,46 @@ namespace ToolKHBrowser.ViewModels
                             form.SetGridDataRowStatus(data);
                             break;
                         }
+                    }
+                }
+            }
+        }
+        public void PostGroup()
+        {
+            if (processActionData == null || processActionData.GroupConfig == null)
+                return;
+
+            string runType = ConfigData.GetRunType().ToLower().Trim();
+            var groupRecords = groupsDao.GetRecordsByUID(data.UID);
+            foreach (DataRow row in groupRecords.Rows)
+            {
+                if (IsStop()) break;
+
+                string groupId = "";
+                try
+                {
+                    groupId = row["group_id"] + "";
+                }
+                catch (Exception) { }
+
+                if (string.IsNullOrEmpty(groupId)) continue;
+
+                string caption = GetCaption();
+                // string source = GetSourceFile(); 
+
+                if (runType == "web" || true)
+                {
+                    try
+                    {
+                        driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
+                    }
+                    catch (Exception) { }
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(2000);
+                    
+                    if (!string.IsNullOrEmpty(caption))
+                    {
+                        WebFBTool.PostInGroup(driver, caption);
                     }
                 }
             }

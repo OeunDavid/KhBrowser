@@ -2006,6 +2006,9 @@ namespace WpfUI.Views
             processActions.UserData = chbUseUserData.IsChecked.Value;
             processActions.PrimaryLocation = chbPrimaryLocation.IsChecked.Value;
 
+            processActions.PagePost = chbPagePost.IsChecked.Value;
+            processActions.GroupPost = chbGroupPost.IsChecked.Value;
+
             processActions.IsShareToTimeline = chbShareToTimeline.IsChecked.Value;
             processActions.IsShareToGroup = chbShareToGroups.IsChecked.Value;
             processActions.IsShareProfilePage = chbSharePageProfile.IsChecked.Value;
@@ -4876,46 +4879,94 @@ namespace WpfUI.Views
             }
         }
 
+        //public void StartPage(IWebDriver driver, FbAccount data, bool isNoSwitchPage = false)
+        //{
+        //    if (!processActionsData.CreatePage && !processActionsData.FollowPage && !processActionsData.BackupPage && !processActionsData.PageCreateReel && !processActionsData.AutoScrollPage)
+        //    {
+        //        return;
+        //    }
+        //    processActionsData.PageConfig = GetCacheConfig<PageConfig>("page:config");
+        //    IPageViewModel pageViewModel = DIConfig.Get<IPageViewModel>();
+        //    pageViewModel.Start(this, driver, data);
+        //    if (!IsStop() && processActionsData.CreatePage)
+        //    {
+        //        pageViewModel.Create();
+        //    }
+        //    if (!IsStop() && processActionsData.BackupPage)
+        //    {
+        //        if (string.IsNullOrEmpty(data.Token))
+        //        {
+        //            Token(driver, data);
+        //        }
+        //        pageViewModel.Backup();
+        //    }
+        //    if (!IsStop() && processActionsData.FollowPage)
+        //    {
+        //        pageViewModel.Follow();
+        //    }
+        //    if (!IsStop() && processActionsData.PageCreateReel)
+        //    {
+        //        pageViewModel.CreateReel(isNoSwitchPage);
+        //    }
+        //    if (!IsStop() && processActionsData.AutoScrollPage)
+        //    {
+        //        StartAutoScroll(driver, data);
+        //    }
+        //    if (!IsStop() && processActionsData.PagePost)
+        //    {
+        //        pageViewModel.Post();
+        //    }
+        //    int status = 1;
+        //    if (data.Status == "Die")
+        //    {
+        //        status = 0;
+        //    }
+        //    fbAccountViewModel.getAccountDao().updateStatus(data.UID, data.Description, status);
+        //}
         public void StartPage(IWebDriver driver, FbAccount data, bool isNoSwitchPage = false)
         {
-            if (!processActionsData.CreatePage && !processActionsData.FollowPage && !processActionsData.BackupPage && !processActionsData.PageCreateReel && !processActionsData.AutoScrollPage)
+            // ✅ PagePost added to early exit check
+            if (!processActionsData.CreatePage &&
+                !processActionsData.FollowPage &&
+                !processActionsData.BackupPage &&
+                !processActionsData.PageCreateReel &&
+                !processActionsData.AutoScrollPage &&
+                !processActionsData.PagePost)
             {
                 return;
             }
+
             processActionsData.PageConfig = GetCacheConfig<PageConfig>("page:config");
             IPageViewModel pageViewModel = DIConfig.Get<IPageViewModel>();
             pageViewModel.Start(this, driver, data);
+
             if (!IsStop() && processActionsData.CreatePage)
-            {
                 pageViewModel.Create();
-            }
+
             if (!IsStop() && processActionsData.BackupPage)
             {
                 if (string.IsNullOrEmpty(data.Token))
-                {
                     Token(driver, data);
-                }
                 pageViewModel.Backup();
             }
+
             if (!IsStop() && processActionsData.FollowPage)
-            {
                 pageViewModel.Follow();
-            }
+
             if (!IsStop() && processActionsData.PageCreateReel)
-            {
                 pageViewModel.CreateReel(isNoSwitchPage);
-            }
+
             if (!IsStop() && processActionsData.AutoScrollPage)
-            {
                 StartAutoScroll(driver, data);
-            }
+
+            if (!IsStop() && processActionsData.PagePost)
+                pageViewModel.Post();
+
             int status = 1;
-            if (data.Status == "Die")
-            {
-                status = 0;
-            }
+            if (data.Status == "Die") status = 0;
             fbAccountViewModel.getAccountDao().updateStatus(data.UID, data.Description, status);
         }
+
 
         public void StartAutoScroll(IWebDriver driver, FbAccount account)
         {
@@ -5080,6 +5131,11 @@ namespace WpfUI.Views
                 if (processActionsData.AutoScrollGroup && !IsStop())
                 {
                     StartAutoScroll(driver, data);
+                }
+                if (processActionsData.GroupPost && !IsStop())
+                {
+                    data.Description += ", Post Group";
+                    groupViewModel.PostGroup();
                 }
                 int status = 1;
                 if (data.Status == "Die")

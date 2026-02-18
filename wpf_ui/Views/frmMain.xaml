@@ -15,7 +15,7 @@
             <ColumnDefinition Width="265*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="888*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
@@ -351,6 +351,19 @@
                             </StackPanel>
                             <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupBackup" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Group"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbGroupPost" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
                         <Button x:Name="btnStore" Height="30" Width="auto" Margin="6"   IsEnabled="True" Background="DodgerBlue" Click="btnStore_Click">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Store" Width="15" Height="15" VerticalAlignment="Center" Margin="2"/>
@@ -537,6 +550,19 @@
                                 <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Timeline"/></TextBlock>
                             </StackPanel>
                             <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbNewsFeedPostTimeline" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
+                                <TextBlock Margin="2" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Page"/></TextBlock>
+                            </StackPanel>
+                            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbPagePost" IsEnabled="True" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
                         </Grid>
 
                         <Grid>
