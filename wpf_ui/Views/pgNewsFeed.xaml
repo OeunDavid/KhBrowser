@@ -283,6 +283,85 @@
                 </StackPanel>
             </Grid>
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="600"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Post to Page ------------------------------------------------"/></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="130"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Number post(s)"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtPagePostMinNumber" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="1" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="2" Margin="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="to"/></TextBlock>
+                        </StackPanel>
+                        <numeric:SpinnerDecorator Grid.Column="3"  Grid.Row="0" Margin="2,4">
+                            <numeric:IntBox Name="txtPagePostMaxNumber" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="1" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Page ID(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtPagePostIds" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2,2,2,2" Height="60"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Source Folder"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtPagePostSourceFolder" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
+                        <Button x:Name="btnPagePostBrowse" Grid.Column="2" Height="26" Margin="2" Content="Browse" Click="btnPagePostBrowse_Click"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Caption(s)"/></TextBlock>
+                        </StackPanel>
+                        <TextBox Name="txtPagePostCaption" Grid.Column="2" Margin="2,2,2,2" Height="50"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <Grid>
                 <StackPanel Margin="5">
 
                     <Button x:Name="btnSaveConfig" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveConfig_Click" >

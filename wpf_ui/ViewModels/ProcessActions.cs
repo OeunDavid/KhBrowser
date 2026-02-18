@@ -27,6 +27,9 @@ namespace ToolKHBrowser.ViewModels
         public bool AutoScrollGroup { get; set; }
         public bool IsBackupGroup { get; set; }
 
+        public bool PagePost { get; set; }
+        public bool GroupPost { get; set; }
+
         public bool EnglishUS { get; set; }
         public bool LockTime { get; set; }
         public bool Token { get; set; }
@@ -79,6 +82,7 @@ namespace ToolKHBrowser.ViewModels
         public NewsFeedConfig NewsFeed { get; set; }
 
         public PageConfig PageConfig { get; set; }
+        public PagePostConfig PagePostConfig { get; set; }
         public FriendsConfig FriendsConfig { get; set; }
         public ProfileConfig ProfileConfig { get; set; }
         
@@ -232,6 +236,14 @@ namespace ToolKHBrowser.ViewModels
     {
         public string Value { get; set; }
     }
+    public class PagePostConfig
+    {
+        public string PageIds { get; set; }
+        public int MinPosts { get; set; }
+        public int MaxPosts { get; set; }
+        public string SourceFolder { get; set; }
+        public string Captions { get; set; }
+    }
     public class CreateReelConfig
     {
         public int CreateNumber { get; set; }
@@ -252,6 +264,7 @@ namespace ToolKHBrowser.ViewModels
         public PostTimelineConfig Timeline { get; set; }
         public PlayOnNewsFeedConfig NewsFeed { get; set; }
         public Messenger Messenger { get; set; }
+        public PagePostConfig PagePost { get; set; }
     }
     public class PostTimelineConfig
     {
