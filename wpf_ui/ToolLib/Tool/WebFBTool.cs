@@ -4930,110 +4930,246 @@ namespace ToolKHBrowser.ToolLib.Tool
         [STAThread]
         public static bool SwitchToProfilePage(IWebDriver driver, string profile_page_id)
         {
-            try
-            {
-                driver.Manage().Cookies.DeleteCookieNamed("i_user");
-            }
-            catch (Exception) { }
-            Thread.Sleep(1000);
-            try
-            {
-                Thread.Sleep(1000);
-                driver.FindElement(By.XPath("//button[@data-cookiebanner='accept_button']")).Click();
-                Thread.Sleep(1000);
-            }
-            catch (Exception) { }
+            // Step 1: Delete i_user cookie
+            try { driver.Manage().Cookies.DeleteCookieNamed("i_user"); } catch { }
+            Thread.Sleep(500);
 
+            // Step 2: Navigate directly to the page URL
             try
             {
-                driver.Navigate().GoToUrl("https://web.facebook.com/" + profile_page_id + "/?show_switched_toast=0&show_invite_to_follow=0&show_switched_tooltip=0&show_podcast_settings=0&show_community_transition=0&show_community_review_changes=0&show_follower_visibility_disclosure=0");
+                driver.Navigate().GoToUrl("https://www.facebook.com/" + profile_page_id);
             }
-            catch (Exception) { }
+            catch { }
             FBTool.WaitingPageLoading(driver);
-            Thread.Sleep(1000);
+            Thread.Sleep(3000);
 
-            bool isWorking = false;
-            int counter = 4;
+            // Step 3: Click "Switch Now" button visible in the banner
+            bool switched = false;
+            int counter = 10;
             do
             {
-                Thread.Sleep(500);
-                try
-                {
-                    driver.FindElement(By.XPath("//div[@aria-label='Switch Now']")).Click();
-                    isWorking = true;
-                }
-                catch (Exception) { }
-                if (!isWorking)
+                Thread.Sleep(1000);
+
+                // ✅ EXACT match from your screenshot - blue "Switch Now" button in top banner
+                if (!switched)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[@aria-label='Switch now'']")).Click();
-                        isWorking = true;
+                        var el = driver.FindElement(By.XPath(
+                            "//div[@aria-label='Switch Now']"));
+                        if (el.Displayed) { el.Click(); switched = true; }
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
-                if (!isWorking)
+                if (!switched)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[4]/div[1]/div/div/div/div/div/div/div/div[2]/div/div")).Click();
-                        isWorking = true;
+                        var el = driver.FindElement(By.XPath(
+                            "//div[@aria-label='Switch now']"));
+                        if (el.Displayed) { el.Click(); switched = true; }
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
-                if (!isWorking)
+                // ✅ From screenshot: the banner text contains "Switch Now" as a span
+                if (!switched)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[@aria-label='Get started']")).Click();
-                        isWorking = true;
+                        var el = driver.FindElement(By.XPath(
+                            "//span[text()='Switch Now']"));
+                        if (el.Displayed) { el.Click(); switched = true; }
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
-                if (!isWorking)
+                if (!switched)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[@aria-label='Get Started']")).Click();
-                        isWorking = true;
+                        var el = driver.FindElement(By.XPath(
+                            "//span[text()='Switch now']"));
+                        if (el.Displayed) { el.Click(); switched = true; }
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
-                if (!isWorking)
+                // ✅ Bottom-left banner: "Switch into [Page] to take more actions"
+                if (!switched)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[3]/div[2]/div/div/div[2]/div/div/div[2]/div")).Click();
-                        isWorking = true;
+                        var el = driver.FindElement(By.XPath(
+                            "//div[contains(@class,'x1') and .//span[contains(text(),'Switch into')]]" +
+                            "//div[@role='button']"));
+                        if (el.Displayed) { el.Click(); switched = true; }
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
-            } while (!isWorking && counter-- > 0);
-            if (!isWorking)
-            {
-                return false;
-            }
-            //Thread.Sleep(1000);
-            //try
-            //{
-            //    driver.Navigate().GoToUrl("https://www.facebook.com");
-            //}
-            //catch (Exception) { }
+                // ✅ Any role=button containing text Switch
+                if (!switched)
+                {
+                    try
+                    {
+                        var els = driver.FindElements(By.XPath(
+                            "//div[@role='button' and .//span[contains(text(),'Switch')]]"));
+                        foreach (var el in els)
+                        {
+                            if (el.Displayed)
+                            {
+                                el.Click();
+                                switched = true;
+                                break;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                // ✅ Check if already switched via i_user cookie
+                if (!switched)
+                {
+                    try
+                    {
+                        var cookie = driver.Manage().Cookies.GetCookieNamed("i_user");
+                        if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+                            switched = true;
+                    }
+                    catch { }
+                }
+
+            } while (!switched && counter-- > 0);
+
+            if (!switched) return false;
+
             FBTool.WaitingPageLoading(driver);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             FBTool.Close(driver);
 
-            var i_user = FBTool.GetPageUserId(driver);
-            if (string.IsNullOrEmpty(i_user))
+            // Verify via i_user cookie
+            try
             {
-                isWorking = false;
-            } else
+                var cookie = driver.Manage().Cookies.GetCookieNamed("i_user");
+                if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+                {
+                    UsePage(driver);
+                    return true;
+                }
+            }
+            catch { }
+
+            var i_user = FBTool.GetPageUserId(driver);
+            if (!string.IsNullOrEmpty(i_user))
             {
                 UsePage(driver);
+                return true;
             }
 
-            return isWorking;
+            return false;
         }
+        //public static bool SwitchToProfilePage(IWebDriver driver, string profile_page_id)
+        //{
+        //    try
+        //    {
+        //        driver.Manage().Cookies.DeleteCookieNamed("i_user");
+        //    }
+        //    catch (Exception) { }
+        //    Thread.Sleep(1000);
+        //    try
+        //    {
+        //        Thread.Sleep(1000);
+        //        driver.FindElement(By.XPath("//button[@data-cookiebanner='accept_button']")).Click();
+        //        Thread.Sleep(1000);
+        //    }
+        //    catch (Exception) { }
+
+        //    try
+        //    {
+        //        driver.Navigate().GoToUrl("https://web.facebook.com/" + profile_page_id + "/?show_switched_toast=0&show_invite_to_follow=0&show_switched_tooltip=0&show_podcast_settings=0&show_community_transition=0&show_community_review_changes=0&show_follower_visibility_disclosure=0");
+        //    }
+        //    catch (Exception) { }
+        //    FBTool.WaitingPageLoading(driver);
+        //    Thread.Sleep(1000);
+
+        //    bool isWorking = false;
+        //    int counter = 4;
+        //    do
+        //    {
+        //        Thread.Sleep(500);
+        //        try
+        //        {
+        //            driver.FindElement(By.XPath("//div[@aria-label='Switch Now']")).Click();
+        //            isWorking = true;
+        //        }
+        //        catch (Exception) { }
+        //        if (!isWorking)
+        //        {
+        //            try
+        //            {
+        //                driver.FindElement(By.XPath("//div[@aria-label='Switch now'']")).Click();
+        //                isWorking = true;
+        //            }
+        //            catch (Exception) { }
+        //        }
+        //        if (!isWorking)
+        //        {
+        //            try
+        //            {
+        //                driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[4]/div[1]/div/div/div/div/div/div/div/div[2]/div/div")).Click();
+        //                isWorking = true;
+        //            }
+        //            catch (Exception) { }
+        //        }
+        //        if (!isWorking)
+        //        {
+        //            try
+        //            {
+        //                driver.FindElement(By.XPath("//div[@aria-label='Get started']")).Click();
+        //                isWorking = true;
+        //            }
+        //            catch (Exception) { }
+        //        }
+        //        if (!isWorking)
+        //        {
+        //            try
+        //            {
+        //                driver.FindElement(By.XPath("//div[@aria-label='Get Started']")).Click();
+        //                isWorking = true;
+        //            }
+        //            catch (Exception) { }
+        //        }
+        //        if (!isWorking)
+        //        {
+        //            try
+        //            {
+        //                driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[3]/div[2]/div/div/div[2]/div/div/div[2]/div")).Click();
+        //                isWorking = true;
+        //            }
+        //            catch (Exception) { }
+        //        }
+        //    } while (!isWorking && counter-- > 0);
+        //    if (!isWorking)
+        //    {
+        //        return false;
+        //    }
+        //    //Thread.Sleep(1000);
+        //    //try
+        //    //{
+        //    //    driver.Navigate().GoToUrl("https://www.facebook.com");
+        //    //}
+        //    //catch (Exception) { }
+        //    FBTool.WaitingPageLoading(driver);
+        //    Thread.Sleep(1000);
+        //    FBTool.Close(driver);
+
+        //    var i_user = FBTool.GetPageUserId(driver);
+        //    if (string.IsNullOrEmpty(i_user))
+        //    {
+        //        isWorking = false;
+        //    } else
+        //    {
+        //        UsePage(driver);
+        //    }
+
+        //    return isWorking;
+        //}
         public static void UsePage(IWebDriver driver, int counter = 2, int delaytime= 1000)
         {
             bool isWorking = false;
