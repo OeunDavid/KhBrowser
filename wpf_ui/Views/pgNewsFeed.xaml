@@ -77,16 +77,87 @@
                     <Grid Margin="0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions>   
+
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="3">
-                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Comments"/></TextBlock>
-                        </StackPanel>
-                        <TextBox Name="txtComments" Grid.Column="1" Margin="2,2,2,2" Height="60"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+
+                        <!-- Row 0: Left label = Comment / Post -->
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Margin="2"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   VerticalAlignment="Center">
+                            <Run Text="Comment / Post"/>
+                        </TextBlock>
+
+                        <!-- Row 0: Min -->
+                        <numeric:SpinnerDecorator Grid.Row="0" Grid.Column="1" Margin="2,2">
+                            <numeric:IntBox Name="txtMinComments"
+                                            AllowSpinners="True"
+                                            Foreground="White"
+                                            Style="{DynamicResource MaterialDesignTextBoxBase}"
+                                            Margin="4,0"
+                                            MinValue="1"
+                                            MaxValue="100"
+                                            Text="1"
+                                            PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+
+                        <!-- Row 0: to -->
+                        <TextBlock Grid.Row="0" Grid.Column="2"
+                                   Margin="2"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center">
+                            <Run Text="to"/>
+                        </TextBlock>
+
+                        <!-- Row 0: Max -->
+                        <numeric:SpinnerDecorator Grid.Row="0" Grid.Column="3" Margin="2,2">
+                            <numeric:IntBox Name="txtMaxComments"
+                        AllowSpinners="True"
+                        Foreground="White"
+                        Style="{DynamicResource MaterialDesignTextBoxBase}"
+                        Margin="4,0"
+                        MinValue="1"
+                        MaxValue="100"
+                        Text="1"
+                        PreviewTextInput="NumberValidationTextBox"/>
+                        </numeric:SpinnerDecorator>
+
+                        <!-- Row 1: Left label = Comments (dropped down) -->
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+               Margin="2,6,2,2"
+               FontSize="11"
+               Foreground="{DynamicResource MaterialDesignBody}"
+               VerticalAlignment="Top">
+        <Run Text="Comments"/>
+                        </TextBlock>
+
+                        <!-- Row 1: Textbox -->
+                        <TextBox Name="txtComments"
+             Grid.Row="1"
+             Grid.Column="1"
+             Grid.ColumnSpan="4"
+             Margin="2,2,2,2"
+             Height="60"
+             Background="WhiteSmoke"
+             Foreground="Black"
+             BorderBrush="#FFDCDCDC"
+             TextWrapping="Wrap"
+             AcceptsReturn="True"
+             VerticalScrollBarVisibility="Visible"/>
                     </Grid>
+
+
                 </StackPanel>
             </Grid>
             <Grid>

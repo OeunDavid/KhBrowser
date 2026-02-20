@@ -16,12 +16,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.Views;
+using ToolKHBrowser.Views;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for pgNewAccount.xaml

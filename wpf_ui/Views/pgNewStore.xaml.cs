@@ -14,9 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolKHBrowser.Views;
 using ToolLib.Data;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for pgNewGroupDevices.xaml

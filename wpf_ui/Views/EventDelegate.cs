@@ -1,4 +1,4 @@
-﻿namespace WpfUI.Views
+﻿namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// A generic delegation to invoke a method from different classes

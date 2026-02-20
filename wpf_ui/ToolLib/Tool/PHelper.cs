@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ToolKHBrowser.ViewModels;
-using WpfUI;
-using WpfUI.ViewModels;
+using ToolKHBrowser;
+using ToolKHBrowser.ViewModels;
 
 namespace ToolKHBrowser.ToolLib.Tool
 {

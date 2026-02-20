@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using ToolLib;
 using ToolLib.Data;
 
-namespace WpfUI.ViewModels
+namespace ToolKHBrowser.ViewModels
 {
     public interface IFbAccountViewModel
     {

@@ -89,3 +89,12 @@ app.publish/
 # Debug/Release folders
 Debug/
 Release/
+
+
+# Backup and temp csproj files
+*.csproj.bak
+*_wpftmp.csproj
+
+# Specific Tool FB temp files
+wpf_ui/Tool FB.csproj.bak
+wpf_ui/*_wpftmp.csproj

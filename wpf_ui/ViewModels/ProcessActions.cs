@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace ToolKHBrowser.ViewModels
@@ -279,6 +279,9 @@ namespace ToolKHBrowser.ViewModels
         public React React { get; set; }
         public NumberRank PlayTime { get; set; }
         public string Comments { get; set; }
+        public int MinComments { get; set; } = 1;
+        public int MaxComments { get; set; } = 1;
+
     }
     public class Messenger
     {

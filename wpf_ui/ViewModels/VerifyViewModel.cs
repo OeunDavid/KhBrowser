@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolLib.Data;
-using WpfUI;
-using WpfUI.ToolLib.Data;
-using WpfUI.ToolLib.Mail;
-using WpfUI.ToolLib.Tool;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser;
+using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ToolLib.Mail;
+using ToolKHBrowser.ToolLib.Tool;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 
 namespace ToolKHBrowser.ViewModels
 {

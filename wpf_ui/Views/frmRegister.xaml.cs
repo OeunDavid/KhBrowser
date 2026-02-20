@@ -12,9 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for frmRegister.xaml

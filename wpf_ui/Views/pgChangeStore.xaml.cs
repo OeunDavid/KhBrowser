@@ -12,8 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 using static Emgu.CV.Stitching.Stitcher;
 
 namespace ToolKHBrowser.Views

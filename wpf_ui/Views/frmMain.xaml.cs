@@ -1,3 +1,11 @@
+﻿using CsQuery.Engine.PseudoClassSelectors;
+using CsQuery.EquationParser.Implementation.Functions;
+using Emgu.CV;
+using Gu.Wpf.NumericInput;
+using Newtonsoft.Json;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,30 +25,21 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml.Linq;
-using CsQuery.Engine.PseudoClassSelectors;
-using CsQuery.EquationParser.Implementation.Functions;
-using Emgu.CV;
-using Gu.Wpf.NumericInput;
-using Newtonsoft.Json;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
+using ToolKHBrowser.Helper;
 using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ToolLib.Mail; // Assumed new namespace mapping
 using ToolKHBrowser.ToolLib.Tool;
+using ToolKHBrowser.UI;
 using ToolKHBrowser.ViewModels;
 using ToolKHBrowser.Views;
 using ToolLib;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ToolLib.Data;
-using WpfUI.ToolLib.Mail;
-using WpfUI.ToolLib.Tool;
-using WpfUI.UI;
-using WpfUI.ViewModels;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using Application = System.Windows.Application;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
 
     public partial class frmMain : UserControl
@@ -2469,65 +2468,93 @@ namespace WpfUI.Views
                 return;
             }
 
-            IWebDriver webDriver = new MyWebDriver()
-                .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+            IWebDriver webDriver = null;
+            try
+            {
+                webDriver = new MyWebDriver()
+                    .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+            }
+            catch (Exception ex)
+            {
+                account.Status = "Die";
+                account.Description = "Driver start failed: " + ex.Message;
+                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+                running--;
+                return;
+            }
+
+            if (webDriver == null)
+            {
+                account.Status = "Die";
+                account.Description = "Driver is null";
+                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+                running--;
+                return;
+            }
 
             int num2 = 0;
             string text2 = "";
 
             bool isLoginByCookie = IsLoginByCookie();
+
+            // This may return "success" too early (before checkpoint finishes),
+            // so we DO NOT trust it alone.
             text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
 
             // ============================
-            // ✅ HANDLE 2FA CORRECTLY
+            // ✅ FINALIZE LOGIN (CAPTCHA/CHECKPOINT/2FA)
             // ============================
+            string final = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 120);
+
             if (text2 == "Need 2FA")
             {
-                account.Status = "Need 2FA";
-                account.Description = "Waiting for 2FA code...";
+                // 1) If FB shows push approval, force switch to authenticator code screen
+                TwoFaHelper.ForceSwitchFromPushToAuthenticator(webDriver, 25);
 
-                Application.Current.Dispatcher.Invoke(() =>
+                // 2) Now we must be on code input screen
+                if (!TwoFaHelper.IsCodeInputScreenStrong(webDriver))
                 {
-                    SetGridDataRowStatus(account);
-                });
-
-                bool success = FBTool.WaitForLoginSuccess(webDriver, 180);
-
-                if (success)
-                {
-                    text2 = "success";
-                    num2 = 1;
-                    account.Status = "Live";
-                    account.Description = "Login success after 2FA";
+                    text2 = "2FA: stuck on push approval (no code screen)";
+                    account.Status = "Die";
+                    account.Description = text2;
                 }
                 else
                 {
-                    text2 = "2FA Timeout";
-                    account.Status = "Die";
-                    account.Description = "2FA not completed";
+                    // 3) Auto-generate + auto-fill code from account.TwoFA
+                    if (TwoFaHelper.AutoFillTotp(webDriver, account.TwoFA))
+                    {
+                        bool success = FBTool.WaitForLoginSuccess(webDriver, 90);
+                        if (success)
+                        {
+                            FBTool.HandlePostLoginPrompts(webDriver);
+                            text2 = "success";
+                            num2 = 1;
+                            account.Status = "Live";
+                            account.Description = "Login success after auto 2FA";
+                        }
+                        else
+                        {
+                            text2 = "2FA submitted but not logged in";
+                            account.Status = "Die";
+                            account.Description = text2;
+                        }
+                    }
+                    else
+                    {
+                        text2 = "2FA: could not auto-generate or auto-fill code";
+                        account.Status = "Die";
+                        account.Description = text2;
+                    }
                 }
             }
-            else if (text2 == "success")
-            {
-                num2 = 1;
-                account.Status = "Live";
-            }
-            else
-            {
-                account.Status = "Die";
-            }
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                SetGridDataRowStatus(account);
-            });
-
+            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
             fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
             account.Description = text2;
 
-            // ============================
-            // STOP HERE IF LOGIN FAILED
-            // ============================
+            // STOP if login failed
             if (num2 != 1)
             {
                 FBTool.QuitBrowser(webDriver, browserKey, account.UID);
@@ -2535,10 +2562,7 @@ namespace WpfUI.Views
                 return;
             }
 
-            // ============================
-            // CONTINUE WORKING PROCESS
-            // ============================
-
+            // CONTINUE WORK
             if (IsStop())
             {
                 StopWorking(webDriver, account.UID);
@@ -2548,9 +2572,7 @@ namespace WpfUI.Views
             string dataMode = GetDataMode();
             FBTool.UseData(webDriver, dataMode);
 
-            string userId = FBTool.GetUserId(webDriver);
             string cookie = FBTool.GetCookie(webDriver);
-
             fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
 
             WebFBTool.CloseAllPopup(webDriver);
@@ -2562,10 +2584,319 @@ namespace WpfUI.Views
             WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
 
             FBTool.QuitBrowser(webDriver, browserKey, account.UID);
-
             running--;
         }
+        private string PromptUserFor2FACode(FbAccount account)
+        {
+            string result = "";
 
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var dialog = new ToolKHBrowser.UI.dialog.windowDialog(account?.UID);
+                bool? ok = dialog.ShowDialog();
+
+                if (ok == true)
+                    result = dialog.Code;
+            });
+
+            return result;
+        }
+        public static void TrySwitchToAuthenticatorCode(IWebDriver driver)
+        {
+            try
+            {
+                // Use the shared robust logic in FBTool
+                bool switched = FBTool.HandlePushApproval_WWW(driver);
+                if (switched)
+                {
+                    System.Diagnostics.Debug.WriteLine("TrySwitchToAuthenticatorCode: Successfully switched (or already on) code input screen.");
+                }
+            }
+            catch { }
+        }
+
+        // ---------- helpers ----------
+
+        private static bool ClickByContainsText(IWebDriver driver, string text, int timeoutSec)
+        {
+            try
+            {
+                var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(timeoutSec));
+                IWebElement clickable = wait.Until(d =>
+                {
+                    var node = d.FindElements(By.XPath($"//*[contains(normalize-space(.),\"{text}\")]"))
+                                .FirstOrDefault(e => e.Displayed);
+
+                    if (node == null) return null;
+
+                    // Prefer closest clickable ancestor
+                    var anc = node.FindElements(By.XPath("./ancestor-or-self::*[@role='button' or self::button][1]"))
+                                  .FirstOrDefault();
+
+                    var el = anc ?? node;
+                    return (el.Displayed && el.Enabled) ? el : null;
+                });
+
+                if (clickable == null) return false;
+
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", clickable);
+                }
+                catch { }
+
+                try { clickable.Click(); }
+                catch
+                {
+                    try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", clickable); }
+                    catch { return false; }
+                }
+
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private static bool ClickByContainsAny(IWebDriver driver, string[] texts, int timeoutSec)
+        {
+            foreach (var t in texts)
+            {
+                if (ClickByContainsText(driver, t, timeoutSec))
+                    return true;
+            }
+            return false;
+        }
+
+
+
+        public static bool Submit2FACodeLoop(IWebDriver driver, string twofaSecretOrOtpAuth, int maxAttempts = 4)
+        {
+            if (driver == null) return false;
+            if (string.IsNullOrWhiteSpace(twofaSecretOrOtpAuth)) return false;
+
+            // ✅ HARD BLOCK: if we're on the login page, never send 2FA
+            // (prevents code like 103283 being typed into email box)
+            if (driver.FindElements(By.Id("email")).Any(e => e.Displayed) ||
+                driver.FindElements(By.Name("email")).Any(e => e.Displayed) ||
+                (driver.Url ?? "").IndexOf("login", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return false;
+            }
+
+            // ✅ Only continue if 2FA input is VISIBLE + ENABLED
+            Func<IWebElement> get2faInput = () =>
+            {
+                var el =
+                    // Classic approvals_code selectors
+                    driver.FindElements(By.Name("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                    ?? driver.FindElements(By.Id("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                    ?? driver.FindElements(By.XPath("//input[contains(@name,'approvals_code') or contains(@id,'approvals_code')]"))
+                             .FirstOrDefault(e => e.Displayed && e.Enabled)
+
+                    // New Facebook UI: placeholder="Code" or aria-label="Code"
+                    ?? driver.FindElements(By.XPath("//input[@placeholder='Code' or @placeholder='code' or @aria-label='Code' or @aria-label='Enter code']"))
+                             .FirstOrDefault(e => e.Displayed && e.Enabled)
+
+                    // Broad: any text/number/tel input not email/password
+                    ?? driver.FindElements(By.XPath(
+                           "//input[@type='text' or @type='number' or @type='tel'][not(@name='email')][not(@id='email')][not(@type='password')]"))
+                             .FirstOrDefault(e => e.Displayed && e.Enabled);
+
+                // ⚡ ULTIMATE FALLBACK: On the 2FA page, scan every <input> tag
+                // and pick the first visible+enabled one that isn't email/password
+                if (el == null)
+                {
+                    try
+                    {
+                        string currentUrl = (driver.Url ?? "").ToLower();
+                        bool on2faPage = currentUrl.Contains("two_step_verification")
+                                      || currentUrl.Contains("two_factor")
+                                      || currentUrl.Contains("/checkpoint/");
+
+                        if (on2faPage)
+                        {
+                            el = driver.FindElements(By.TagName("input"))
+                                       .FirstOrDefault(inp =>
+                                       {
+                                           try
+                                           {
+                                               if (!inp.Displayed || !inp.Enabled) return false;
+                                               string name = (inp.GetAttribute("name") ?? "").ToLower();
+                                               string id   = (inp.GetAttribute("id")   ?? "").ToLower();
+                                               string type = (inp.GetAttribute("type") ?? "text").ToLower();
+                                               // Exclude password, hidden, checkbox, radio, submit, email
+                                               return type != "password" && type != "hidden" && type != "checkbox"
+                                                   && type != "radio"   && type != "submit" && type != "email"
+                                                   && !name.Contains("email") && !id.Contains("email");
+                                           }
+                                           catch { return false; }
+                                       });
+                        }
+                    }
+                    catch { }
+                }
+
+                return el;
+            };
+
+            // ✅ Wait up to 10 seconds for 2FA box to appear
+            IWebElement input2fa = null;
+            for (int w = 0; w < 10; w++)
+            {
+                input2fa = get2faInput();
+                if (input2fa != null) break;
+                Thread.Sleep(1000);
+            }
+
+            if (input2fa == null) return false;
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                // re-check every loop (page can change)
+                input2fa = get2faInput();
+                if (input2fa == null)
+                {
+                    // minor wait and try once more
+                    Thread.Sleep(1000);
+                    input2fa = get2faInput();
+                    if (input2fa == null) return false;
+                }
+
+                string code = ToolKHBrowser.Helper.TwoFaHelper.GenerateCode(twofaSecretOrOtpAuth);
+                if (string.IsNullOrWhiteSpace(code)) return false;
+
+                // Use JS to set value (bypasses React/Vue controlled-input), then SendKeys for events
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript(
+                        "arguments[0].value = ''; arguments[0].dispatchEvent(new Event('input'));", input2fa);
+                    Thread.Sleep(200);
+                    input2fa.SendKeys(code);
+                    Thread.Sleep(200);
+                    // Fire change event too in case React is listening
+                    ((IJavaScriptExecutor)driver).ExecuteScript(
+                        "arguments[0].dispatchEvent(new Event('change', {bubbles:true})); " +
+                        "arguments[0].dispatchEvent(new Event('input', {bubbles:true}));", input2fa);
+                }
+                catch
+                {
+                    // Fallback to plain clear + sendkeys
+                    try { input2fa.Clear(); } catch { }
+                    input2fa.SendKeys(code);
+                }
+
+                // click confirm / continue if exists
+                try
+                {
+                    IWebElement btn = null;
+
+                    // Try classic selectors first
+                    btn = driver.FindElements(By.Name("confirm")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                       ?? driver.FindElements(By.XPath("//button[@type='submit']")).FirstOrDefault(e => e.Displayed && e.Enabled);
+
+                    // Fallback: find any clickable element whose text is exactly "Continue" or "Confirm"
+                    if (btn == null)
+                    {
+                        var allBtns = driver.FindElements(By.XPath("//div[@role='button'] | //button | //a | //span[@role='button']"));
+                        foreach (var b in allBtns)
+                        {
+                            try
+                            {
+                                string t = (b.Text ?? "").Trim();
+                                if ((t.Equals("Continue", StringComparison.OrdinalIgnoreCase)
+                                  || t.Equals("Confirm", StringComparison.OrdinalIgnoreCase)
+                                  || t.Equals("Submit", StringComparison.OrdinalIgnoreCase))
+                                  && b.Displayed && b.Enabled)
+                                {
+                                    btn = b;
+                                    break;
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (btn != null)
+                    {
+                        try { btn.Click(); }
+                        catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", btn); }
+                    }
+                }
+                catch { }
+
+                // small wait for redirect
+                Thread.Sleep(1500);
+
+                // ✅ If 2FA box disappeared, likely accepted
+                if (get2faInput() == null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool Submit2FACode(IWebDriver driver, string code)
+        {
+            try
+            {
+                // Only match real 2FA input
+                var input = WaitFindAny(driver, new[]
+                {
+            By.Name("approvals_code"),
+            By.Id("approvals_code"),
+            By.XPath("//input[contains(@name,'approvals')]"),
+            By.XPath("//input[contains(@id,'approvals')]"),
+            By.XPath("//input[contains(@name,'two')]"),
+        }, 8);
+
+                if (input == null)
+                    return false;
+
+                input.Clear();
+                input.SendKeys(code);
+
+                ClickAny(driver, new[]
+                {
+            By.Name("confirm"),
+            By.XPath("//button[@type='submit']"),
+            By.XPath("//span[text()='Continue']/ancestor::div[@role='button']")
+        }, 6);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        private static IWebElement WaitFindAny(IWebDriver driver, By[] locators, int timeoutSec)
+        {
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutSec));
+            foreach (var by in locators)
+            {
+                try
+                {
+                    return wait.Until(d => d.FindElements(by).FirstOrDefault(e => e.Displayed && e.Enabled));
+                }
+                catch { }
+            }
+            return null;
+        }
+
+        private static void ClickAny(IWebDriver driver, By[] locators, int timeoutSec)
+        {
+            var el = WaitFindAny(driver, locators, timeoutSec);
+            if (el == null) return;
+
+            try { el.Click(); }
+            catch
+            {
+                try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                catch { }
+            }
+        }
 
 
         //public void StartRunAccount()
@@ -4968,6 +5299,103 @@ namespace WpfUI.Views
         }
 
 
+        //public void StartAutoScroll(IWebDriver driver, FbAccount account)
+        //{
+        //    try
+        //    {
+        //        account.Status = "Auto Scroll";
+        //        SetGridDataRowStatus(account);
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
+
+        //        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+        //        Random rnd = new Random();
+
+        //        while (!IsStop())
+        //        {
+        //            try
+        //            {
+        //                // Check if Comment button is visible on the page (Primary condition)
+        //                bool hasComment = false;
+        //                try
+        //                {
+        //                    // Using broad XPaths for Comment buttons commonly found on Facebook
+        //                    hasComment = driver.FindElements(By.XPath("//div[@aria-label='Leave a comment' or @aria-label='Bình luận' or @aria-label='Comment' or @aria-label='បញ្ចេញមតិ']")).Any(e => e.Displayed);
+        //                }
+        //                catch { }
+
+        //                if (!hasComment)
+        //                {
+        //                    // If Comment button is not visible, scroll down to find next post
+        //                    int scrollAmount = rnd.Next(300, 600);
+        //                    js.ExecuteScript($"window.scrollBy(0, {scrollAmount});");
+
+        //                    // Quick wait to allow content to load
+        //                    Thread.Sleep(rnd.Next(1000, 2000));
+        //                    continue; // Skip and check again
+        //                }
+
+        //                // Interaction Logic: Like and Comment if configured
+        //                try
+        //                {
+        //                    var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
+        //                    if (cache != null && cache.Value != null)
+        //                    {
+        //                        var confStr = cache.Value.ToString();
+        //                        if (!string.IsNullOrEmpty(confStr))
+        //                        {
+        //                            var newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(confStr);
+        //                            if (newsfeedObj != null && newsfeedObj.NewsFeed != null)
+        //                            {
+        //                                bool doLike = newsfeedObj.NewsFeed.React.Like;
+        //                                bool doComment = newsfeedObj.NewsFeed.React.Comment;
+        //                                bool doRandom = newsfeedObj.NewsFeed.React.Random;
+
+        //                                if (doRandom)
+        //                                {
+        //                                    doLike = rnd.Next(0, 2) == 0;
+        //                                    doComment = rnd.Next(0, 2) == 0;
+        //                                }
+
+        //                                // Like interaction
+        //                                if (doLike)
+        //                                {
+        //                                    WebFBTool.LikePost(driver);
+        //                                    Thread.Sleep(rnd.Next(1000, 2000));
+        //                                }
+
+        //                                // Comment interaction - One comment per post
+        //                                if (doComment && !string.IsNullOrEmpty(newsfeedObj.NewsFeed.Comments))
+        //                                {
+        //                                    var comments = newsfeedObj.NewsFeed.Comments.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        //                                    if (comments.Length > 0)
+        //                                    {
+        //                                        string randomComment = comments[rnd.Next(comments.Length)];
+        //                                        bool success = WebFBTool.PostComment(driver, randomComment);
+        //                                        if (success)
+        //                                        {
+        //                                            Thread.Sleep(rnd.Next(2000, 4000));
+        //                                        }
+        //                                    }
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                catch { }
+
+        //                // After interacting with ONE post, scroll significantly to move to the NEXT post
+        //                int nextPostScroll = rnd.Next(800, 1200);
+        //                js.ExecuteScript($"window.scrollBy(0, {nextPostScroll});");
+
+        //                // Simulate reading time before looking for next interaction
+        //                Thread.Sleep(rnd.Next(3000, 5000));
+        //            }
+        //            catch { }
+        //        }
+        //    }
+        //    catch (Exception) { }
+        //}
+
         public void StartAutoScroll(IWebDriver driver, FbAccount account)
         {
             try
@@ -4979,91 +5407,244 @@ namespace WpfUI.Views
                 IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
                 Random rnd = new Random();
 
-                while (!IsStop())
+                // Cache config (avoid reading JSON every loop)
+                NewsFeedConfig newsfeedObj = null;
+                int refreshEvery = 10;
+                int loop = 0;
+
+                void RefreshConfig()
                 {
                     try
                     {
-                        // Check if Comment button is visible on the page (Primary condition)
-                        bool hasComment = false;
-                        try
-                        {
-                            // Using broad XPaths for Comment buttons commonly found on Facebook
-                            hasComment = driver.FindElements(By.XPath("//div[@aria-label='Leave a comment' or @aria-label='Bình luận' or @aria-label='Comment' or @aria-label='បញ្ចេញមតិ']")).Any(e => e.Displayed);
-                        }
-                        catch { }
-
-                        if (!hasComment)
-                        {
-                            // If Comment button is not visible, scroll down to find next post
-                            int scrollAmount = rnd.Next(300, 600);
-                            js.ExecuteScript($"window.scrollBy(0, {scrollAmount});");
-
-                            // Quick wait to allow content to load
-                            Thread.Sleep(rnd.Next(1000, 2000));
-                            continue; // Skip and check again
-                        }
-
-                        // Interaction Logic: Like and Comment if configured
-                        try
-                        {
-                            var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
-                            if (cache != null && cache.Value != null)
-                            {
-                                var confStr = cache.Value.ToString();
-                                if (!string.IsNullOrEmpty(confStr))
-                                {
-                                    var newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(confStr);
-                                    if (newsfeedObj != null && newsfeedObj.NewsFeed != null)
-                                    {
-                                        bool doLike = newsfeedObj.NewsFeed.React.Like;
-                                        bool doComment = newsfeedObj.NewsFeed.React.Comment;
-                                        bool doRandom = newsfeedObj.NewsFeed.React.Random;
-
-                                        if (doRandom)
-                                        {
-                                            doLike = rnd.Next(0, 2) == 0;
-                                            doComment = rnd.Next(0, 2) == 0;
-                                        }
-
-                                        // Like interaction
-                                        if (doLike)
-                                        {
-                                            WebFBTool.LikePost(driver);
-                                            Thread.Sleep(rnd.Next(1000, 2000));
-                                        }
-
-                                        // Comment interaction - One comment per post
-                                        if (doComment && !string.IsNullOrEmpty(newsfeedObj.NewsFeed.Comments))
-                                        {
-                                            var comments = newsfeedObj.NewsFeed.Comments.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                                            if (comments.Length > 0)
-                                            {
-                                                string randomComment = comments[rnd.Next(comments.Length)];
-                                                bool success = WebFBTool.PostComment(driver, randomComment);
-                                                if (success)
-                                                {
-                                                    Thread.Sleep(rnd.Next(2000, 4000));
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch { }
-
-                        // After interacting with ONE post, scroll significantly to move to the NEXT post
-                        int nextPostScroll = rnd.Next(800, 1200);
-                        js.ExecuteScript($"window.scrollBy(0, {nextPostScroll});");
-
-                        // Simulate reading time before looking for next interaction
-                        Thread.Sleep(rnd.Next(3000, 5000));
+                        var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
+                        var confStr = cache?.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(confStr))
+                            newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(confStr);
                     }
                     catch { }
                 }
+
+                int GetRandomCount(int min, int max)
+                {
+                    min = Math.Max(1, min);
+                    max = Math.Max(min, max);
+                    return rnd.Next(min, max + 1);
+                }
+
+                // ✅ NEW: close post dialog popup after comment (your screenshot)
+                void ClosePostDialogIfOpen()
+                {
+                    try
+                    {
+                        // dialog header exists when popup open
+                        var dialog = driver.FindElements(By.XPath("//div[@role='dialog']")).FirstOrDefault();
+                        if (dialog == null) return;
+
+                        // try click X close button
+                        var closeBtn = driver.FindElements(By.XPath(
+                            "//div[@role='dialog']//div[@aria-label='Close' or @aria-label='close'] | " +
+                            "//div[@role='dialog']//div[@role='button' and (@aria-label='Close' or @aria-label='close')] | " +
+                            "//div[@role='dialog']//div[@aria-label='Dismiss' or @aria-label='dismiss']"
+                        )).FirstOrDefault(e =>
+                        {
+                            try { return e.Displayed; } catch { return false; }
+                        });
+
+                        if (closeBtn != null)
+                        {
+                            try { closeBtn.Click(); }
+                            catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", closeBtn); }
+                            Thread.Sleep(900);
+                            return;
+                        }
+
+                        // fallback ESC
+                        try
+                        {
+                            driver.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
+                            Thread.Sleep(900);
+                        }
+                        catch { }
+                    }
+                    catch { }
+                }
+
+                RefreshConfig();
+
+                while (!IsStop())
+                {
+                    loop++;
+
+                    if (loop % refreshEvery == 0 || newsfeedObj == null)
+                        RefreshConfig();
+
+                    try
+                    {
+                        // ✅ Always close popup if still open from previous step
+                        ClosePostDialogIfOpen();
+
+                        // --- Check if we can interact ---
+                        bool hasInteract = false;
+                        try
+                        {
+                            hasInteract = driver.FindElements(By.XPath(
+                                "//div[@aria-label='Leave a comment' or @aria-label='Comment' or @aria-label='Bình luận' or @aria-label='បញ្ចេញមតិ']" +
+                                " | //span[normalize-space(.)='Comment' or normalize-space(.)='Bình luận' or normalize-space(.)='បញ្ចេញមតិ']/ancestor::div[@role='button'][1]" +
+                                " | //div[@role='textbox' and (" +
+                                    "@aria-label='Write a comment' or @aria-label='Write a comment…' or " +
+                                    "contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'comment') or " +
+                                    "contains(@aria-label,'មតិ') or contains(@aria-label,'Bình')" +
+                                ")]"
+                            )).Any(e =>
+                            {
+                                try { return e.Displayed; } catch { return false; }
+                            });
+                        }
+                        catch { hasInteract = false; }
+
+                        if (!hasInteract)
+                        {
+                            int scrollAmount = rnd.Next(300, 650);
+                            js.ExecuteScript("window.scrollBy(0, arguments[0]);", scrollAmount);
+                            Thread.Sleep(rnd.Next(900, 1600));
+                            continue;
+                        }
+
+                        // --- Decide actions from config ---
+                        bool doLike = false, doComment = false, doRandom = false;
+                        string rawComments = "";
+                        int minComments = 1, maxComments = 1;
+
+                        try
+                        {
+                            if (newsfeedObj?.NewsFeed?.React != null)
+                            {
+                                doLike = newsfeedObj.NewsFeed.React.Like;
+                                doComment = newsfeedObj.NewsFeed.React.Comment;
+                                doRandom = newsfeedObj.NewsFeed.React.Random;
+                            }
+
+                            rawComments = newsfeedObj?.NewsFeed?.Comments ?? "";
+
+                            // if your model has these props
+                            try
+                            {
+                                minComments = Math.Max(1, newsfeedObj.NewsFeed.MinComments);
+                                maxComments = Math.Max(minComments, newsfeedObj.NewsFeed.MaxComments);
+                            }
+                            catch { minComments = 1; maxComments = 1; }
+                        }
+                        catch { }
+
+                        if (doRandom)
+                        {
+                            doLike = rnd.Next(0, 2) == 0;
+                            doComment = rnd.Next(0, 2) == 0;
+                        }
+
+                        // --- Like ---
+                        if (doLike)
+                        {
+                            try
+                            {
+                                WebFBTool.LikePost(driver);
+                                Thread.Sleep(rnd.Next(900, 1600));
+                            }
+                            catch { }
+                        }
+
+                        // --- Comment ---
+                        if (doComment && !string.IsNullOrWhiteSpace(rawComments))
+                        {
+                            var lines = rawComments.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                                                   .Select(x => x.Trim())
+                                                   .Where(x => x.Length > 0)
+                                                   .ToArray();
+
+                            if (lines.Length > 0)
+                            {
+                                int total = GetRandomCount(minComments, maxComments);
+                                var used = new HashSet<int>();
+
+                                for (int c = 0; c < total; c++)
+                                {
+                                    int idx = rnd.Next(lines.Length);
+                                    if (used.Count < lines.Length)
+                                    {
+                                        while (used.Contains(idx))
+                                            idx = rnd.Next(lines.Length);
+                                        used.Add(idx);
+                                    }
+
+                                    string text = lines[idx];
+
+                                    bool ok = false;
+                                    try { ok = WebFBTool.PostComment(driver, text); }
+                                    catch { ok = false; }
+
+                                    if (!ok) break;
+
+                                    Thread.Sleep(rnd.Next(1500, 2300));
+
+                                    // ✅ IMPORTANT: close popup after each comment
+                                    ClosePostDialogIfOpen();
+                                }
+                            }
+                        }
+
+                        // ✅ close popup one more time before scrolling
+                        ClosePostDialogIfOpen();
+
+                        // --- Move to next post ---
+                        int nextPostScroll = rnd.Next(900, 1400);
+                        js.ExecuteScript("window.scrollBy(0, arguments[0]);", nextPostScroll);
+                        Thread.Sleep(rnd.Next(2500, 4500));
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            ClosePostDialogIfOpen();
+                            js.ExecuteScript("window.scrollBy(0, 400);");
+                        }
+                        catch { }
+                        Thread.Sleep(1200);
+                    }
+                }
             }
-            catch (Exception) { }
+            catch { }
         }
+
+        private void ClosePostDialogIfOpen(IWebDriver driver)
+        {
+            try
+            {
+                // Check if dialog exists
+                var dialog = driver.FindElements(By.XPath("//div[@role='dialog']")).FirstOrDefault();
+                if (dialog != null)
+                {
+                    // Try close button
+                    var closeBtn = driver.FindElements(By.XPath(
+                        "//div[@role='dialog']//div[@aria-label='Close'] | " +
+                        "//div[@role='dialog']//div[@role='button' and @aria-label='Close'] | " +
+                        "//div[@role='dialog']//div[@role='button']//span[text()='Close']/ancestor::div[@role='button'][1]"
+                    )).FirstOrDefault();
+
+                    if (closeBtn != null)
+                    {
+                        closeBtn.Click();
+                        Thread.Sleep(1000);
+                        return;
+                    }
+
+                    // Fallback: press ESC
+                    driver.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
+                    Thread.Sleep(1000);
+                }
+            }
+            catch { }
+        }
+
 
         public void StartNewsFeedConfig(IWebDriver driver, FbAccount data)
         {

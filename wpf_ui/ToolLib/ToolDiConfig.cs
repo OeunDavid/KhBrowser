@@ -10,7 +10,7 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolLib.Data;
 using ToolLib.Http;
 using ToolLib.Tool;
-using WpfUI.ToolLib.Mail;
+using ToolKHBrowser.ToolLib.Mail;
 
 namespace ToolLib
 {

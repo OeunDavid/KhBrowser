@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ToolKHBrowser.ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 
 namespace ToolKHBrowser.ToolLib.Tool
 {
@@ -18,77 +19,10 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        //public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false, string url = "")
-        //{
-        //    if (string.IsNullOrEmpty(url))
-        //    {
-        //        FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
-        //    }
-        //    else
-        //    {
-        //        FBTool.GoToFacebook(driver, url);
-        //        FBTool.WaitingPageLoading(driver);
-        //        if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-        //        {
-        //            FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
-        //        }
-        //    }
-        //    FBTool.WaitingPageLoading(driver);
-        //    Thread.Sleep(1000);
-        //    if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-        //    {
-        //        if (isLoginByCookie)
-        //        {
-        //            //FBTool.LoginByCookie(driver, data.Cookie);
-        //            FBTool.LoginFbByCookie(driver, data.Cookie);
 
-        //            FBTool.WaitingPageLoading(driver);
-        //            Thread.Sleep(1000);
-        //            if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-        //            {
-        //                LoginByUID(driver, data.UID, data.Password);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            LoginByUID(driver, data.UID, data.Password);
-        //        }
-        //        //if (!string.IsNullOrEmpty(data.TwoFA))
-        //        //{
-        //        //    Thread.Sleep(1000);
-        //        //    if (Is2FA(driver))
-        //        //    {
-        //        //        VerifyTwoFactorAuthentication(driver, data);
-        //        //    }
-        //        //}
-        //        // ✅ If 2FA screen shows, keep browser open and let user enter code manually
-        //        Thread.Sleep(1000);
-        //        if (Is2FA(driver))
-        //        {
-        //            data.Description = "Need 2FA: Please enter the 6-digit code in the browser...";
-
-        //            // wait up to 180 seconds for user to complete OTP and login becomes valid
-        //            bool ok = FBTool.WaitForLoginSuccess(driver, 180);
-
-        //            if (!ok)
-        //            {
-        //                data.Description = "2FA not completed";
-        //                // Do NOT quit here if you want user to keep trying
-        //                // FBTool.QuitBrowser(driver, ...);  // optional
-        //                return "Need 2FA";
-        //            }
-
-        //            data.Description = "Login success after 2FA";
-        //        }
-
-        //    }
-        //    FBTool.WaitingPageLoading(driver);
-        //    Thread.Sleep(1000);
-
-        //    return FBTool.GetResults(driver);
-        //}
         public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false, string url = "")
         {
+            // 0) go to mbasic
             if (string.IsNullOrEmpty(url))
             {
                 FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
@@ -97,69 +31,235 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 FBTool.GoToFacebook(driver, url);
                 FBTool.WaitingPageLoading(driver);
+
                 if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-                {
                     FBTool.GoToFacebook(driver, Constant.FB_MBASIC_URL);
-                }
             }
 
             FBTool.WaitingPageLoading(driver);
-            Thread.Sleep(1000);
+            Thread.Sleep(800);
 
-            if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-            {
-                if (isLoginByCookie)
-                {
-                    FBTool.LoginFbByCookie(driver, data.Cookie);
-
-                    FBTool.WaitingPageLoading(driver);
-                    Thread.Sleep(1000);
-
-                    if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
-                        LoginByUID(driver, data.UID, data.Password);
-                }
-                else
-                {
-                    LoginByUID(driver, data.UID, data.Password);
-                }
-
-                if (!string.IsNullOrEmpty(data.TwoFA))
-                {
-                    Thread.Sleep(1000);
-                    if (Is2FA(driver))
-                    {
-                        VerifyTwoFactorAuthentication(driver, data);
-                    }
-                }
-
-                // ✅ manual 2FA handling
-                Thread.Sleep(1000);
-                if (Is2FA(driver))
-                {
-                    data.Description = "Need 2FA: Please enter the 6-digit code in the browser...";
-
-                    bool ok = FBTool.WaitForLoginSuccess(driver, 180);
-
-                    if (!ok)
-                    {
-                        data.Description = "2FA not completed";
-                        return "Need 2FA";
-                    }
-
-                    data.Description = "Login success after 2FA";
-                }
-            }
-
-            FBTool.WaitingPageLoading(driver);
-            Thread.Sleep(1000);
-
-            // ✅ if cookie exists, force success
+            // 1) already logged in?
             if (!string.IsNullOrEmpty(FBTool.GetUserId(driver)))
                 return "success";
 
+            // 2) login attempt
+            if (isLoginByCookie && !string.IsNullOrWhiteSpace(data.Cookie))
+            {
+                FBTool.LoginFbByCookie(driver, data.Cookie);
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(800);
+
+                if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+                    LoginByUID(driver, data.UID, data.Password);
+            }
+            else
+            {
+                LoginByUID(driver, data.UID, data.Password);
+            }
+
+            FBTool.WaitingPageLoading(driver);
+            Thread.Sleep(1200);
+
+            // 3) if logged in after login
+            if (!string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+                return "success";
+
+            // 4) HARD GUARD: if back to login page => not 2FA, don't type OTP
+            if (IsOnLoginPage(driver))
+                return FBTool.GetResults(driver);
+
+            // 5) WWW push approval: try switch to authenticator code
+            if (IsPushApprovalPage(driver))
+            {
+                bool switched = TrySwitchPushToAuthenticator_WWW(driver);
+
+                // If cannot switch, user must approve on phone
+                if (!switched && IsPushApprovalPage(driver))
+                {
+                    data.Description = "Need approval on phone (push notification)";
+                    return "Need 2FA";
+                }
+
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(800);
+            }
+
+            // 6) OTP 2FA screen -> auto-fill if secret exists, otherwise manual
+            if (Is2FAVisible(driver))
+            {
+                // Auto 2FA only when secret exists
+                if (!string.IsNullOrWhiteSpace(data.TwoFA))
+                {
+                    bool sent = VerifyTwoFactorAuthentication(driver, data);
+                    Thread.Sleep(1200);
+
+                    if (!string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+                        return "success";
+                }
+
+                // Manual fallback
+                data.Description = "Need 2FA: Please enter the 6-digit code in the browser...";
+                bool ok = FBTool.WaitForLoginSuccess(driver, 180);
+
+                if (ok && !string.IsNullOrEmpty(FBTool.GetUserId(driver)))
+                {
+                    data.Description = "Login success after 2FA";
+                    return "success";
+                }
+
+                data.Description = "2FA not completed";
+                return "Need 2FA";
+            }
+
+            // 7) everything else -> use your existing result parser
             return FBTool.GetResults(driver);
         }
 
+
+        // =======================
+        // Helpers (same class)
+        // =======================
+
+        //private static bool IsOnLoginPage(IWebDriver driver)
+        //{
+        //    try
+        //    {
+        //        bool hasEmail = driver.FindElements(By.Name("email")).Any(e => e.Displayed);
+        //        bool hasPass = driver.FindElements(By.Name("pass")).Any(e => e.Displayed);
+
+        //        if (hasEmail && hasPass) return true;
+
+        //        string url = driver.Url ?? "";
+        //        return url.IndexOf("login", StringComparison.OrdinalIgnoreCase) >= 0;
+        //    }
+        //    catch { return false; }
+        //}
+
+        private static bool IsOnLoginPage(IWebDriver driver)
+        {
+            if (driver == null) return false;
+
+            try
+            {
+                string url = (driver.Url ?? "").ToLower();
+
+                // 1️⃣ Strong detection: actual login form visible
+                bool hasEmail = driver.FindElements(By.Name("email"))
+                                      .Any(e => e.Displayed && e.Enabled);
+
+                bool hasPass = driver.FindElements(By.Name("pass"))
+                                     .Any(e => e.Displayed && e.Enabled);
+
+                bool hasLoginBtn = driver.FindElements(By.Name("login"))
+                                         .Any(e => e.Displayed && e.Enabled);
+
+                if (hasEmail && hasPass && hasLoginBtn)
+                    return true;
+
+                // 2️⃣ URL fallback (ONLY if clearly login page)
+                if (url.EndsWith("/login") || url.Contains("/login.php"))
+                    return true;
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        private static bool IsPushApprovalPage(IWebDriver driver)
+        {
+            try
+            {
+                string html = (driver.PageSource ?? "").ToLower();
+
+                // Push approval page - detected by HTML content only
+                // (URL pattern varies, especially after bot verification)
+                if (html.Contains("check your notifications on another device") ||
+                    html.Contains("waiting for approval") ||
+                    html.Contains("approve from another device") ||
+                    (html.Contains("try another way") && html.Contains("notification")) ||
+                    html.Contains("រង់ចាំការអនុម័ត") ||
+                    html.Contains("chờ phê duyệt"))
+                    return true;
+
+                return false;
+            }
+            catch { return false; }
+        }
+
+        private static bool Is2FAVisible(IWebDriver driver)
+        {
+            try
+            {
+                // mbasic approvals_code
+                bool approvals =
+                    driver.FindElements(By.Name("approvals_code")).Any(e => e.Displayed && e.Enabled) ||
+                    driver.FindElements(By.Id("approvals_code")).Any(e => e.Displayed && e.Enabled);
+
+                // some pages show aria-label
+                bool loginCode =
+                    driver.FindElements(By.XPath("//input[@aria-label='Login code']")).Any(e => e.Displayed && e.Enabled);
+
+                return approvals || loginCode;
+            }
+            catch { return false; }
+        }
+        private static bool TrySwitchPushToAuthenticator_WWW(IWebDriver driver)
+        {
+            return FBTool.HandlePushApproval_WWW(driver);
+        }
+
+
+
+        private static IWebElement FindClickableByText(WebDriverWait wait, IWebDriver driver, string text)
+        {
+            try
+            {
+                return wait.Until(d =>
+                {
+                    // find span/div with text then go up to role=button or button
+                    var node = d.FindElements(By.XPath($"//*[self::span or self::div][normalize-space(text())='{text}']")).FirstOrDefault();
+                    if (node == null) return null;
+
+                    var clickable = node.FindElements(By.XPath("./ancestor::*[@role='button' or self::button][1]")).FirstOrDefault();
+                    if (clickable == null) clickable = node;
+
+                    return (clickable.Displayed && clickable.Enabled) ? clickable : null;
+                });
+            }
+            catch { return null; }
+        }
+
+        private static IWebElement FindClickableContainsAny(WebDriverWait wait, IWebDriver driver, string[] containsTexts)
+        {
+            try
+            {
+                string xpath = string.Join(" or ", containsTexts.Select(t => $"contains(.,'{t}')"));
+                return wait.Until(d =>
+                {
+                    var node = d.FindElements(By.XPath($"//*[{xpath}]")).FirstOrDefault();
+                    if (node == null) return null;
+
+                    var clickable = node.FindElements(By.XPath("./ancestor::*[@role='button' or self::button][1]")).FirstOrDefault();
+                    if (clickable == null) clickable = node;
+
+                    return (clickable.Displayed && clickable.Enabled) ? clickable : null;
+                });
+            }
+            catch { return null; }
+        }
+
+        private static void JsClick(IWebDriver driver, IWebElement el)
+        {
+            try { el.Click(); }
+            catch
+            {
+                try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                catch { }
+            }
+        }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
@@ -215,70 +315,8 @@ namespace ToolKHBrowser.ToolLib.Tool
         [STAThread]
         public static bool VerifyTwoFactorAuthentication(IWebDriver driver, FbAccount data)
         {
-            bool isWorking = false;
-            string code = "";
-            int counter = 4;
-
-            do
-            {
-                Thread.Sleep(500);
-                code = TwoFactorRequest.GetPassCode(data.TwoFA);
-            } while (string.IsNullOrEmpty(code) && counter-- > 0);
-            try
-            {
-                Thread.Sleep(1000);
-                driver.FindElement(By.XPath("//input[@name='approvals_code']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                isWorking = true;
-            }
-            catch (Exception) { }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("/html/body/div[1]/div/div[3]/form/div/article/div[1]/table/tbody/tr/td/button")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (isWorking)
-            {
-                Boolean b = true;
-                try
-                {
-                    Thread.Sleep(1500);
-                    driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                }
-                catch (Exception) { b = false; }
-                if (b)
-                {
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                }
-            }
-
-            return isWorking;
+            string res = FBTool.AutoFill2FACode(driver, data);
+            return res == "ok";
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]

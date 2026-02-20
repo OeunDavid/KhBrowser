@@ -6,8 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ToolKHBrowser.ViewModels;
-using WpfUI;
-using WpfUI.ViewModels;
+using ToolKHBrowser;
+using ToolKHBrowser.ViewModels;
 
 namespace ToolKHBrowser.Views
 {

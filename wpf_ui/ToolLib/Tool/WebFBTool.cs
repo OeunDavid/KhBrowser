@@ -20,7 +20,7 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ViewModels;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 using static System.Windows.Forms.LinkLabel;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
@@ -75,7 +75,14 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
                 if (!string.IsNullOrEmpty(data.TwoFA))
                 {
-                    Thread.Sleep(1000);
+                    // Wait up to 10s for success or 2FA screen
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (!string.IsNullOrEmpty(FBTool.GetUserId(driver)) || Is2FA(driver))
+                            break;
+                        Thread.Sleep(1000);
+                    }
+
                     if (Is2FA(driver))
                     {
                         VerifyTwoFactorAuthentication(driver, data);
@@ -153,365 +160,100 @@ namespace ToolKHBrowser.ToolLib.Tool
         public static void LoginByUID(IWebDriver driver, FbAccount data)
         {
             Thread.Sleep(2000);
-            string email = data.UID;
-            string pass = data.Password;
-            try
-            {
-                if (!string.IsNullOrEmpty(email))
-                {
-                    email = email.Trim();
-                }
-                if (!string.IsNullOrEmpty(pass))
-                {
-                    pass = pass.Trim();
-                }
-            }
-            catch (Exception) { }
-            try
-            {
-                IWebElement inputEmail = driver.FindElement(By.Id("email"));
+            string email = data.UID ?? "";
+            string pass = data.Password ?? "";
 
-                inputEmail.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                Thread.Sleep(1000);
-                inputEmail.SendKeys(OpenQA.Selenium.Keys.Delete);
-                //element.Clear();
-                Thread.Sleep(500);
+            try { email = email.Trim(); } catch { }
+            try { pass = pass.Trim(); } catch { }
 
-                inputEmail.SendKeys(email);// email
-                Thread.Sleep(1000);
-            }
-            catch (Exception) { }
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass)) return;
+
+            // 1) Find Email field
+            IWebElement inputEmail = null;
             try
             {
-                driver.FindElement(By.Id("pass")).Clear();
-                Thread.Sleep(500);
-                driver.FindElement(By.Id("pass")).SendKeys(pass);// password
-                Thread.Sleep(1000);
+                inputEmail = driver.FindElements(By.Id("email")).FirstOrDefault(e => e.Displayed)
+                          ?? driver.FindElements(By.Name("email")).FirstOrDefault(e => e.Displayed)
+                          ?? driver.FindElements(By.XPath("//input[@name='email']")).FirstOrDefault(e => e.Displayed)
+                          ?? driver.FindElements(By.XPath("//input[@placeholder='Email or mobile number']")).FirstOrDefault(e => e.Displayed)
+                          ?? driver.FindElements(By.XPath("//input[@placeholder='Email address or phone number']")).FirstOrDefault(e => e.Displayed);
             }
-            catch (Exception) { }
+            catch { }
+
+            if (inputEmail != null)
+            {
+                try
+                {
+                    inputEmail.Click();
+                    inputEmail.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                    inputEmail.SendKeys(OpenQA.Selenium.Keys.Delete);
+                    Thread.Sleep(500);
+                    inputEmail.SendKeys(email);
+                }
+                catch { }
+            }
+
+            // 2) Find Password field
+            IWebElement inputPass = null;
             try
             {
-                driver.FindElement(By.Name("login")).Click();
+                inputPass = driver.FindElements(By.Id("pass")).FirstOrDefault(e => e.Displayed)
+                         ?? driver.FindElements(By.Name("pass")).FirstOrDefault(e => e.Displayed)
+                         ?? driver.FindElements(By.XPath("//input[@name='pass']")).FirstOrDefault(e => e.Displayed)
+                         ?? driver.FindElements(By.XPath("//input[@type='password']")).FirstOrDefault(e => e.Displayed);
             }
-            catch (Exception) { }
+            catch { }
+
+            if (inputPass != null)
+            {
+                try
+                {
+                    inputPass.Click();
+                    inputPass.Clear();
+                    Thread.Sleep(500);
+                    inputPass.SendKeys(pass);
+                }
+                catch { }
+            }
+
+            // 3) Find Login Button
+            try
+            {
+                IWebElement btnLogin = driver.FindElements(By.Name("login")).FirstOrDefault(e => e.Displayed)
+                                   ?? driver.FindElements(By.XPath("//button[@name='login']")).FirstOrDefault(e => e.Displayed)
+                                   ?? driver.FindElements(By.XPath("//button[@type='submit']")).FirstOrDefault(e => e.Displayed)
+                                   ?? driver.FindElements(By.XPath("//div[@role='button' and (contains(.,'Log In') or contains(.,'login'))]")).FirstOrDefault(e => e.Displayed);
+
+                if (btnLogin != null)
+                {
+                    btnLogin.Click();
+                }
+                else
+                {
+                    // Fallback to Enter key
+                    inputPass?.SendKeys(OpenQA.Selenium.Keys.Enter);
+                }
+            }
+            catch { }
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
         public static bool Is2FA(IWebDriver driver)
         {
-            bool iwWorking = false;
-            try
-            {
-                driver.FindElement(By.XPath("//input[@aria-label='Login code']"));
-                iwWorking = true;
-            }
-            catch (Exception) { }
-            if (!iwWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//input[@name='approvals_code']"));
-                    iwWorking = true;
-                }
-                catch (Exception) { }
-            }
-            
-            if (!iwWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("/html/body/div[1]/div[3]/div[1]/div/form/div/div[2]/div[3]/span/input"));
-                    iwWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!iwWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div[3]/div/form/div/div/div/div/div[1]/input"));
-                    iwWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!iwWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//input[@placeholder='Code']"));
-                    iwWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!iwWorking)
-            {
-                try
-                {
-                     // Fallback for any standard text input on the page if we are likely on a 2FA page
-                    var inputs = driver.FindElements(By.XPath("//input[@type='text' or @type='number']"));
-                    if(inputs.Count > 0) iwWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!iwWorking)
-            {
-                iwWorking = TwoStepVerification(driver);
-            }
-
-            return iwWorking;
+            return FBTool.Is2FA(driver);
         }
         public static bool TwoStepVerification(IWebDriver driver)
         {
-            bool isWorking = false;
-            string url = "";
-            try
-            {
-                url = driver.Url;
-            }
-            catch (Exception) { }
-            if (url.Contains("two_step_verification"))
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//*[contains(text(),'Try another way')]")).Click();
-                    isWorking = true;
-                }
-                catch (Exception) { }
-                if(!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div[4]/div/div/div")).Click();
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div[4]/div/div/div/div[1]")).Click();
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/div/div/div/div/div/div/div/div[4]/div/div/div/div[1]/div/span")).Click();
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (isWorking)
-                {
-                    int counter = 8;
-                    isWorking = false;
-                    do
-                    {
-                        Thread.Sleep(1000);
-                        try
-                        {
-                            driver.FindElement(By.XPath("//*[contains(text(),'Authentication app')]")).Click();
-                            isWorking = true;
-                        }
-                        catch (Exception) { }
-                        if (!isWorking)
-                        {
-                            try
-                            {
-                                driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[3]/div[2]/div[4]/div/div/div[2]/div/div/div/div/label[2]")).Click();
-                                isWorking = true;
-                            }
-                            catch (Exception) { }
-                        }
-                    } while (!isWorking && counter-- > 0);
-                    if(isWorking)
-                    {
-                        Thread.Sleep(500);
-                        IWebElement element = null;
-                        try
-                        {
-                            element = driver.FindElement(By.XPath("//span[contains(text(),'Continue')]"));
-                            isWorking = true;
-                        }
-                        catch (Exception) { }
-                        if (!isWorking)
-                        {
-                            try
-                            {
-                                element= driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[4]/div[3]/div/div/div/div/div/div/div/div/div[1]/div/span/span"));
-                                isWorking = true;
-                            }
-                            catch (Exception) { }
-                        }
-                        if (!isWorking)
-                        {
-                            try
-                            {
-                                element = driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[4]/div[3]/div/div/div/div/div/div/div/div"));
-                                isWorking = true;
-                            }
-                            catch (Exception) { }
-                        }
-                        if(isWorking)
-                        {
-                            ClickElement(driver, element);
-                        }
-                    }
-                }
-            }
-
-            return isWorking;
+            return FBTool.HandlePushApproval_WWW(driver);
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
         public static void VerifyTwoFactorAuthentication(IWebDriver driver, FbAccount data)
         {
-            string code = "";
-            int counter = 5;
-            do
-            {
-                code = TwoFactorRequest.GetPassCode(data.TwoFA);
-                Thread.Sleep(500);
-            } while (string.IsNullOrEmpty(code) && counter-- > 0);
-
-            bool isVerify = false;
-            IWebElement element = null;
-            try
-            {
-                element = driver.FindElement(By.XPath("//input[@aria-label='Login code']"));
-                isVerify = true;
-            }
-            catch (Exception) { }
-            if (!isVerify)
-            {
-                try
-                {
-                    element = driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/div/div/div/div/div/div/div[3]/div/form/div/div/div/div/div[1]/input"));
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isVerify)
-            {
-                try
-                {
-                    element = driver.FindElement(By.XPath("//input[@name='approvals_code']"));
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isVerify)
-            {
-                try
-                {
-                    element = driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div[3]/div/form/div/div/div/div/div[1]/input"));
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isVerify)
-            {
-                try
-                {
-                    element = driver.FindElement(By.XPath("//input[@placeholder='Code']"));
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isVerify)
-            {
-                try
-                {
-                    // Generic fallback
-                    element = driver.FindElement(By.XPath("//input[@type='text' or @type='number']"));
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isVerify)
-            {
-                try
-                {
-                    element = driver.FindElement(By.XPath("/html/body/div[1]/div[3]/div[1]/div/form/div/div[2]/div[3]/span/input"));
-                    //.SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                    isVerify = true;
-                }
-                catch (Exception) { }
-            }
-            if(element != null)
-            {
-                element.SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                Thread.Sleep(2500);
-            }
-            if (isVerify)
-            {
-                bool b = false;
-                counter = 10;
-                do
-                {
-                    Thread.Sleep(500);
-                        try
-                        {
-                            driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                            b = true;
-                        }
-                        catch (Exception) { }
-                        if (!b)
-                        {
-                            try
-                            {
-                                driver.FindElement(By.XPath("//span[text()='Continue']")).Click();
-                                b = true;
-                            }
-                            catch (Exception) { }
-                        }
-
-                } while (!b && counter-- > 0);
-                if (b)
-                {
-                    b = false;
-                    try
-                    {
-                        Thread.Sleep(1500);
-                        driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                        b = true;
-                    }
-                    catch (Exception) { }
-                    if (!b) { return; }
-                    b = false;
-                    try
-                    {
-                        Thread.Sleep(1500);
-                        driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                        b = true;
-                    }
-                    catch (Exception) { }
-                    if (!b) { return; }
-                    b = false;
-                    try
-                    {
-                        Thread.Sleep(1500);
-                        driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                        b = true;
-                    }
-                    catch (Exception) { }
-                    if (!b) { return; }
-                    b = false;
-                    try
-                    {
-                        Thread.Sleep(1500);
-                        driver.FindElement(By.Id("checkpointSubmitButton")).Click();
-                        b = true;
-                    }
-                    catch (Exception) { }
-                }
-                
-            }
+            // Use the centralized robust 2FA logic
+            FBTool.AutoFill2FACode(driver, data);
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]

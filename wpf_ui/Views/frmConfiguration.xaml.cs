@@ -17,10 +17,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolLib;
-using WpfUI.ToolLib.Data;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ViewModels;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for frmConfiguration.xaml

@@ -15,8 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolKHBrowser.ViewModels;
-using WpfUI.ViewModels;
-using WpfUI;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser;
 using OpenPop.Mime;
 
 namespace ToolKHBrowser.Views
@@ -34,85 +34,6 @@ namespace ToolKHBrowser.Views
 
             LoadData();
         }
-        //public void LoadData()
-        //{
-        //    var cache = cacheViewModel.GetCacheDao().Get("newsfeed:config");
-        //    if (cache != null && cache.Value != null)
-        //    {
-        //        string str = cache.Value.ToString();
-        //        if (!string.IsNullOrEmpty(str))
-        //        {
-        //            NewsFeedConfig newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(str);
-
-        //            try
-        //            {
-        //                txtPlayTimeStart.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberStart.ToString());
-        //                txtPlayTimeEnd.Value = Int32.Parse(newsfeedObj.NewsFeed.PlayTime.NumberEnd.ToString());
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                chbReachNone.IsChecked = newsfeedObj.NewsFeed.React.None;
-        //                chbReachLike.IsChecked = newsfeedObj.NewsFeed.React.Like;
-        //                chbReachComment.IsChecked = newsfeedObj.NewsFeed.React.Comment;
-        //                chbReachRandom.IsChecked = newsfeedObj.NewsFeed.React.Random;
-
-        //                txtComments.Text = newsfeedObj.NewsFeed.Comments;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                txtSourceFolder.Text = newsfeedObj.Timeline.SourceFolder;
-        //                txtCaption.Text = newsfeedObj.Timeline.Captions;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                txtTimelineMinNumber.Value = Int32.Parse(newsfeedObj.Timeline.MinNumber.ToString());
-        //                txtTimelineMaxNumber.Value = Int32.Parse(newsfeedObj.Timeline.MaxNumber.ToString());
-        //                chbDeleteAfterPost.IsChecked = newsfeedObj.Timeline.DeleteAfterPost;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                chbMessageSoundNone.IsChecked = newsfeedObj.Messenger.MessageSound.None;
-        //                chbMessageSoundOn.IsChecked = newsfeedObj.Messenger.MessageSound.On;
-        //                chbMessageSoundOff.IsChecked = newsfeedObj.Messenger.MessageSound.Off;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                chbCallSoundNone.IsChecked = newsfeedObj.Messenger.MessageCallSound.None;
-        //                chbCallSoundOn.IsChecked = newsfeedObj.Messenger.MessageCallSound.On;
-        //                chbCallSoundOff.IsChecked = newsfeedObj.Messenger.MessageCallSound.Off;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                chbPopUpSoundNone.IsChecked = newsfeedObj.Messenger.MessagePopup.None;
-        //                chbPopUpSoundOn.IsChecked = newsfeedObj.Messenger.MessagePopup.On;
-        //                chbPopUpSoundOff.IsChecked = newsfeedObj.Messenger.MessagePopup.Off;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                chbActiveStatusNone.IsChecked = newsfeedObj.Messenger.ActiveStatus.None;
-        //                chbActiveStatusOn.IsChecked = newsfeedObj.Messenger.ActiveStatus.On;
-        //                chbActiveStatusOff.IsChecked = newsfeedObj.Messenger.ActiveStatus.Off;
-        //            }
-        //            catch (Exception) { }
-        //            try
-        //            {
-        //                txtPagePostIds.Text = newsfeedObj.PagePost.PageIds;
-        //                txtPagePostSourceFolder.Text = newsfeedObj.PagePost.SourceFolder;
-        //                txtPagePostCaption.Text = newsfeedObj.PagePost.Captions;
-        //                txtPagePostMinNumber.Value = Int32.Parse(newsfeedObj.PagePost.MinPosts.ToString());
-        //                txtPagePostMaxNumber.Value = Int32.Parse(newsfeedObj.PagePost.MaxPosts.ToString());
-        //            }
-        //            catch (Exception) { }
-        //        }
-        //    }
-        //}
         public void LoadData()
         {
             if (cacheViewModel?.GetCacheDao() == null) return; // or log

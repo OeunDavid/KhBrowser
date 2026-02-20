@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ToolLib.Data;
 
-namespace WpfUI.ViewModels
+namespace ToolKHBrowser.ViewModels
 {
     public interface IStoreViewModel
     {

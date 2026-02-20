@@ -12,9 +12,7 @@ using ToolKHBrowser.ViewModels;
 using ToolLib;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ViewModels;
-
-namespace WpfUI
+namespace ToolKHBrowser
 {
     public class DIConfig
     {

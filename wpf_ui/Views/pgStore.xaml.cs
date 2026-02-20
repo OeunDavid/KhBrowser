@@ -13,10 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolLib.Data;
-using WpfUI.UI;
-using WpfUI.ViewModels;
-using WpfUI.Views;
-using WpfUI;
+using ToolKHBrowser.UI;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
+using ToolKHBrowser;
 using System.Collections.ObjectModel;
 
 namespace ToolKHBrowser.Views
