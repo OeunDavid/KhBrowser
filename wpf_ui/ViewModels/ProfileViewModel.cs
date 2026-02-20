@@ -17,8 +17,8 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 using static Emgu.CV.Stitching.Stitcher;
 
 namespace ToolKHBrowser.ViewModels

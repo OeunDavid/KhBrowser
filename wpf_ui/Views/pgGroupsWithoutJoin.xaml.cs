@@ -15,9 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToolKHBrowser.ViewModels;
-using WpfUI;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 
 namespace ToolKHBrowser.Views
 {

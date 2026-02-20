@@ -1,4 +1,4 @@
-namespace ToolLib.Data
+﻿namespace ToolLib.Data
 {
     public partial class SQLConstant
     {

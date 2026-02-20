@@ -12,11 +12,11 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI;
-using WpfUI.ToolLib.Data;
-using WpfUI.ToolLib.Tool;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser;
+using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ToolLib.Tool;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 
 namespace ToolKHBrowser.ViewModels
 {

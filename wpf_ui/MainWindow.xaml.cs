@@ -16,10 +16,10 @@ using System.Windows.Input;
 using ToolLib;
 using ToolLib.Data;
 using ToolLib.Http;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 
-namespace WpfUI
+namespace ToolKHBrowser
 {
     /// <summary>
     /// Interação lógica para MainWindow.xam

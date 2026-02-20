@@ -1,6 +1,4 @@
-﻿using CsQuery.StringScanner.Patterns;
-using Microsoft.Xaml.Behaviors.Media;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
@@ -11,7 +9,6 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,11 +22,7 @@ using ToolKHBrowser.ToolLib.Tool;
 using ToolKHBrowser.Views;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI;
-using WpfUI.ToolLib.Data;
-using WpfUI.ToolLib.Tool;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser.ViewModels;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace ToolKHBrowser.ViewModels

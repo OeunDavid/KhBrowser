@@ -1,0 +1,50 @@
+﻿<Window x:Class="ToolKHBrowser.UI.dialog.windowDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="2FA Required"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="SingleBorderWindow"
+        Topmost="True">
+
+    <Border Padding="20">
+        <StackPanel Width="320">
+
+            <TextBlock Text="Enter 2FA Code"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,6"/>
+
+            <TextBlock Text="Open your authentication app and paste the code."
+                       Opacity="0.7"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,12"/>
+
+            <TextBox x:Name="txtCode"
+                     Height="35"
+                     FontSize="16"
+                     MaxLength="8"
+                     VerticalContentAlignment="Center"
+                     Margin="0,0,0,15"/>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+
+                <Button Content="Cancel"
+                        Width="90"
+                        Margin="0,0,10,0"
+                        Click="Cancel_Click"/>
+
+                <Button Content="OK"
+                        Width="90"
+                        IsDefault="True"
+                        Click="Ok_Click"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</Window>

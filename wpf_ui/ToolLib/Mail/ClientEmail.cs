@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WpfUI.ToolLib.Mail
+namespace ToolKHBrowser.ToolLib.Mail
 {
     public interface IClientEmail
     {

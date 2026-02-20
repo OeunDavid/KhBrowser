@@ -13,11 +13,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Management;
 using System.Windows.Markup;
+using ToolKHBrowser;
+using ToolKHBrowser.Helper;
+using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ViewModels;
 using ToolKHBrowser.ViewModels;
 using ToolLib.Tool;
-using WpfUI;
-using WpfUI.ToolLib.Data;
-using WpfUI.ViewModels;
 using Cookie = OpenQA.Selenium.Cookie;
 
 namespace ToolKHBrowser.ToolLib.Tool
@@ -48,32 +49,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        //public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
-        //{
-        //    string runType = ConfigData.GetRunType();
-        //    string result = "";
-        //    Thread.Sleep(1500);
-        //    try
-        //    {
-        //        Actions action = new Actions(driver);
-        //        action.SendKeys(Keys.Escape);
-        //    }
-        //    catch (Exception) { }
-        //    switch (runType)
-        //    {
-        //        case "mbasic":
-        //            result = MBasicTool.LoggedIn(driver, data, isLoginByCookie);
-        //            break;
-        //        case "mobile":
-        //            result = MobileFBTool.LoggedIn(driver, data, isLoginByCookie);
-        //            break;
-        //        default:
-        //            result = WebFBTool.LoggedIn(driver, data, isLoginByCookie);
-        //            break;
-        //    }
-
-        //    return result;
-        //}
+        
         public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
@@ -105,32 +81,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        //public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie= false)
-        //{
-        //    string runType = ConfigData.GetRunType();
-        //    int result = 0;
-        //    Thread.Sleep(1500);
-        //    try
-        //    {
-        //        Actions action = new Actions(driver);
-        //        action.SendKeys(Keys.Escape);
-        //    }
-        //    catch (Exception) { }
-        //    switch (runType)
-        //    {
-        //        case "mbasic":
-        //            result = MBasicTool.Login(driver, data, isLoginByCookie);
-        //            break;
-        //        case "mobile":
-        //            result = MobileFBTool.Login(driver, data, isLoginByCookie);
-        //            break;
-        //        default:
-        //            result = WebFBTool.Login(driver, data, isLoginByCookie);
-        //            break;
-        //    }
-
-        //    return result;
-        //}
+        
         public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
@@ -162,199 +113,8 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        //public static string GetResults(IWebDriver driver, int counter = 4)
-        //{
-        //    try
-        //    {
-        //        ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop");
-        //    }
-        //    catch (Exception) { }
-        //    bool isThread = true;
-        //    string result = "";
-        //    bool isWorking = false;
-        //    string url = "";
-        //    string source = "";
-        //    if (counter > 0)
-        //    {
-        //        isThread = true;
-        //    }
-        //    do
-        //    {
-        //        if (isThread)
-        //        {
-        //            Thread.Sleep(1000);
-        //        }
-        //        try
-        //        {
-        //            source = driver.PageSource.ToString().ToLower().Trim();
-        //        }
-        //        catch (Exception) { }
-        //        try
-        //        {
-        //            url = driver.Url;
-        //        }
-        //        catch (Exception) { }
-        //        if (url.Contains("/checkpoint/"))
-        //        {
-        //            isWorking = true;
-        //            if (url.Contains("/checkpoint/?next"))
-        //            {
-        //                // aprove device
-        //                result = "Approvals";
-        //            }
-        //            else if (url.Contains("956"))
-        //            {
-        //                // locked
-        //                result = "​Lock 956";
-        //                if(source.Contains("code by email"))
-        //                {
-        //                    result += ": Need confirm code by email";
-        //                } else if(source.Contains("your phone"))
-        //                {
-        //                    result += ": Need confirm code by phone";
-        //                } else if(source.Contains("confirm your identity"))
-        //                {
-        //                    result += ": Need confirm identity";
-        //                }
-        //            }
-        //            else if (url.Contains("5049/"))
-        //            {
-        //                // We suspect automated
-        //                //result = "We suspect automated ...";
-        //                IWebElement elDismiss = null;
-        //                try
-        //                {
-        //                    elDismiss= driver.FindElement(By.XPath("//div[@aria-label='Dismiss']"));
-        //                } catch(Exception) { }
-        //                if(elDismiss == null)
-        //                {
-        //                    try
-        //                    {
-        //                        elDismiss = driver.FindElement(By.XPath("/html/body/div[1]/div/div/div/div/div/div/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div"));
-        //                    }
-        //                    catch (Exception) { }
-        //                }
-        //                if(elDismiss != null)
-        //                {
-        //                    WebFBTool.ClickElement(driver, elDismiss);
-        //                    Thread.Sleep(2000);
-        //                    result = "success";
-        //                }
-        //            }
-        //            else if (url.Contains("/checkpoint/8282"))
-        //            {
-        //                // locked
-        //                result = "Lock 2882";
-        //            }
-        //            else if (url.Contains("/checkpoint/disabled"))
-        //            {
-        //                // disabled
-        //                result = "Desabled";
-        //            }
-        //            else
-        //            {
-        //                result = "Checkpoint";
-        //            }
-        //        }
-        //        else if (url.Contains("/login/"))
-        //        {
-        //            // wrong password
-        //            result = "Wrong password";
-        //            if(source.Contains("old password"))
-        //            {
-        //                result += ": Old password";
-        //            } else if(source.Contains("incorrect"))
-        //            {
-        //                result += ": Incorrect username/password";
-        //            }
-        //        }
-        //        else if (url.Contains("two_step_verification") || url.Contains("/checkpoint/"))
-        //        {
-        //            isWorking = true;
-        //            result = "Need 2FA";   // not "Error 2FA"
-        //        }
-
-        //        else if (url.Contains("accountscenter") || url.Contains("login/save-device/?login_source=login"))
-        //        {
-        //            // new layout for set mail
-        //            isWorking = true;
-        //            result = "success";
-        //        }
-        //        else if (url.Contains("show_webview_confirm_dialog") || url.Contains("accountscenter"))
-        //        {
-        //            //Required: Review your data setting
-        //            isWorking = true;
-        //            result = "success";
-        //            StartReviewData(driver);
-        //        }
-        //        else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm") || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
-        //        {
-        //            isWorking = true;
-        //            result = "Confirm";
-        //        }
-        //        else
-        //        {
-        //            if (!isThread)
-        //            {
-        //                result = "success";
-        //                isWorking = true;
-        //            }
-        //            else if (!string.IsNullOrEmpty(GetUserId(driver)))
-        //            {
-        //                result = "success";
-        //                isWorking = true;
-        //            }
-        //        }
-        //    } while (!isWorking && counter-- > 0);
-
-        //    if(result.Contains("success"))
-        //    {
-        //        counter = 10;
-        //        isWorking = false;
-
-        //        do
-        //        {
-        //            result = "success";
-        //            Thread.Sleep(1000);
-        //            try
-        //            {
-        //                source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower();
-        //            }
-        //            catch (Exception) { }
-        //            if (!string.IsNullOrEmpty(source))
-        //            {
-        //                if (source.Contains("what happened") && 
-        //                    (source.Contains("use groups") || 
-        //                    source.Contains("spam") || 
-        //                    source.Contains("we removed")))
-        //                {
-        //                    if (source.Contains("use groups"))
-        //                    {
-        //                        result = "Spam: Can not use groups";
-        //                        isWorking= true;
-        //                    }
-        //                    else if (source.Contains("we removed"))
-        //                    {
-        //                        result = "Spam: Removed content/comment";
-        //                    }
-        //                    else
-        //                    {
-        //                        result = "Need remove spam";
-        //                    }
-        //                    Close(driver);
-        //                    Thread.Sleep(1000);
-        //                } else
-        //                {
-        //                    result = "success";
-        //                    isWorking = true;
-        //                }
-        //            }
-        //        } while(!isWorking && counter-- > 0);
-        //    }
-
-        //    return result;
-        //}
-        public static string GetResults(IWebDriver driver, int counter = 4)
+        
+        public static string GetResults(IWebDriver driver, int counter = 10)
         {
             try { ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop"); } catch { }
 
@@ -1300,13 +1060,12 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static void GoToFacebook(IWebDriver driver,string url)
+        public static void GoToFacebook(IWebDriver driver, string url)
         {
-            try
-            {
-                driver.Navigate().GoToUrl(url);
-            } catch(Exception) { }
-            WaitingPageLoading(driver);
+            if (driver == null) return;
+
+            try { driver.Navigate().GoToUrl(url); } catch { }
+            try { WaitingPageLoading(driver); } catch { }
             Thread.Sleep(1000);
         }
         [HandleProcessCorruptedStateExceptions]
@@ -1846,11 +1605,14 @@ namespace ToolKHBrowser.ToolLib.Tool
             try
             {
                 var url = (driver.Url ?? "").ToLower();
-                if (url.Contains("two_step_verification") || url.Contains("two_factor"))
+                if (url.Contains("two_step_verification") || url.Contains("two_factor") || url.Contains("/checkpoint/"))
                     return true;
 
-                // sometimes Facebook uses checkpoint for approvals/2FA
-                if (url.Contains("/checkpoint/"))
+                string html = (driver.PageSource ?? "").ToLower();
+                if (html.Contains("approvals_code") || html.Contains("two-step verification") || html.Contains("two-factor authentication")
+                    || html.Contains("waiting for approval") || html.Contains("check your notifications") || html.Contains("try another way")
+                    || html.Contains("authentication app") || html.Contains("6-digit")
+                    || html.Contains("រង់ចាំការអនុម័ត") || html.Contains("chờ phê duyệt"))
                     return true;
 
                 return false;
@@ -1859,25 +1621,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         }
         public static bool IsTwoFaPage(IWebDriver driver)
         {
-            string url = "";
-            try { url = (driver.Url ?? "").ToLower(); } catch { }
-
-            if (url.Contains("two_step_verification") || url.Contains("two_factor"))
-                return true;
-
-            // Sometimes FB uses checkpoint flows for OTP
-            if (url.Contains("/checkpoint/"))
-            {
-                try
-                {
-                    var src = (driver.PageSource ?? "").ToLower();
-                    if (src.Contains("authentication app") || src.Contains("two-factor") || src.Contains("6-digit"))
-                        return true;
-                }
-                catch { }
-            }
-
-            return false;
+            return Is2FA(driver); // Unified detection
         }
 
         public static string GetSafeGroupUrl(string baseUrl, string groupId)
@@ -1887,17 +1631,12 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             groupId = groupId.Trim();
 
-            // If it's already a full URL, don't prepend baseUrl/groups/
             if (groupId.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
                 groupId.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                // Optionally normalize base (e.g. if we are on web but got mobile link, we might want to swap)
-                // For now, return as-is if it's a valid FB group link
                 return groupId;
             }
 
-            // If it's just a numeric ID or slug, construction should be: baseUrl + "/groups/" + groupId
-            // But we must be careful: some places in code might already pass "/groups/ID" or "groups/ID"
             if (groupId.StartsWith("groups/", StringComparison.OrdinalIgnoreCase))
                 groupId = groupId.Substring(7);
             if (groupId.StartsWith("/groups/", StringComparison.OrdinalIgnoreCase))
@@ -1908,6 +1647,385 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return baseUrl.TrimEnd('/') + "/groups/" + groupId;
         }
+        /// <summary>
+        /// JS-based helper: Finds any clickable element whose innerText contains any of the keywords.
+        /// Returns true if found and clicked.
+        /// </summary>
+        private static bool JsClickByText(IWebDriver driver, string[] keywords)
+        {
+            var js = (IJavaScriptExecutor)driver;
+            foreach (var kw in keywords)
+            {
+                try
+                {
+                    // Use querySelectorAll to find all elements and match by text
+                    var script = @"
+                        var kw = arguments[0].toLowerCase();
+                        var allEls = document.querySelectorAll('a, button, [role=""button""], [role=""link""], div, span');
+                        for (var i = 0; i < allEls.length; i++) {
+                            var el = allEls[i];
+                            var txt = (el.innerText || el.textContent || '').trim().toLowerCase();
+                            if (txt === kw || txt.indexOf(kw) === 0) {
+                                el.click();
+                                return true;
+                            }
+                        }
+                        return false;
+                    ";
+                    var result = js.ExecuteScript(script, kw);
+                    if (result != null && result is bool && (bool)result) return true;
+                }
+                catch { }
+            }
+            return false;
+        }
 
+        public static bool HandlePushApproval_WWW(IWebDriver driver)
+        {
+            try
+            {
+                string html = (driver.PageSource ?? "").ToLower();
+                bool isPush = html.Contains("waiting for approval")
+                           || html.Contains("check your notifications")
+                           || html.Contains("approve from another device")
+                           || html.Contains("try another way")
+                           || html.Contains("រង់ចាំការអនុម័ត")
+                           || html.Contains("chờ phê duyệt");
+
+                if (!isPush) return false;
+
+                // ── Step 1: Click "Try another way" ───────────────────────
+                bool clicked = false;
+                string[] tryTexts = { "try another way", "វិធីផ្សេង", "thử cách khác", "use another method" };
+
+                for (int attempt = 0; attempt < 8 && !clicked; attempt++)
+                {
+                    // Try JS click first (bypasses visibility)
+                    clicked = JsClickByText(driver, tryTexts);
+
+                    if (!clicked)
+                    {
+                        // Fallback: Selenium click
+                        var allEls = driver.FindElements(By.XPath("//a | //button | //*[@role='button'] | //*[@role='link']"));
+                        foreach (var el in allEls)
+                        {
+                            try
+                            {
+                                var txt = (el.Text ?? "").Trim().ToLower();
+                                if (tryTexts.Any(t => txt.Contains(t)))
+                                {
+                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                                    clicked = true;
+                                    break;
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (!clicked) Thread.Sleep(1500);
+                }
+
+                if (!clicked) return false;
+
+                Thread.Sleep(3000);
+
+                // ── Step 2: Choose "Authentication app" ───────────────────
+                string[] authTexts = { "authentication app", "code generator", "enter code", "կam, use authentication", "xác thực" };
+                bool authClicked = false;
+
+                for (int attempt = 0; attempt < 8 && !authClicked; attempt++)
+                {
+                    authClicked = JsClickByText(driver, authTexts);
+
+                    if (!authClicked)
+                    {
+                        var allEls = driver.FindElements(By.XPath("//a | //button | //*[@role='button'] | //label | //*[@role='radio'] | //*[@role='menuitem']"));
+                        foreach (var el in allEls)
+                        {
+                            try
+                            {
+                                var txt = (el.Text ?? "").Trim().ToLower();
+                                if (authTexts.Any(t => txt.Contains(t)))
+                                {
+                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                                    authClicked = true;
+                                    break;
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (!authClicked) Thread.Sleep(1500);
+                }
+
+                // Even if authClicked is false, try Continue anyway
+                Thread.Sleep(2000);
+
+                // ── Step 3: Click "Continue" ──────────────────────────────
+                string[] contTexts = { "continue", "next", "បន្ត", "tiếp tục", "confirm" };
+                bool contClicked = false;
+
+                for (int attempt = 0; attempt < 5 && !contClicked; attempt++)
+                {
+                    contClicked = JsClickByText(driver, contTexts);
+
+                    if (!contClicked)
+                    {
+                        var allEls = driver.FindElements(By.XPath("//button | //*[@role='button']"));
+                        foreach (var el in allEls)
+                        {
+                            try
+                            {
+                                var txt = (el.Text ?? "").Trim().ToLower();
+                                if (contTexts.Any(t => txt.Contains(t)))
+                                {
+                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                                    contClicked = true;
+                                    break;
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (!contClicked) Thread.Sleep(1000);
+                }
+
+                Thread.Sleep(2000);
+                return true;
+            }
+            catch { }
+            return false;
+        }
+
+        /// <summary>
+        /// All-in-one 2FA handler. Detects push vs code-entry screen, switches if needed,
+        /// finds the input, fills the TOTP code, clicks Continue.
+        /// Returns: "ok" on success, or an error description string.
+        /// </summary>
+        public static string AutoFill2FACode(IWebDriver driver, ToolKHBrowser.ViewModels.FbAccount account)
+        {
+            if (driver == null) return "driver is null";
+            string twoFaSecret = account?.TwoFA;
+            if (string.IsNullOrWhiteSpace(twoFaSecret)) return "TwoFA secret is empty";
+
+            // Helper to update status in the grid
+            Action<string> setStatus = (msg) => {
+                if (account != null) {
+                    account.Description = "2FA: " + msg;
+                }
+            };
+
+            try
+            {
+                // -- Step 1: Handle push screen if present --
+                if (HandlePushApproval_WWW(driver))
+                {
+                    setStatus("Switched to code input.");
+                }
+
+                // -- Step 2: Find the 6-digit code input --
+                IWebElement codeInput = null;
+                for (int w = 0; w < 15 && codeInput == null; w++)
+                {
+                    codeInput = driver.FindElements(By.Name("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                             ?? driver.FindElements(By.Id("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                             ?? driver.FindElements(By.XPath("//input[@placeholder='Code' or @placeholder='code']")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                             ?? driver.FindElements(By.XPath("//input[contains(@aria-label,'Code')]")).FirstOrDefault(e => e.Displayed && e.Enabled);
+
+                    if (codeInput == null)
+                    {
+                        // Broad scan
+                        codeInput = driver.FindElements(By.TagName("input")).FirstOrDefault(inp =>
+                        {
+                            try
+                            {
+                                if (!inp.Displayed || !inp.Enabled) return false;
+                                string n = (inp.GetAttribute("name") ?? "").ToLower();
+                                string id = (inp.GetAttribute("id") ?? "").ToLower();
+                                string t = (inp.GetAttribute("type") ?? "text").ToLower();
+                                return t != "password" && t != "hidden" && t != "checkbox" && t != "radio" && t != "submit" && t != "email"
+                                    && !n.Contains("email") && !id.Contains("email");
+                            }
+                            catch { return false; }
+                        });
+                    }
+                    if (codeInput == null) Thread.Sleep(1000);
+                }
+
+                if (codeInput == null) return "code input not found";
+                setStatus("Code input found.");
+
+                // -- Step 3: Loop filling codes (retry up to 4x) --
+                for (int attempt = 1; attempt <= 4; attempt++)
+                {
+                    string code = TwoFactorRequest.GetPassCode(twoFaSecret);
+                    if (string.IsNullOrWhiteSpace(code)) { Thread.Sleep(1000); continue; }
+
+                    setStatus($"Filling code {code}...");
+                    try { codeInput.Click(); } catch { }
+                    
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].value='';", codeInput);
+                    Thread.Sleep(100);
+                    codeInput.SendKeys(code);
+                    Thread.Sleep(200);
+                    ((IJavaScriptExecutor)driver).ExecuteScript(
+                        "arguments[0].dispatchEvent(new Event('input',{bubbles:true})); arguments[0].dispatchEvent(new Event('change',{bubbles:true}));", codeInput);
+                    
+                    Thread.Sleep(500);
+
+                    // Click Continue
+                    IWebElement btnContinue = null;
+                    btnContinue = driver.FindElements(By.XPath("//button[@type='submit']")).FirstOrDefault(e => e.Displayed && e.Enabled)
+                               ?? driver.FindElements(By.XPath("//input[@type='submit']")).FirstOrDefault(e => e.Displayed && e.Enabled);
+
+                    if (btnContinue == null)
+                    {
+                        foreach (var el in driver.FindElements(By.XPath("//div[@role='button'] | //button | //a")))
+                        {
+                            try
+                            {
+                                string t = (el.Text ?? "").ToLower();
+                                if ((t.Contains("continue") || t.Contains("confirm") || t.Contains("submit") || t.Contains("next")
+                                  || t.Contains("បន្ត") || t.Contains("បញ្ជាក់") || t.Contains("tiếp tục") || t.Contains("xác nhận"))
+                                  && el.Displayed && el.Enabled)
+                                { btnContinue = el; break; }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (btnContinue != null)
+                    {
+                        try { btnContinue.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", btnContinue); }
+                    }
+                    else
+                    {
+                        codeInput.SendKeys(OpenQA.Selenium.Keys.Enter);
+                    }
+
+                    Thread.Sleep(4000);
+                    // Check if success (input gone)
+                    if (driver.FindElements(By.TagName("input")).All(inp => {
+                        try { return !inp.Displayed || (inp.GetAttribute("type") ?? "").ToLower() == "hidden"; } catch { return true; }
+                    }))
+                    {
+                        return "ok";
+                    }
+                    Thread.Sleep(1000);
+                }
+
+                return "failed after 4 attempts";
+            }
+            catch (Exception ex) { return "error: " + ex.Message; }
+        }
+
+        public static void HandlePostLoginPrompts(IWebDriver driver)
+        {
+            try
+            {
+                Thread.Sleep(2000);
+                string[] texts = { "not now", "save browser", "ok", "continue", "បន្ត", "មិនមែនឥឡូវនេះទេ", "tiếp tục", "lúc khác" };
+                foreach (var t in texts)
+                {
+                    try
+                    {
+                        var elements = driver.FindElements(By.XPath($"//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{t}')]"));
+                        foreach (var el in elements)
+                        {
+                            if (el.Displayed && el.Enabled)
+                            {
+                                try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                                Thread.Sleep(1000);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        public static string FinalizeLoginFlow(IWebDriver driver, FbAccount account, int seconds = 120)
+        {
+            if (driver == null) return "Driver null";
+
+            DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+
+            while (DateTime.UtcNow < end)
+            {
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+                // If 2FA appears
+                try
+                {
+                    if (Is2FA(driver))
+                        return "Need 2FA";
+                }
+                catch { }
+
+                // If checkpoint appears, click Continue / OK / This was me
+                if (url.Contains("/checkpoint/"))
+                {
+                    try { HandleCheckpointContinue(driver); } catch { }
+                    Thread.Sleep(800);
+                    continue;
+                }
+
+                // If still on login page after captcha, wait a bit and re-check
+                if (url.Contains("facebook.com/login") || url.Contains("/login/"))
+                {
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
+                // Confirm real login
+                string uid = "";
+                try { uid = GetUserId(driver); } catch { }
+
+                bool looksLoggedIn =
+                    !string.IsNullOrEmpty(uid) &&
+                    !url.Contains("/checkpoint/") &&
+                    !url.Contains("two_step_verification") &&
+                    !url.Contains("two_factor") &&
+                    !url.Contains("/login/");
+
+                if (looksLoggedIn)
+                    return "success";
+
+                Thread.Sleep(1000);
+            }
+
+            // timed out -> show where we got stuck
+            string lastUrl = "";
+            try { lastUrl = driver.Url ?? ""; } catch { }
+            return "Login not finalized (timeout). LastUrl=" + lastUrl;
+        }
+        public static void HandleCheckpointContinue(IWebDriver driver)
+        {
+            // Tries multiple common buttons
+            for (int i = 0; i < 8; i++)
+            {
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { }
+                if (!url.Contains("/checkpoint/")) break;
+
+                try
+                {
+                    SeleniumX.ClickByText(driver, "Continue", 2);
+                    SeleniumX.ClickByText(driver, "OK", 1);
+                    SeleniumX.ClickByText(driver, "This was me", 1);
+                    SeleniumX.ClickByText(driver, "Yes", 1);
+                    SeleniumX.ClickByText(driver, "Confirm", 1);
+                    SeleniumX.ClickByText(driver, "Done", 1);
+                }
+                catch { }
+
+                Thread.Sleep(700);
+            }
+        }
     }
 }

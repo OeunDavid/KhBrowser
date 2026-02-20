@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ToolKHBrowser.Helper;
 using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.ViewModels;
 using ToolLib.Tool;
-using WpfUI.ViewModels;
 
 namespace ToolKHBrowser.ToolLib.Tool
 {
@@ -335,88 +336,83 @@ namespace ToolKHBrowser.ToolLib.Tool
         }
         public static bool VerifyTwoFactorAuthentication(IWebDriver driver, FbAccount data)
         {
-            bool isWorking = false;
-            string code = "";
-            int counter = 4;
-
-            do
+            // If it’s push approval, wait for phone approval
+            if (IsWaitingForApproval(driver))
             {
-                Thread.Sleep(500);
-                code = TwoFactorRequest.GetPassCode(data.TwoFA);
-            } while (string.IsNullOrEmpty(code) && counter-- > 0);
+                return WaitForPushApproval(driver, 180);
+            }
+
+            // If it’s not push approval, do nothing here (or return false)
+            // because Option B = push only
+            return false;
+        }
+        public static bool IsWaitingForApproval(IWebDriver driver)
+        {
+            if (driver == null) return false;
+
             try
             {
+                // URL check (strong indicator)
+                string url = (driver.Url ?? "").ToLower();
+                if (!url.Contains("two_factor") && !url.Contains("two_step_verification"))
+                    return false;
+
+                // Text detection (multiple variations)
+                return driver.FindElements(By.XPath(
+                    "//*[contains(text(),'Waiting for approval') " +
+                    "or contains(text(),'Check your notifications') " +
+                    "or contains(text(),'another device')]"))
+                    .Any(e => e.Displayed);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool WaitForPushApproval(IWebDriver driver, int timeoutSeconds = 180)
+        {
+            if (driver == null) return false;
+
+            var end = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+
+            while (DateTime.UtcNow < end)
+            {
+                // 1) If already logged in => done
+                try
+                {
+                    var uid = FBTool.GetUserId(driver);
+                    if (!string.IsNullOrEmpty(uid))
+                        return true;
+                }
+                catch { }
+
+                // 2) If code input appears => push step ended, now you can fill code
+                if (TwoFaHelper.IsCodeInputScreenStrong(driver))
+                    return true;
+
+                // 3) If still waiting approval => keep waiting
+                if (IsWaitingForApproval(driver))
+                {
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
+                // 4) Check URL AFTER waiting check
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+                // If we left two_factor pages => likely approved
+                if (!url.Contains("two_step_verification") && !url.Contains("two_factor"))
+                {
+                    // not always instantly logged in, but push step is finished
+                    return true;
+                }
+
                 Thread.Sleep(1000);
-                driver.FindElement(By.XPath("//input[@name='approvals_code']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                isWorking = true;
-            }
-            catch (Exception) { }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("/html/body/div[1]/div/div[3]/form/div/article/div[1]/table/tbody/tr/td/button")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//input[@placeholder='Code']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//input[@type='text']")).SendKeys(code + OpenQA.Selenium.Keys.Enter);
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (isWorking)
-            {
-                Boolean b = true;
-                try
-                {
-                    Thread.Sleep(1500);
-                    driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                }
-                catch (Exception) { b = false; }
-                if (b)
-                {
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                    try
-                    {
-                        Thread.Sleep(1000);
-                        driver.FindElement(By.Id("checkpointSubmitButton-actual-button")).Click();
-                    }
-                    catch (Exception) { }
-                }
             }
 
-            return isWorking;
+            return false;
         }
         public static bool LoginByUID(IWebDriver driver, FbAccount data)
         {
@@ -485,49 +481,26 @@ namespace ToolKHBrowser.ToolLib.Tool
         }
         public static bool Is2FA(IWebDriver driver)
         {
-            return WebFBTool.Is2FA(driver);
+            if (driver == null) return false;
 
-            bool isWorking = false;
-            int counter = 3;
-            do
-            {
-                Thread.Sleep(1000);
-                try
-                {
-                    driver.FindElement(By.XPath("//input[@aria-label='Login code']"));
-                    isWorking = true;
-                }
-                catch (Exception) { }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("//input[@name='approvals_code']"));
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("//input[@placeholder='Code']"));
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        driver.FindElement(By.XPath("/html/body/div[1]/div[3]/div[1]/div/form/div/div[2]/div[3]/span/input"));
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-            } while (!isWorking && counter-- > 0);            
+            string url = "";
+            try { url = (driver.Url ?? "").ToLower(); } catch { }
 
-            return isWorking;
+            // Must be on 2FA-related page
+            bool urlLooks2FA =
+                url.Contains("two_step_verification") ||
+                url.Contains("two_factor");
+
+            if (!urlLooks2FA)
+                return false;
+
+            // Check for actual 2FA inputs or push text
+            return
+                SeleniumX.Exists(driver, By.XPath("//input[@aria-label='Login code']"), 1) ||
+                SeleniumX.Exists(driver, By.XPath("//input[@name='approvals_code']"), 1) ||
+                SeleniumX.Exists(driver, By.XPath("//input[@placeholder='Code']"), 1) ||
+                SeleniumX.Exists(driver, By.XPath("//*[contains(.,'Waiting for approval')]"), 1) ||
+                SeleniumX.Exists(driver, By.XPath("//*[contains(.,'Check your notifications on another device')]"), 1);
         }
         public static string GetName(IWebDriver driver)
         {

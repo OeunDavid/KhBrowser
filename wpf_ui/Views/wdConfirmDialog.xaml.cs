@@ -11,9 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WpfUI.UI;
+using ToolKHBrowser.UI;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for wdConfirmDialog.xaml

@@ -8,9 +8,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WpfUI;
-using WpfUI.ToolLib.Tool;
-using WpfUI.ViewModels;
+using ToolKHBrowser;
+using ToolKHBrowser.ToolLib.Tool;
+using ToolKHBrowser.ViewModels;
 
 namespace ToolKHBrowser.ToolLib.Tool
 {

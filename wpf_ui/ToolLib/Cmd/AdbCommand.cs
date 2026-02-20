@@ -16,7 +16,7 @@ namespace ToolLib
     public class AdbCommand:IAdbCommand
     {
      
-        public static readonly string PATH = System.IO.Path.Combine(WpfUI.ToolLib.Data.ConfigData.GetPath(), "tool", "adb.exe");
+        public static readonly string PATH = System.IO.Path.Combine(ToolKHBrowser.ToolLib.Data.ConfigData.GetPath(), "tool", "adb.exe");
         const int RETRY = 1;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         

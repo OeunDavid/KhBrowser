@@ -7,7 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using ToolLib.Tool;
 
-namespace WpfUI.ViewModels
+namespace ToolKHBrowser.ViewModels
 {
     public static class UserModel
     {

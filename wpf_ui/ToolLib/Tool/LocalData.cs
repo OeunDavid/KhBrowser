@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ViewModels;
 using ToolLib.Http;
-using WpfUI.ToolLib.Data;
+using ToolKHBrowser.ToolLib.Data;
 
 namespace ToolLib.Tool
 {

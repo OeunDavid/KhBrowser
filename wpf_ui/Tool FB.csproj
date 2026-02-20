@@ -1,589 +1,88 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1437184D-864C-4D38-BB7F-D2F954A20985}</ProjectGuid>
     <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>ToolKHBrowser</RootNamespace>
     <AssemblyName>Tool KH Browser</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <StartupObject>ToolKHBrowser.App</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>D:\My Data\KH Browser\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>WpfUI.App</StartupObject>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>075944C2748711AD3078BE638D720E1197DF28C0</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>Tool FB_TemporaryKey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateManifests>false</GenerateManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignManifests>false</SignManifests>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="CliWrap, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CliWrap.2.0.0\lib\net45\CliWrap.dll</HintPath>
-    </Reference>
-    <Reference Include="CsQuery, Version=1.3.3.249, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsQuery.1.3.4\lib\net40\CsQuery.dll</HintPath>
-    </Reference>
-    <Reference Include="DotRas, Version=1.3.5166.33434, Culture=neutral, PublicKeyToken=b378f04384b7892a, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotRas.for.Win7.1.3.0\lib\net40\DotRas.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.CV.Bitmap, Version=4.5.1.4349, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <PackageReference Include="CliWrap" Version="2.0.0" />
+    <PackageReference Include="CsQuery" Version="1.3.4" />
+    <PackageReference Include="DotRas.for.Win7" Version="1.3.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Gu.Wpf.NumericInput" Version="0.5.5" />
+    <PackageReference Include="InputSimulatorStandard" Version="1.0.0" />
+    <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="MaterialDesignColors" Version="1.2.7" />
+    <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="OpenPop.NET" Version="2.0.6.1120" />
+    <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0" />
+    <PackageReference Include="Otp.NET" Version="1.4.1" />
+    <PackageReference Include="RestSharp" Version="106.15.0" />
+    <PackageReference Include="Selenium.Support" Version="3.141.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.113.3" />
+    <PackageReference Include="System.Buffers" Version="4.6.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
+    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.118.0" />
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.118.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="10.0.0" />
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="10.0.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Emgu.CV.Bitmap">
       <HintPath>..\ToolLib\lib\Emgu.CV.Bitmap.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.DebuggerVisualizers, Version=4.5.1.4349, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Emgu.CV.DebuggerVisualizers">
       <HintPath>..\ToolLib\lib\Emgu.CV.DebuggerVisualizers.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.Platform.NetCore, Version=4.5.1.4349, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Emgu.CV.Platform.NetCore">
       <HintPath>..\ToolLib\lib\Emgu.CV.Platform.NetCore.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.Platform.NetFramework, Version=4.5.1.4349, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Emgu.CV.Platform.NetFramework">
       <HintPath>..\ToolLib\lib\Emgu.CV.Platform.NetFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.Platform.NetStandard, Version=4.5.1.4349, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Emgu.CV.Platform.NetStandard">
       <HintPath>..\ToolLib\lib\Emgu.CV.Platform.NetStandard.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="Gu.Wpf.NumericInput, Version=0.5.5.0, Culture=neutral, PublicKeyToken=e6e2e1b32408e0fd, processorArchitecture=MSIL">
-      <HintPath>..\packages\Gu.Wpf.NumericInput.0.5.5\lib\net45\Gu.Wpf.NumericInput.dll</HintPath>
-    </Reference>
-    <Reference Include="InputSimulatorStandard, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\InputSimulatorStandard.1.0.0\lib\netstandard2.0\InputSimulatorStandard.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.12\lib\net45\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="MaterialDesignColors, Version=1.2.7.1979, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
-      <HintPath>packages\MaterialDesignColors.1.2.7\lib\net45\MaterialDesignColors.dll</HintPath>
-    </Reference>
-    <Reference Include="MaterialDesignThemes.Wpf, Version=3.2.0.1979, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
-      <HintPath>packages\MaterialDesignThemes.3.2.0\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.10.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Edge.SeleniumTools, Version=3.141.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Edge.SeleniumTools.3.141.2\lib\net45\Microsoft.Edge.SeleniumTools.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenPop, Version=2.0.6.1120, Culture=neutral, PublicKeyToken=6bdb97f144b7efc8, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenPop.NET.2.0.6.1120\lib\net40\OpenPop.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenQA.Selenium.Chrome.ChromeDriverExtensions.1.2.0\lib\netstandard2.0\OpenQA.Selenium.Chrome.ChromeDriverExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Otp.NET, Version=1.4.1.0, Culture=neutral, PublicKeyToken=38a48df817e173a6, processorArchitecture=MSIL">
-      <HintPath>..\packages\Otp.NET.1.4.1\lib\net461\Otp.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=106.15.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.15.0\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Pipelines, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.Pipelines.10.0.0\lib\net462\System.IO.Pipelines.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
       <HintPath>..\ToolLib\lib\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encodings.Web, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encodings.Web.10.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Text.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Json.10.0.0\lib\net462\System.Text.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WebDriver, Version=3.141.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.3.141.0\lib\net45\WebDriver.dll</HintPath>
-    </Reference>
-    <Reference Include="WebDriver.Support, Version=3.141.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.3.141.0\lib\net45\WebDriver.Support.dll</HintPath>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
+
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="DIConfig.cs" />
-    <Compile Include="Helper\TwoFaHelper.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ToolLib\Cmd\AdbCommand.cs" />
-    <Compile Include="ToolLib\Data\Account.cs" />
-    <Compile Include="ToolLib\Data\AccountDao.cs" />
-    <Compile Include="ToolLib\Data\CacheDao.cs" />
-    <Compile Include="ToolLib\Data\Config.cs" />
-    <Compile Include="ToolLib\Data\ConfigDao.cs" />
-    <Compile Include="ToolLib\Data\ConfigData.cs" />
-    <Compile Include="ToolLib\Data\Constant.cs" />
-    <Compile Include="ToolLib\Data\DataDao.cs" />
-    <Compile Include="ToolLib\Data\Groups.cs" />
-    <Compile Include="ToolLib\Data\GroupsDao.cs" />
-    <Compile Include="ToolLib\Data\PagesDao.cs" />
-    <Compile Include="ToolLib\Data\Pages.cs" />
-    <Compile Include="ToolLib\Data\StoreDevices.cs" />
-    <Compile Include="ToolLib\Data\StoreDao.cs" />
-    <Compile Include="ToolLib\Data\ItemList.cs" />
-    <Compile Include="ToolLib\Data\SQLConstant.cs" />
-    <Compile Include="ToolLib\Data\SQL\AccountGroupSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\AccountSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\ActivityLogSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\CacheSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\DeviceAccountSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\DeviceSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\GroupDeviceSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\GroupSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\GroupSSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\PageSQL.cs" />
-    <Compile Include="ToolLib\Data\SQL\StoreSQL.cs" />
-    <Compile Include="ToolLib\Http\HttpHelper.cs" />
-    <Compile Include="ToolLib\Http\IRestResponse.cs" />
-    <Compile Include="ToolLib\Mail\ClientEmail.cs" />
-    <Compile Include="ToolLib\ToolDiConfig.cs" />
-    <Compile Include="ToolLib\Tool\FBGraph.cs" />
-    <Compile Include="ToolLib\Tool\LDPlayerTool.cs" />
-    <Compile Include="ToolLib\Tool\FBTool.cs" />
-    <Compile Include="ToolLib\Tool\Internet.cs" />
-    <Compile Include="ToolLib\Tool\LocalData.cs" />
-    <Compile Include="ToolLib\Tool\MBasicTool.cs" />
-    <Compile Include="ToolLib\Tool\MobileFBTool.cs" />
-    <Compile Include="ToolLib\Tool\PHelper.cs" />
-    <Compile Include="ToolLib\Tool\TwoFactorRequest.cs" />
-    <Compile Include="ToolLib\Tool\MyWebDriver.cs" />
-    <Compile Include="ToolLib\Tool\WebFBTool.cs" />
-    <Compile Include="UI\BtnClick.cs" />
-    <Compile Include="UI\ConfirmDialogUtil.cs" />
-    <Compile Include="UI\Event\IDalogWindow.cs" />
-    <Compile Include="UI\Event\IDialogPage.cs" />
-    <Compile Include="UI\UIUtil.cs" />
-    <Compile Include="ViewModels\FriendsViewModel.cs" />
-    <Compile Include="ViewModels\GroupViewModel.cs" />
-    <Compile Include="ViewModels\NewsFeedViewModel.cs" />
-    <Compile Include="ViewModels\PageViewModel.cs" />
-    <Compile Include="ViewModels\ProcessActions.cs" />
-    <Compile Include="ViewModels\ActiveViewModel.cs" />
-    <Compile Include="ViewModels\CacheViewModel.cs" />
-    <Compile Include="ViewModels\ClearProfileViewModel.cs" />
-    <Compile Include="ViewModels\ConfigViewModel.cs" />
-    <Compile Include="ViewModels\FBDeviceAccount.cs" />
-    <Compile Include="ViewModels\FbAccount.cs" />
-    <Compile Include="ViewModels\FbAccountViewModel.cs" />
-    <Compile Include="ViewModels\FbGroupDevices.cs" />
-    <Compile Include="ViewModels\LoginViewModel.cs" />
-    <Compile Include="ViewModels\Process.cs" />
-    <Compile Include="ViewModels\ProfileViewModel.cs" />
-    <Compile Include="ViewModels\ShareViewModel.cs" />
-    <Compile Include="ViewModels\StoreViewModel.cs" />
-    <Compile Include="ViewModels\Login.cs" />
-    <Compile Include="ViewModels\LogText.cs" />
-    <Compile Include="ViewModels\UserModel.cs" />
-    <Compile Include="ViewModels\VerifyViewModel.cs" />
-    <Compile Include="Views\EventDelegate.cs" />
-    <Compile Include="Views\frmConfiguration.xaml.cs">
-      <DependentUpon>frmConfiguration.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\frmDisabled.xaml.cs">
-      <DependentUpon>frmDisabled.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\frmExpired.xaml.cs">
-      <DependentUpon>frmExpired.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\frmMain.xaml.cs">
-      <DependentUpon>frmMain.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\frmRegister.xaml.cs">
-      <DependentUpon>frmRegister.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgChangeStore.xaml.cs">
-      <DependentUpon>pgChangeStore.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgGroupsWithoutJoin.xaml.cs">
-      <DependentUpon>pgGroupsWithoutJoin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgTimelineSource.xaml.cs">
-      <DependentUpon>pgTimelineSource.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgReelSourceVideo.xaml.cs">
-      <DependentUpon>pgReelSourceVideo.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgRecovery.xaml.cs">
-      <DependentUpon>pgRecovery.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgDialogGroup.xaml.cs">
-      <DependentUpon>pgDialogGroup.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgContact.xaml.cs">
-      <DependentUpon>pgContact.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgFriends.xaml.cs">
-      <DependentUpon>pgFriends.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgGroups.xaml.cs">
-      <DependentUpon>pgGroups.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgNewAccount.xaml.cs">
-      <DependentUpon>pgNewAccount.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgNewsFeed.xaml.cs">
-      <DependentUpon>pgNewsFeed.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgNewStore.xaml.cs">
-      <DependentUpon>pgNewStore.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgNote.xaml.cs">
-      <DependentUpon>pgNote.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgPages.xaml.cs">
-      <DependentUpon>pgPages.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgProfile.xaml.cs">
-      <DependentUpon>pgProfile.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgProxy.xaml.cs">
-      <DependentUpon>pgProxy.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgSetting.xaml.cs">
-      <DependentUpon>pgSetting.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgShare.xaml.cs">
-      <DependentUpon>pgShare.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgStore.xaml.cs">
-      <DependentUpon>pgStore.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\pgUserAgent.xaml.cs">
-      <DependentUpon>pgUserAgent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Report.xaml.cs">
-      <DependentUpon>Report.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\About.xaml.cs">
-      <DependentUpon>About.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\wdConfirmDialog.xaml.cs">
-      <DependentUpon>wdConfirmDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\wdDialogForm.xaml.cs">
-      <DependentUpon>wdDialogForm.xaml</DependentUpon>
-    </Compile>
-    <Page Include="Views\frmConfiguration.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\frmDashboard.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Views\frmDashboard.xaml.cs">
-      <DependentUpon>frmDashboard.xaml</DependentUpon>
-    </Compile>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\frmDisabled.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\frmExpired.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\frmMain.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\frmRegister.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgChangeStore.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgGroupsWithoutJoin.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\pgTimelineSource.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\pgReelSourceVideo.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\pgRecovery.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\pgDialogGroup.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgContact.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\pgFriends.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgGroups.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgNewAccount.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgNewsFeed.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgNewStore.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgNote.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgPages.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgProfile.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgProxy.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgSetting.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgShare.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgStore.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\pgUserAgent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Report.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\About.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\wdConfirmDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\wdDialogForm.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="log4net.config">
+    <None Update="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    <None Update="driver\msedgedriver.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Tool FB_TemporaryKey.pfx" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="App.config" />
+    <Resource Include="Assets\**\*" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\09-calabrese-tradizionale.jpg" />
-    <Resource Include="Assets\Pizza-doce-de-Brigadeiro.jpg" />
-    <Resource Include="Assets\pizzabar.jpg" />
-    <Resource Include="Assets\size_960_16_9_pizza2.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controls\" />
-    <Folder Include="Localization\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\bell.png" />
-    <Resource Include="Assets\Logo.png" />
-    <Resource Include="Assets\search.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="photo_2021-04-05_21-18-57.jpg" />
-    <Resource Include="photo_2021-04-05_21-18-57.png" />
-    <Resource Include="photo_2021-04-05_21-18-57.gif" />
-    <Resource Include="Assets\fb.png" />
-    <Resource Include="Assets\phone.png" />
-    <Resource Include="Assets\phone-off.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="packages\MaterialDesignThemes.3.2.0\build\MaterialDesignThemes.targets" Condition="Exists('packages\MaterialDesignThemes.3.2.0\build\MaterialDesignThemes.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\MaterialDesignThemes.3.2.0\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\MaterialDesignThemes.3.2.0\build\MaterialDesignThemes.targets'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
-    <Error Condition="!Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets'))" />
-  </Target>
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
-  <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
+
 </Project>

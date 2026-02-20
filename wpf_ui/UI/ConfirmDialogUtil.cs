@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using WpfUI.Views;
-using static WpfUI.Views.wdConfirmDialog;
+using ToolKHBrowser.Views;
+using static ToolKHBrowser.Views.wdConfirmDialog;
 
-namespace WpfUI.UI
+namespace ToolKHBrowser.UI
 {
     public class ConfirmDialogUtil
     {

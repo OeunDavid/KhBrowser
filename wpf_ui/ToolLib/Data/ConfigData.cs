@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ToolKHBrowser.ToolLib.Data;
-using WpfUI.ViewModels;
+using ToolKHBrowser.ViewModels;
 
-namespace WpfUI.ToolLib.Data
+namespace ToolKHBrowser.ToolLib.Data
 {
     public static class ConfigData
     {
@@ -29,17 +29,37 @@ namespace WpfUI.ToolLib.Data
         {
             return Path.Combine(GetPath(), "driver");
         }
+        //public static string GetBrowserDataDirectory()
+        //{
+        //    var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:microsoftEdgeProfile");
+        //    string die = cache?.Value?.ToString() ?? "";
+        //    if(string.IsNullOrEmpty(die))
+        //    {
+        //        die= Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Microsoft\\Edge\\User Data";
+        //        DIConfig.Get<ICacheViewModel>().GetCacheDao().Set("config:microsoftEdgeProfile", die);
+        //    }
+
+        //    return die;
+        //}
         public static string GetBrowserDataDirectory()
         {
-            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:microsoftEdgeProfile");
-            string die = cache?.Value?.ToString() ?? "";
-            if(string.IsNullOrEmpty(die))
+            var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:chromeProfile");
+            string dir = cache?.Value?.ToString() ?? "";
+
+            if (string.IsNullOrEmpty(dir))
             {
-                die= Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Microsoft\\Edge\\User Data";
-                DIConfig.Get<ICacheViewModel>().GetCacheDao().Set("config:microsoftEdgeProfile", die);
+                // Use a clean folder for your tool (recommended)
+                dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "ToolKHBrowser",
+                    "ChromeProfiles"
+                );
+
+                Directory.CreateDirectory(dir);
+                DIConfig.Get<ICacheViewModel>().GetCacheDao().Set("config:chromeProfile", dir);
             }
 
-            return die;
+            return dir;
         }
         public static int GetShowScreen()
         {
@@ -61,16 +81,22 @@ namespace WpfUI.ToolLib.Data
             var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:runType");
             return cache?.Value?.ToString() ?? "web";
         }
+        //public static string GetBrowserType()
+        //{
+        //    var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:browserType");
+        //    string browserType = cache?.Value?.ToString()?.ToLower();
+
+        //    if (browserType == "edge")
+        //        return "edge";
+
+        //    return "chrome";
+        //}
         public static string GetBrowserType()
         {
             var cache = DIConfig.Get<ICacheViewModel>().GetCacheDao().Get("config:browserType");
-            string browserType = cache?.Value?.ToString() ?? "edge";
-            if(browserType == "chrome")
-            {
-                return "chrome";
-            }
+            string browserType = cache?.Value?.ToString()?.ToLower();
 
-            return "edge";
+            return browserType == "edge" ? "edge" : "chrome";
         }
         public static bool IsLoginByCookie()
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using ToolKHBrowser.ToolLib.Data;
 using ToolLib.Data;
 
-namespace WpfUI.ViewModels
+namespace ToolKHBrowser.ViewModels
 {
     public interface ICacheViewModel
     {

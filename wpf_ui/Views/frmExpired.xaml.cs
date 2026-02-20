@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfUI.Views
+namespace ToolKHBrowser.Views
 {
     /// <summary>
     /// Interaction logic for frmExpired.xaml

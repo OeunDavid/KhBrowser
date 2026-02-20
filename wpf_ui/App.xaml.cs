@@ -8,7 +8,7 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WpfUI
+namespace ToolKHBrowser
 {
     /// <summary>
     /// Interaction logic for App.xaml

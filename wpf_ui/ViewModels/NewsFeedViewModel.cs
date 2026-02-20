@@ -18,9 +18,9 @@ using ToolKHBrowser.ToolLib.Data;
 using ToolKHBrowser.ToolLib.Tool;
 using ToolLib.Data;
 using ToolLib.Tool;
-using WpfUI.ToolLib.Data;
-using WpfUI.ViewModels;
-using WpfUI.Views;
+using ToolKHBrowser.ToolLib.Data;
+using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views;
 
 namespace ToolKHBrowser.ViewModels
 {
