@@ -2194,7 +2194,6 @@ namespace ToolKHBrowser.Views
         //    if (account == null || string.IsNullOrEmpty(account.UID))
         //        return;
 
-        //    // ✅ Read UI values on UI thread (very important)
         //    bool useLDPlayer = false;
         //    bool isNoSwitchPage_UI = false;
         //    bool isCheckReelInvite_UI = false;
@@ -2202,381 +2201,679 @@ namespace ToolKHBrowser.Views
         //    Application.Current.Dispatcher.Invoke(() =>
         //    {
         //        useLDPlayer = chbUseLDPlayer.IsChecked == true;
-
-        //        // If you need these later you can also cache them here
         //        isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
         //        isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
         //    });
 
-        //    runningRequest++;
-        //    int num = runningRequest;
-        //    int screen = GetScreen();
+        //    int req = Interlocked.Increment(ref runningRequest);
 
+        //    int screen = GetScreen();
+        //    int num;
         //    try
         //    {
-        //        num %= screen;
+        //        num = (screen <= 0) ? 1 : (req % screen);
         //        if (num == 0) num = screen;
         //    }
-        //    catch { }
+        //    catch { num = 1; }
 
-        //    string text = "";
+        //    string browserKey = "";
         //    if (processActionsData.UserData)
-        //        text = ConfigData.GetBrowserKey(account.UID);
+        //        browserKey = ConfigData.GetBrowserKey(account.UID);
 
-        //    // ✅ Now safe: use bool, not UI control
         //    if (useLDPlayer)
         //    {
         //        StartRunAccountLDPlayer(account);
         //        return;
         //    }
 
-        //    IWebDriver webDriver = new MyWebDriver()
-        //        .GetWebDriver(text, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+        //    IWebDriver driver = null;
+        //    bool createdDriver = false;
 
-        //    int num2 = 0;
-        //    string text2 = "";
+        //    int dbStatus = 0;
+        //    string dbDesc = "Login failed";
 
-        //    if (processActionsData.RecoveryPhoneNumber)
+        //    // ✅ IMPORTANT: do not quit browser when waiting user solve captcha/2FA
+        //    bool keepBrowserOpen = false;
+
+        //    try
         //    {
-        //        RecoveryPhoneNumber(webDriver, account);
-        //        text2 = FBTool.GetResults(webDriver);
-        //    }
-        //    else
-        //    {
+        //        driver = new MyWebDriver()
+        //            .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+        //        if (driver == null)
+        //            throw new Exception("Driver is null");
+
+        //        createdDriver = true;
+
         //        bool isLoginByCookie = IsLoginByCookie();
-        //        text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
-        //    }
 
-        //    if (text2 == "success")
-        //    {
-        //        num2 = 1;
-        //        account.Status = "Live";
+        //        // 작은 안정화 (ESC close popup)
+        //        try { new Actions(driver).SendKeys(Keys.Escape).Perform(); } catch { }
+
+        //        // 1) Submit login (your existing logic)
+        //        string loginResult = FBTool.LoggedIn(driver, account, isLoginByCookie);
+
+        //        // 2) Finalize login flow (your function)
+        //        string finalize = FBTool.FinalizeLoginFlow(driver, account, seconds: 240);
+
+        //        // 3) Decide SUCCESS by cookie only (c_user)
+        //        bool isLoggedIn = false;
+        //        try { isLoggedIn = !string.IsNullOrEmpty(FBTool.GetUserId(driver)); } catch { isLoggedIn = false; }
+
+        //        if (isLoggedIn)
+        //        {
+        //            dbStatus = 1;
+        //            dbDesc = "Login success";
+        //            account.Status = "Live";
+        //            account.Description = dbDesc;
+
+        //            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //            fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, dbStatus);
+        //        }
+        //        else
+        //        {
+        //            // ✅ Not logged in — classify REAL reason (no “unknown”)
+        //            bool hasLoginForm = false;
+        //            try { hasLoginForm = TwoFaHelper.HasLoginForm(driver); } catch { }
+
+        //            // ✅ Detect auth pages (2FA/checkpoint/remember/captcha) and KEEP browser open
+        //            string url = "";
+        //            string html = "";
+        //            try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { url = ""; }
+        //            try { html = (driver.PageSource ?? "").ToLowerInvariant(); } catch { html = ""; }
+
+        //            bool isCaptcha =
+        //                url.Contains("captcha") ||
+        //                html.Contains("select all squares") ||
+        //                html.Contains("verify you are human") ||
+        //                html.Contains("recaptcha") ||
+        //                html.Contains("arkose") ||
+        //                html.Contains("verification");
+
+        //            bool is2faOrCheckpoint =
+        //                url.Contains("two_factor") ||
+        //                url.Contains("two_step_verification") ||
+        //                url.Contains("/checkpoint") ||
+        //                url.Contains("remember_browser") ||
+        //                url.Contains("authentication");
+
+        //            if (isCaptcha)
+        //            {
+        //                keepBrowserOpen = true; // ✅ keep open for manual
+        //                dbStatus = 0;
+        //                dbDesc = "Captcha required (manual) - browser kept open";
+        //            }
+        //            else if (is2faOrCheckpoint)
+        //            {
+        //                keepBrowserOpen = true; // ✅ keep open for manual
+        //                dbStatus = 0;
+        //                dbDesc = "Need 2FA / checkpoint (manual) - browser kept open";
+        //            }
+        //            else if (hasLoginForm)
+        //            {
+        //                dbStatus = 0;
+        //                dbDesc = "Back to login (session not created)";
+        //            }
+        //            else if (!string.IsNullOrWhiteSpace(finalize))
+        //            {
+        //                dbStatus = 0;
+        //                dbDesc = finalize.Trim();
+        //            }
+        //            else if (!string.IsNullOrWhiteSpace(loginResult))
+        //            {
+        //                dbStatus = 0;
+        //                dbDesc = loginResult.Trim();
+        //            }
+        //            else
+        //            {
+        //                dbStatus = 0;
+        //                dbDesc = "Login failed (unknown)";
+        //            }
+
+        //            account.Status = "Die";
+        //            account.Description = dbDesc;
+
+        //            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //            fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, dbStatus);
+
+        //            // ✅ stop here. if manual needed, browser remains open.
+        //            return;
+        //        }
+
+        //        // ✅ Only continue work after cookie exists
+        //        if (IsStop())
+        //        {
+        //            StopWorking(driver, account.UID);
+        //            return;
+        //        }
+
+        //        // after login success only
+        //        string dataMode = GetDataMode();
+        //        FBTool.UseData(driver, dataMode);
+
+        //        string cookie = FBTool.GetCookie(driver);
+        //        fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+
+        //        WebFBTool.CloseAllPopup(driver);
+        //        ChangeLanguage(driver);
+
+        //        WorkingProcess(driver, account, isNoSwitchPage_UI, isCheckReelInvite_UI);
         //    }
-        //    else
+        //    catch (OpenQA.Selenium.WebDriverException ex)
+        //    {
+        //        // driver disconnected = don’t show unknown
+        //        account.Status = "Die";
+        //        account.Description = ex.Message != null && ex.Message.ToLower().Contains("invalid session")
+        //            ? "Driver disconnected (browser closed/crashed)"
+        //            : "WebDriver error: " + ex.Message;
+
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        //    }
+        //    catch (Exception ex)
         //    {
         //        account.Status = "Die";
-        //    }
+        //        account.Description = "Error: " + ex.Message;
 
-        //    // ✅ If SetGridDataRowStatus touches UI, do it on UI thread
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        //    }
+        //    finally
+        //    {
+        //        try
+        //        {
+        //            // ✅ KEY FIX:
+        //            // If captcha/2FA/checkpoint -> keepBrowserOpen=true -> DO NOT QUIT
+        //            if (createdDriver && driver != null && !keepBrowserOpen)
+        //                FBTool.QuitBrowser(driver, browserKey, account.UID);
+        //        }
+        //        catch { }
+
+        //        try { running--; } catch { }
+        //    }
+        //}
+
+        public void StartRunAccount()
+        {
+            FbAccount account = GetAccount();
+            if (account == null || string.IsNullOrEmpty(account.UID))
+                return;
+
+            bool useLDPlayer = false;
+            bool isNoSwitchPage_UI = false;
+            bool isCheckReelInvite_UI = false;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                useLDPlayer = chbUseLDPlayer.IsChecked == true;
+                isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+                isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
+            });
+
+            int req = Interlocked.Increment(ref runningRequest);
+
+            int screen = GetScreen();
+            int num;
+            try
+            {
+                num = (screen <= 0) ? 1 : (req % screen);
+                if (num == 0) num = screen;
+            }
+            catch { num = 1; }
+
+            string browserKey = "";
+            if (processActionsData.UserData)
+                browserKey = ConfigData.GetBrowserKey(account.UID);
+
+            if (useLDPlayer)
+            {
+                StartRunAccountLDPlayer(account);
+                return;
+            }
+
+            IWebDriver driver = null;
+            bool createdDriver = false;
+
+            int dbStatus = 0;
+            string dbDesc = "Login failed";
+
+            try
+            {
+                driver = new MyWebDriver()
+                    .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+                if (driver == null)
+                    throw new Exception("Driver is null");
+
+                createdDriver = true;
+
+                bool isLoginByCookie = IsLoginByCookie();
+
+                // 1) Submit login (your existing logic)
+                string loginResult = FBTool.LoggedIn(driver, account, isLoginByCookie);
+
+                // 2) Finalize (WAIT ONLY) - does not bypass security pages
+                //string finalize = TwoFaHelper.FinalizeLoginFlow_SafeWait(driver, account, seconds: 240);
+                string finalize = FBTool.FinalizeLoginFlow(driver, account, seconds: 240);
+
+                // 3) Decide by cookie ONLY (this prevents “Login success but Die/unknown”)
+                bool isLoggedIn = false;
+                try { isLoggedIn = !string.IsNullOrEmpty(FBTool.GetUserId(driver)); } catch { }
+
+                if (isLoggedIn)
+                {
+                    dbStatus = 1;
+                    dbDesc = "Login success";
+                    account.Status = "Live";
+                    account.Description = dbDesc;
+                }
+                else
+                {
+                    // We are NOT logged in. Explain why.
+                    // If returned to login form -> session was not created.
+                    if (TwoFaHelper.HasLoginForm(driver))
+                    {
+                        dbStatus = 0;
+                        dbDesc = "Back to login (session not created)";
+                    }
+                    else if (!string.IsNullOrWhiteSpace(finalize))
+                    {
+                        dbStatus = 0;
+                        dbDesc = finalize.Trim();
+                    }
+                    else if (!string.IsNullOrWhiteSpace(loginResult))
+                    {
+                        dbStatus = 0;
+                        dbDesc = loginResult.Trim();
+                    }
+                    else
+                    {
+                        dbStatus = 0;
+                        dbDesc = "Login failed (unknown)";
+                    }
+
+                    account.Status = "Die";
+                    account.Description = dbDesc;
+                }
+
+                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, dbStatus);
+
+                if (dbStatus != 1)
+                    return;
+
+                // ✅ IMPORTANT: Only after login success (c_user exists), do any navigation/actions
+                if (IsStop())
+                {
+                    StopWorking(driver, account.UID);
+                    return;
+                }
+
+                string dataMode = GetDataMode();
+                FBTool.UseData(driver, dataMode);
+
+                string cookie = FBTool.GetCookie(driver);
+                fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+
+                WebFBTool.CloseAllPopup(driver);
+                ChangeLanguage(driver);
+
+                WorkingProcess(driver, account, isNoSwitchPage_UI, isCheckReelInvite_UI);
+            }
+            catch (OpenQA.Selenium.WebDriverException ex)
+            {
+                account.Status = "Die";
+                account.Description = "WebDriver error: " + ex.Message;
+
+                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+            }
+            catch (Exception ex)
+            {
+                account.Status = "Die";
+                account.Description = "Error: " + ex.Message;
+
+                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+            }
+            finally
+            {
+                try
+                {
+                    if (createdDriver && driver != null)
+                        FBTool.QuitBrowser(driver, browserKey, account.UID);
+                }
+                catch { }
+
+                try { running--; } catch { }
+            }
+        }
+
+        //public void StartRunAccount()
+        //{
+        //    FbAccount account = GetAccount();
+        //    if (account == null || string.IsNullOrEmpty(account.UID))
+        //        return;
+
+        //    bool useLDPlayer = false;
+        //    bool isNoSwitchPage_UI = false;
+        //    bool isCheckReelInvite_UI = false;
+
         //    Application.Current.Dispatcher.Invoke(() =>
         //    {
-        //        SetGridDataRowStatus(account);
+        //        useLDPlayer = chbUseLDPlayer.IsChecked == true;
+        //        isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+        //        isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
         //    });
 
-        //    fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
-        //    account.Description = text2;
+        //    int req = Interlocked.Increment(ref runningRequest);
 
-        //    bool flag = false;
-        //    if (text2.Contains("Lock 956") && processActionsData.AutoUnlockCheckpoint)
+        //    int screen = GetScreen();
+        //    int num;
+        //    try
         //    {
-        //        string text5 = "";
-        //        if (processActionsData.NewPassword)
-        //        {
-        //            try
-        //            {
-        //                string text6 = cacheViewModel.GetCacheDao().Get("profile:config").Value.ToString();
-        //                ProfileConfig profileConfig = JsonConvert.DeserializeObject<ProfileConfig>(text6);
-        //                processActionsData.ProfileConfig = profileConfig;
-        //                text5 = processActionsData.ProfileConfig.Password.Value;
-        //            }
-        //            catch { }
-        //        }
+        //        num = (screen <= 0) ? 1 : (req % screen);
+        //        if (num == 0) num = screen;
+        //    }
+        //    catch { num = 1; }
 
-        //        if (string.IsNullOrEmpty(text5))
-        //            text5 = "ph" + GetRandomString(8);
+        //    string browserKey = "";
+        //    if (processActionsData.UserData)
+        //        browserKey = ConfigData.GetBrowserKey(account.UID);
 
-        //        switch (WebFBTool.UnlockCheckpoint(webDriver, text5))
-        //        {
-        //            case 1:
-        //                account.Password = text5;
-        //                fbAccountViewModel.getAccountDao().Password(account.UID, text5);
-        //                flag = true;
-        //                if (processActionsData.NewPassword) processActionsData.NewPassword = false;
-        //                break;
-
-        //            case 2:
-        //                flag = true;
-        //                break;
-        //        }
+        //    if (useLDPlayer)
+        //    {
+        //        StartRunAccountLDPlayer(account);
+        //        return;
         //    }
 
-        //    if (num2 == 1 || flag)
-        //    {
-        //        if (flag)
-        //        {
-        //            account.Description = "Unlock checkpoint";
-        //            fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 1);
-        //            num2 = 1;
-        //            account.Status = "Live";
+        //    IWebDriver webDriver = null;
+        //    bool createdDriver = false;
 
-        //            Application.Current.Dispatcher.Invoke(() =>
+        //    int dbStatus = 0;          // 1 = live, 0 = die
+        //    string dbDesc = "";
+
+        //    try
+        //    {
+        //        webDriver = new MyWebDriver()
+        //            .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+
+        //        if (webDriver == null)
+        //            throw new Exception("Driver is null");
+
+        //        createdDriver = true;
+
+        //        bool isLoginByCookie = IsLoginByCookie();
+
+        //        // Step 1: login attempt
+        //        string loginResult = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+        //        TwoFaHelper.DebugAuthCookies(webDriver, "AFTER_LOGIN_SUBMIT");
+
+        //        // Step 2: finalize login flow (no bypass; just wait/handle prompts)
+        //        string finalizeResult = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 180);
+        //        TwoFaHelper.DebugAuthCookies(webDriver, "AFTER_FINALIZE");
+
+        //        // ✅ ONLY trust cookie for success
+        //        bool isReallyLoggedIn = false;
+        //        try { isReallyLoggedIn = !string.IsNullOrEmpty(FBTool.GetUserId(webDriver)); } catch { isReallyLoggedIn = false; }
+
+        //        if (isReallyLoggedIn)
+        //        {
+        //            dbStatus = 1;
+        //            account.Status = "Live";
+        //            account.Description = "Login success";
+        //            dbDesc = "Login success";
+        //        }
+        //        else
+        //        {
+        //            // Use the best message for DB
+        //            string result = !string.IsNullOrWhiteSpace(finalizeResult)
+        //                ? finalizeResult.Trim()
+        //                : (loginResult ?? "").Trim();
+
+        //            string lower = (result ?? "").ToLowerInvariant();
+
+        //            // If driver disconnected, show clear message
+        //            if (lower.Contains("disconnected") || lower.Contains("invalid session"))
         //            {
-        //                SetGridDataRowStatus(account);
-        //            });
+        //                dbStatus = 0;
+        //                account.Status = "Die";
+        //                account.Description = "Driver disconnected (browser closed/crashed)";
+        //                dbDesc = account.Description;
+        //            }
+        //            else if (lower.Contains("need 2fa") || lower.Contains("two-factor") || lower.Contains("two factor") || lower.Contains("2fa"))
+        //            {
+        //                dbStatus = 0;
+        //                account.Status = "Die";
+        //                account.Description = "Need 2FA - manual approval required";
+        //                dbDesc = account.Description;
+        //            }
+        //            else if (lower.Contains("login required"))
+        //            {
+        //                dbStatus = 0;
+        //                account.Status = "Die";
+        //                account.Description = "Back to login (session not created)";
+        //                dbDesc = account.Description;
+        //            }
+        //            else
+        //            {
+        //                dbStatus = 0;
+        //                account.Status = "Die";
+        //                account.Description = string.IsNullOrWhiteSpace(result) ? "Login failed" : result;
+        //                dbDesc = account.Description;
+        //            }
         //        }
 
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, dbStatus);
+
+        //        // STOP if login failed
+        //        if (dbStatus != 1)
+        //            return;
+
+        //        // ============================
+        //        // CONTINUE WORK (LOGIN SUCCESS)
+        //        // ============================
         //        if (IsStop())
         //        {
         //            StopWorking(webDriver, account.UID);
         //            return;
         //        }
 
-        //        if (!DetectStopProcess(webDriver, account))
+        //        // Safe: now we are truly logged in, then continue
+        //        string dataMode = GetDataMode();
+        //        FBTool.UseData(webDriver, dataMode);
+
+        //        string cookie = FBTool.GetCookie(webDriver);
+        //        fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+
+        //        WebFBTool.CloseAllPopup(webDriver);
+        //        ChangeLanguage(webDriver);
+
+        //        WorkingProcess(webDriver, account, isNoSwitchPage_UI, isCheckReelInvite_UI);
+        //    }
+        //    catch (OpenQA.Selenium.WebDriverException ex)
+        //    {
+        //        account.Status = "Die";
+        //        account.Description = "WebDriver error: " + ex.Message;
+
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        account.Status = "Die";
+        //        account.Description = "Error: " + ex.Message;
+
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        //    }
+        //    finally
+        //    {
+        //        // Quit only if we created the driver AND it is still alive
+        //        try
         //        {
-        //            // ✅ Use cached UI values (no UI access here)
-        //            bool isNoSwitchPage = isNoSwitchPage_UI;
-        //            bool isCheckReelInvite = isCheckReelInvite_UI;
-
-        //            if (!processActionsData.WorkingOnPage)
+        //            if (createdDriver && webDriver != null)
         //            {
-        //                if (!isNoSwitchPage)
-        //                    RemovePageCookie(webDriver);
-        //            }
-        //            else
-        //            {
-        //                RemovePageCookie(webDriver);
-        //            }
-
-        //            string dataMode = GetDataMode();
-        //            FBTool.UseData(webDriver, dataMode);
-
-        //            if (!DetectStopProcess(webDriver, account))
-        //            {
-        //                string userId = FBTool.GetUserId(webDriver);
-        //                string cookie = FBTool.GetCookie(webDriver);
-        //                fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
-
-        //                if (text.Contains('@'))
-        //                {
-        //                    fbAccountViewModel.getAccountDao().updateEmail(account.UID, account.UID);
-        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
-        //                    account.UID = userId;
-        //                }
-        //                else if (text.Contains("+") || text.StartsWith("0"))
-        //                {
-        //                    fbAccountViewModel.getAccountDao().updateUID(account.UID, userId);
-        //                    account.UID = userId;
-        //                }
-
-        //                if (IsStop())
-        //                {
-        //                    StopWorking(webDriver, account.UID);
-        //                    return;
-        //                }
-
-        //                WebFBTool.CloseAllPopup(webDriver);
-
-        //                if (!DetectStopProcess(webDriver, account))
-        //                {
-        //                    ChangeLanguage(webDriver);
-
-        //                    if (!DetectStopProcess(webDriver, account))
-        //                    {
-        //                        if (IsStop())
-        //                        {
-        //                            StopWorking(webDriver, account.UID);
-        //                            return;
-        //                        }
-
-        //                        if (processActionsData.WorkingOnPage)
-        //                        {
-        //                            string[] pageArr = account.PageIds.Split(',');
-        //                            bool isBreak = false;
-
-        //                            for (int i = 0; i < pageArr.Length; i++)
-        //                            {
-        //                                if (IsStop() || isBreak) break;
-
-        //                                try
-        //                                {
-        //                                    string[] p = pageArr[i].Split('|');
-        //                                    string pageId = p[0].Trim();
-        //                                    var isSwitch = WebFBTool.SwitchToProfilePage(webDriver, pageId);
-        //                                    if (!isSwitch) continue;
-        //                                }
-        //                                catch { }
-
-        //                                isNoSwitchPage = true;
-        //                                WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-        //                            }
-        //                        }
-        //                        else
-        //                        {
-        //                            WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-        //                        }
-        //                    }
-        //                }
+        //                // If the session is already dead, QuitBrowser will throw; ignore it.
+        //                FBTool.QuitBrowser(webDriver, browserKey, account.UID);
         //            }
         //        }
-        //    }
+        //        catch { }
 
-        //    FBTool.QuitBrowser(webDriver, text, account.UID);
-
-        //    running--;
-        //    if (IsStop()) return;
-
-        //    int resetIP = processActionsData.ResetIP;
-        //    if (resetIP > 0 && runningRequest % resetIP == 0)
-        //    {
-        //        if (running <= 0)
-        //        {
-        //            Internet.ResetIP();
-        //            new Thread(StartProcess).Start();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        new Thread(RunOneMoreThread).Start();
+        //        try { running--; } catch { }
         //    }
         //}
 
-    public void StartRunAccount()
-    {
-        FbAccount account = GetAccount();
-        if (account == null || string.IsNullOrEmpty(account.UID))
-            return;
+        //public void StartRunAccount()
+        //{
+        //    FbAccount account = GetAccount();
+        //    if (account == null || string.IsNullOrEmpty(account.UID))
+        //        return;
 
-        bool useLDPlayer = false;
-        bool isNoSwitchPage_UI = false;
-        bool isCheckReelInvite_UI = false;
+        //    bool useLDPlayer = false;
+        //    bool isNoSwitchPage_UI = false;
+        //    bool isCheckReelInvite_UI = false;
 
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            useLDPlayer = chbUseLDPlayer.IsChecked == true;
-            isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
-            isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
-        });
+        //    Application.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        useLDPlayer = chbUseLDPlayer.IsChecked == true;
+        //        isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+        //        isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
+        //    });
 
-        // Thread-safe increment (important if multi-thread run)
-        int req = Interlocked.Increment(ref runningRequest);
+        //    // Thread-safe increment (important if multi-thread run)
+        //    int req = Interlocked.Increment(ref runningRequest);
 
-        int screen = GetScreen();
-        int num = 1;
-        try
-        {
-            num = (screen <= 0) ? 1 : (req % screen);
-            if (num == 0) num = screen;
-        }
-        catch { num = 1; }
+        //    int screen = GetScreen();
+        //    int num = 1;
+        //    try
+        //    {
+        //        num = (screen <= 0) ? 1 : (req % screen);
+        //        if (num == 0) num = screen;
+        //    }
+        //    catch { num = 1; }
 
-        string browserKey = "";
-        if (processActionsData.UserData)
-            browserKey = ConfigData.GetBrowserKey(account.UID);
+        //    string browserKey = "";
+        //    if (processActionsData.UserData)
+        //        browserKey = ConfigData.GetBrowserKey(account.UID);
 
-        if (useLDPlayer)
-        {
-            StartRunAccountLDPlayer(account);
-            return;
-        }
+        //    if (useLDPlayer)
+        //    {
+        //        StartRunAccountLDPlayer(account);
+        //        return;
+        //    }
 
-        IWebDriver webDriver = null;
-        int num2 = 0;              // 1 = live, 0 = die
-        string dbDesc = "";        // what we store in DB
-        bool shouldQuit = false;   // only quit if driver created
+        //    IWebDriver webDriver = null;
+        //    int num2 = 0;              // 1 = live, 0 = die
+        //    string dbDesc = "";        // what we store in DB
+        //    bool shouldQuit = false;   // only quit if driver created
 
-        try
-        {
-            webDriver = new MyWebDriver()
-                .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
+        //    try
+        //    {
+        //        webDriver = new MyWebDriver()
+        //            .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
 
-            if (webDriver == null)
-                throw new Exception("Driver is null");
+        //        if (webDriver == null)
+        //            throw new Exception("Driver is null");
 
-            shouldQuit = true;
+        //        shouldQuit = true;
 
-            bool isLoginByCookie = IsLoginByCookie();
+        //        bool isLoginByCookie = IsLoginByCookie();
 
-            // Step 1: Initial login attempt
-            string loginResult = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+        //        // Step 1: Initial login attempt
+        //        string loginResult = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+        //        TwoFaHelper.DebugAuthCookies(webDriver, "AFTER_LOGIN_SUBMIT");
 
-            // Step 2: Finalize login (checkpoint / 2FA / captcha)
-            string finalizeResult = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 120);
+        //        // Step 2: Finalize login (checkpoint / 2FA / captcha)
+        //        string finalizeResult = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 120);
+        //        TwoFaHelper.DebugAuthCookies(webDriver, "AFTER_FINALIZE");
 
-            string result = !string.IsNullOrWhiteSpace(finalizeResult)
-                ? finalizeResult.Trim()
-                : (loginResult ?? "").Trim();
+        //            string result = !string.IsNullOrWhiteSpace(finalizeResult)
+        //            ? finalizeResult.Trim()
+        //            : (loginResult ?? "").Trim();
 
-            string lower = result.ToLowerInvariant();
+        //        string lower = result.ToLowerInvariant();
 
-            // ============================
-            // LOGIN DECISION
-            // ============================
-            if (lower == "success" || lower.Contains("logged in"))
-            {
-                num2 = 1;
-                account.Status = "Live";
-                account.Description = "Login success";
-                dbDesc = "Login success";
-            }
-            else if (lower.Contains("2fa") || lower.Contains("two-factor") || lower.Contains("two factor"))
-            {
-                // Keep this manual (do not attempt to bypass)
-                num2 = 0;
-                account.Status = "Die";
-                account.Description = "Need 2FA - manual approval required";
-                dbDesc = account.Description;
-            }
-            else
-            {
-                num2 = 0;
-                account.Status = "Die";
-                account.Description = string.IsNullOrWhiteSpace(result) ? "Login failed" : result;
-                dbDesc = account.Description;
-            }
+        //        // ============================
+        //        // LOGIN DECISION
+        //        // ============================
+        //        if (lower == "success" || lower.Contains("logged in"))
+        //        {
+        //            num2 = 1;
+        //            account.Status = "Live";
+        //            account.Description = "Login success";
+        //            dbDesc = "Login success";
+        //        }
+        //        else if (lower.Contains("2fa") || lower.Contains("two-factor") || lower.Contains("two factor"))
+        //        {
+        //            // Keep this manual (do not attempt to bypass)
+        //            num2 = 0;
+        //            account.Status = "Die";
+        //            account.Description = "Need 2FA - manual approval required";
+        //            dbDesc = account.Description;
+        //        }
+        //        else
+        //        {
+        //            num2 = 0;
+        //            account.Status = "Die";
+        //            account.Description = string.IsNullOrWhiteSpace(result) ? "Login failed" : result;
+        //            dbDesc = account.Description;
+        //        }
 
-            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
-            fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, num2);
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, num2);
 
-            // STOP if login failed
-            if (num2 != 1)
-                return;
+        //        // STOP if login failed
+        //        if (num2 != 1)
+        //            return;
 
-            // ============================
-            // CONTINUE WORK (LOGIN SUCCESS)
-            // ============================
-            if (IsStop())
-            {
-                StopWorking(webDriver, account.UID);
-                return;
-            }
+        //        // ============================
+        //        // CONTINUE WORK (LOGIN SUCCESS)
+        //        // ============================
+        //        if (IsStop())
+        //        {
+        //            StopWorking(webDriver, account.UID);
+        //            return;
+        //        }
 
-            string dataMode = GetDataMode();
-            FBTool.UseData(webDriver, dataMode);
+        //        string dataMode = GetDataMode();
+        //        FBTool.UseData(webDriver, dataMode);
 
-            string cookie = FBTool.GetCookie(webDriver);
-            fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
+        //        string cookie = FBTool.GetCookie(webDriver);
+        //        fbAccountViewModel.getAccountDao().updateCookie(account.UID, cookie);
 
-            WebFBTool.CloseAllPopup(webDriver);
-            ChangeLanguage(webDriver);
+        //        WebFBTool.CloseAllPopup(webDriver);
+        //        ChangeLanguage(webDriver);
 
-            bool isNoSwitchPage = isNoSwitchPage_UI;
-            bool isCheckReelInvite = isCheckReelInvite_UI;
+        //        bool isNoSwitchPage = isNoSwitchPage_UI;
+        //        bool isCheckReelInvite = isCheckReelInvite_UI;
 
-            WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-        }
-        catch (Exception ex)
-        {
-            // Mark as die only if not already live
-            account.Status = "Die";
-            account.Description = "Error: " + ex.Message;
+        //        WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Mark as die only if not already live
+        //        account.Status = "Die";
+        //        account.Description = "Error: " + ex.Message;
 
-            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
-            fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
-        }
-        finally
-        {
-            try
-            {
-                if (shouldQuit && webDriver != null)
-                    FBTool.QuitBrowser(webDriver, browserKey, account.UID);
-            }
-            catch { /* ignore */ }
+        //        Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+        //        fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        //    }
+        //    finally
+        //    {
+        //        try
+        //        {
+        //            if (shouldQuit && webDriver != null)
+        //                FBTool.QuitBrowser(webDriver, browserKey, account.UID);
+        //        }
+        //        catch { /* ignore */ }
 
-            // Always decrement running
-            try { running--; } catch { }
-        }
-    }
-    private string PromptUserFor2FACode(FbAccount account)
+        //        // Always decrement running
+        //        try { running--; } catch { }
+        //    }
+        //}
+        private string PromptUserFor2FACode(FbAccount account)
         {
             string result = "";
 
