@@ -33,3 +33,10 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+.vs/
+*.suo
+*.user
+*.cache
+bin/
+obj/
