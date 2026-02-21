@@ -2430,139 +2430,110 @@ namespace ToolKHBrowser.Views
         //    }
         //}
 
-        public void StartRunAccount()
+    public void StartRunAccount()
+    {
+        FbAccount account = GetAccount();
+        if (account == null || string.IsNullOrEmpty(account.UID))
+            return;
+
+        bool useLDPlayer = false;
+        bool isNoSwitchPage_UI = false;
+        bool isCheckReelInvite_UI = false;
+
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            FbAccount account = GetAccount();
-            if (account == null || string.IsNullOrEmpty(account.UID))
-                return;
+            useLDPlayer = chbUseLDPlayer.IsChecked == true;
+            isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
+            isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
+        });
 
-            bool useLDPlayer = false;
-            bool isNoSwitchPage_UI = false;
-            bool isCheckReelInvite_UI = false;
+        // Thread-safe increment (important if multi-thread run)
+        int req = Interlocked.Increment(ref runningRequest);
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                useLDPlayer = chbUseLDPlayer.IsChecked == true;
-                isNoSwitchPage_UI = chbNoSwitchPage.IsChecked == true;
-                isCheckReelInvite_UI = chbCheckReelInvite.IsChecked == true;
-            });
+        int screen = GetScreen();
+        int num = 1;
+        try
+        {
+            num = (screen <= 0) ? 1 : (req % screen);
+            if (num == 0) num = screen;
+        }
+        catch { num = 1; }
 
-            runningRequest++;
-            int num = runningRequest;
-            int screen = GetScreen();
+        string browserKey = "";
+        if (processActionsData.UserData)
+            browserKey = ConfigData.GetBrowserKey(account.UID);
 
-            try
-            {
-                num %= screen;
-                if (num == 0) num = screen;
-            }
-            catch { }
+        if (useLDPlayer)
+        {
+            StartRunAccountLDPlayer(account);
+            return;
+        }
 
-            string browserKey = "";
-            if (processActionsData.UserData)
-                browserKey = ConfigData.GetBrowserKey(account.UID);
+        IWebDriver webDriver = null;
+        int num2 = 0;              // 1 = live, 0 = die
+        string dbDesc = "";        // what we store in DB
+        bool shouldQuit = false;   // only quit if driver created
 
-            if (useLDPlayer)
-            {
-                StartRunAccountLDPlayer(account);
-                return;
-            }
-
-            IWebDriver webDriver = null;
-            try
-            {
-                webDriver = new MyWebDriver()
-                    .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
-            }
-            catch (Exception ex)
-            {
-                account.Status = "Die";
-                account.Description = "Driver start failed: " + ex.Message;
-                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
-                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
-                running--;
-                return;
-            }
+        try
+        {
+            webDriver = new MyWebDriver()
+                .GetWebDriver(browserKey, num, screen, account.UserAgent, account.Proxy, IsUseImage());
 
             if (webDriver == null)
-            {
-                account.Status = "Die";
-                account.Description = "Driver is null";
-                Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
-                fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
-                running--;
-                return;
-            }
+                throw new Exception("Driver is null");
 
-            int num2 = 0;
-            string text2 = "";
+            shouldQuit = true;
 
             bool isLoginByCookie = IsLoginByCookie();
 
-            // This may return "success" too early (before checkpoint finishes),
-            // so we DO NOT trust it alone.
-            text2 = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+            // Step 1: Initial login attempt
+            string loginResult = FBTool.LoggedIn(webDriver, account, isLoginByCookie);
+
+            // Step 2: Finalize login (checkpoint / 2FA / captcha)
+            string finalizeResult = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 120);
+
+            string result = !string.IsNullOrWhiteSpace(finalizeResult)
+                ? finalizeResult.Trim()
+                : (loginResult ?? "").Trim();
+
+            string lower = result.ToLowerInvariant();
 
             // ============================
-            // ✅ FINALIZE LOGIN (CAPTCHA/CHECKPOINT/2FA)
+            // LOGIN DECISION
             // ============================
-            string final = FBTool.FinalizeLoginFlow(webDriver, account, seconds: 120);
-
-            if (text2 == "Need 2FA")
+            if (lower == "success" || lower.Contains("logged in"))
             {
-                // 1) If FB shows push approval, force switch to authenticator code screen
-                TwoFaHelper.ForceSwitchFromPushToAuthenticator(webDriver, 25);
-
-                // 2) Now we must be on code input screen
-                if (!TwoFaHelper.IsCodeInputScreenStrong(webDriver))
-                {
-                    text2 = "2FA: stuck on push approval (no code screen)";
-                    account.Status = "Die";
-                    account.Description = text2;
-                }
-                else
-                {
-                    // 3) Auto-generate + auto-fill code from account.TwoFA
-                    if (TwoFaHelper.AutoFillTotp(webDriver, account.TwoFA))
-                    {
-                        bool success = FBTool.WaitForLoginSuccess(webDriver, 90);
-                        if (success)
-                        {
-                            FBTool.HandlePostLoginPrompts(webDriver);
-                            text2 = "success";
-                            num2 = 1;
-                            account.Status = "Live";
-                            account.Description = "Login success after auto 2FA";
-                        }
-                        else
-                        {
-                            text2 = "2FA submitted but not logged in";
-                            account.Status = "Die";
-                            account.Description = text2;
-                        }
-                    }
-                    else
-                    {
-                        text2 = "2FA: could not auto-generate or auto-fill code";
-                        account.Status = "Die";
-                        account.Description = text2;
-                    }
-                }
+                num2 = 1;
+                account.Status = "Live";
+                account.Description = "Login success";
+                dbDesc = "Login success";
+            }
+            else if (lower.Contains("2fa") || lower.Contains("two-factor") || lower.Contains("two factor"))
+            {
+                // Keep this manual (do not attempt to bypass)
+                num2 = 0;
+                account.Status = "Die";
+                account.Description = "Need 2FA - manual approval required";
+                dbDesc = account.Description;
+            }
+            else
+            {
+                num2 = 0;
+                account.Status = "Die";
+                account.Description = string.IsNullOrWhiteSpace(result) ? "Login failed" : result;
+                dbDesc = account.Description;
             }
 
             Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
-            fbAccountViewModel.getAccountDao().updateStatus(account.UID, text2, num2);
-            account.Description = text2;
+            fbAccountViewModel.getAccountDao().updateStatus(account.UID, dbDesc, num2);
 
             // STOP if login failed
             if (num2 != 1)
-            {
-                FBTool.QuitBrowser(webDriver, browserKey, account.UID);
-                running--;
                 return;
-            }
 
-            // CONTINUE WORK
+            // ============================
+            // CONTINUE WORK (LOGIN SUCCESS)
+            // ============================
             if (IsStop())
             {
                 StopWorking(webDriver, account.UID);
@@ -2582,11 +2553,30 @@ namespace ToolKHBrowser.Views
             bool isCheckReelInvite = isCheckReelInvite_UI;
 
             WorkingProcess(webDriver, account, isNoSwitchPage, isCheckReelInvite);
-
-            FBTool.QuitBrowser(webDriver, browserKey, account.UID);
-            running--;
         }
-        private string PromptUserFor2FACode(FbAccount account)
+        catch (Exception ex)
+        {
+            // Mark as die only if not already live
+            account.Status = "Die";
+            account.Description = "Error: " + ex.Message;
+
+            Application.Current.Dispatcher.Invoke(() => SetGridDataRowStatus(account));
+            fbAccountViewModel.getAccountDao().updateStatus(account.UID, account.Description, 0);
+        }
+        finally
+        {
+            try
+            {
+                if (shouldQuit && webDriver != null)
+                    FBTool.QuitBrowser(webDriver, browserKey, account.UID);
+            }
+            catch { /* ignore */ }
+
+            // Always decrement running
+            try { running--; } catch { }
+        }
+    }
+    private string PromptUserFor2FACode(FbAccount account)
         {
             string result = "";
 

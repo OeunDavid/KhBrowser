@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using OtpNet;
 using System;
 using System.Linq;
@@ -78,12 +79,13 @@ namespace ToolKHBrowser.Helper
         // =========================
         // DETECTION
         // =========================
-        public static bool IsPushApprovalScreen(IWebDriver driver)
+        private static bool IsPushApprovalScreen(IWebDriver driver)
         {
-            if (driver == null) return false;
-
-            return Exists(driver, By.XPath("//*[contains(.,'Waiting for approval')]"), 1)
-                || Exists(driver, By.XPath("//*[contains(.,'Check your notifications on another device')]"), 1);
+            try
+            {
+                return driver.PageSource.Contains("Check your notifications on another device");
+            }
+            catch { return false; }
         }
 
         public static bool IsCodeInputScreenStrong(IWebDriver driver)
@@ -129,27 +131,42 @@ namespace ToolKHBrowser.Helper
         // =========================
         // SWITCH PUSH -> AUTH APP
         // =========================
-        public static bool GoToAuthenticatorOptionStrong(IWebDriver driver)
+        private static bool GoToAuthenticatorOptionStrong(IWebDriver driver)
         {
-            if (driver == null) return false;
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
-            // Click "Try another way"
-            if (!ClickByTextStrong(driver, "Try another way", 10))
-                return false;
+                // 1️⃣ Click "Try another way"
+                var tryAnother = wait.Until(d =>
+                    d.FindElements(By.XPath("//div[@role='button']//span[contains(text(),'Try another way')]"))
+                     .FirstOrDefault());
 
-            Thread.Sleep(800);
+                if (tryAnother != null)
+                {
+                    tryAnother.Click();
+                }
 
-            // Choose "Authentication app"
-            if (!ClickByTextStrong(driver, "Authentication app", 10))
-                return false;
+                // 2️⃣ WAIT until Authentication app option appears
+                wait.Until(d => d.PageSource.Contains("Authentication app"));
 
-            Thread.Sleep(400);
+                // 3️⃣ Click Authentication app
+                var authApp = driver.FindElements(By.XPath("//div[@role='button']//span[contains(text(),'Authentication app')]"))
+                                    .FirstOrDefault();
 
-            // Click Continue
-            ClickByTextStrong(driver, "Continue", 10);
+                if (authApp != null)
+                {
+                    authApp.Click();
+                    return true;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Option not found
+            }
+            catch { }
 
-            Thread.Sleep(800);
-            return true;
+            return false;
         }
 
         // =========================
@@ -211,7 +228,7 @@ namespace ToolKHBrowser.Helper
                 Thread.Sleep(400);
 
                 // click Continue
-                if (ClickByTextStrong(driver, "Continue", 8))
+                if (JsClickByTextStrong(driver, "Continue"))
                     return true;
 
                 // fallback: click any enabled button in form
@@ -380,47 +397,41 @@ namespace ToolKHBrowser.Helper
             return null;
         }
 
-        private static bool ClickByTextStrong(IWebDriver driver, string text, int timeoutSeconds)
-        {
-            try
-            {
-                DateTime end = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        public static bool JsClickByTextStrong(IWebDriver driver, params string[] needles)
+{
+    try
+    {
+        var js = (IJavaScriptExecutor)driver;
 
-                // normalize-space contains works better on FB
-                string xp =
-                    $"//div[@role='button' and contains(normalize-space(.),'{text}')]" +
-                    $"|//button[contains(normalize-space(.),'{text}')]" +
-                    $"|//*[@role='button' and contains(normalize-space(.),'{text}')]";
+        // Pass needles into JS
+        var ok = (bool)js.ExecuteScript(@"
+            const needles = arguments[0].map(x => (x||'').toLowerCase());
+            const candidates = Array.from(document.querySelectorAll(
+              'div[role=""button""], button, a, [role=""link""], [role=""menuitem""], label, [role=""radio""]'
+            ));
 
-                while (DateTime.UtcNow < end)
-                {
-                    var el = driver.FindElements(By.XPath(xp)).FirstOrDefault(e => e.Displayed);
-                    if (el != null)
-                    {
-                        try
-                        {
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", el);
-                            Thread.Sleep(150);
-                        }
-                        catch { }
-
-                        try { el.Click(); return true; } catch { }
-
-                        try
-                        {
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el);
-                            return true;
-                        }
-                        catch { }
-                    }
-
-                    Thread.Sleep(250);
-                }
+            function txt(el){
+              return ((el.innerText || el.textContent || '') + '').trim().toLowerCase();
             }
-            catch { }
 
+            for (const el of candidates) {
+              const t = txt(el);
+              if (!t) continue;
+              if (needles.some(n => n && t.includes(n))) {
+                try {
+                  el.scrollIntoView({block:'center', inline:'center'});
+                  el.click();
+                  return true;
+                } catch (e) {}
+              }
+            }
             return false;
-        }
+        ", needles);
+
+        return ok;
+    }
+    catch { return false; }
+}
 
         // =========================
         // LOGIN PAGE CHECK (so you know it failed)
@@ -489,7 +500,6 @@ namespace ToolKHBrowser.Helper
 
             return IsCodeInputScreenStrong(driver);
         }
-
         public static bool AutoFillTotp(IWebDriver driver, string secretOrOtpAuth)
         {
             if (driver == null) return false;
@@ -500,5 +510,91 @@ namespace ToolKHBrowser.Helper
             // Use the method that exists in this class
             return FillCodeAndSubmitStrong(driver, code);
         }
+        public static bool HandleRememberBrowser_AlwaysConfirm(IWebDriver driver, int tries = 6)
+        {
+            if (driver == null) return false;
+
+            for (int i = 0; i < tries; i++)
+            {
+                string url = "";
+                try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { }
+                if (!url.Contains("remember_browser") && !url.Contains("remember-browser"))
+                    return true; // already left the page
+
+                try
+                {
+                    // A) Direct XPath by visible text (works when Text is readable)
+                    var el = driver.FindElements(By.XPath(
+                        "//*[@role='button' or self::button][.//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'always confirm')]" +
+                        " or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'always confirm')]"
+                    )).FirstOrDefault();
+
+                    if (el != null)
+                    {
+                        ForceClick(driver, el);
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    // B) JS scan innerText/textContent (works when Selenium Text is empty)
+                    bool jsClicked = (bool)((IJavaScriptExecutor)driver).ExecuteScript(@"
+                const nodes = Array.from(document.querySelectorAll('div[role=""button""],button'));
+                const txt = el => ((el.innerText || el.textContent || '')+'').trim().toLowerCase();
+                for (const el of nodes) {
+                  const t = txt(el);
+                  if (t && t.includes('always confirm')) {
+                    el.scrollIntoView({block:'center'});
+                    el.click();
+                    return true;
+                  }
+                }
+                return false;
+            ");
+                    if (jsClicked)
+                    {
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    // C) LAST RESORT: click the SECOND big button (your screenshot shows 2 buttons)
+                    var buttons = driver.FindElements(By.XPath("//div[@role='button'] | //button"))
+                                        .Where(x => x.Displayed)
+                                        .ToList();
+
+                    if (buttons.Count >= 2)
+                    {
+                        ForceClick(driver, buttons[1]); // 0=Trust this device, 1=Always confirm it's me
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                Thread.Sleep(600);
+            }
+
+            // Still on remember_browser -> failed
+            return false;
+        }
+
+        private static void ForceClick(IWebDriver driver, IWebElement el)
+        {
+            try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", el); } catch { }
+
+            try { el.Click(); return; } catch { }
+
+            try { new Actions(driver).MoveToElement(el).Click().Perform(); return; } catch { }
+
+            try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); } catch { }
+        }
     }
+
 }
