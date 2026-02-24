@@ -55,6 +55,11 @@ namespace ToolKHBrowser.ViewModels
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        void AutoScroll();
+
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
         IPagesDao GetPagesDao();
     }
 
@@ -2454,6 +2459,249 @@ namespace ToolKHBrowser.ViewModels
                 FBTool.GoToFacebook(driver, url);
                 WebFBTool.LikePage(driver);
                 Thread.Sleep(1000);
+            }
+        }
+
+        public void AutoScroll()
+        {
+            data.Description = "Page Auto Scroll";
+            try { this.form.SetGridDataRowStatus(this.data); } catch { }
+
+            var autoCfg = processActionData?.PageConfig?.AutoScroll;
+            var autoReact = autoCfg?.React;
+            string[] autoCommentLines = Array.Empty<string>();
+            try
+            {
+                autoCommentLines = (autoCfg?.Comments ?? "")
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+            catch { }
+
+            var targets = new List<string>();
+
+            try
+            {
+                if (pageUrlArr != null)
+                {
+                    targets.AddRange(pageUrlArr
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(x => x.Trim()));
+                }
+            }
+            catch { }
+
+            // Fallback to backed-up page ids when PageUrls config is empty.
+            if (targets.Count == 0)
+            {
+                try
+                {
+                    var pageIds = (data?.PageIds ?? "")
+                        .Split(new[] { ',', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => NormalizePageId(x))
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Distinct()
+                        .ToArray();
+
+                    foreach (var id in pageIds)
+                    {
+                        targets.Add("https://www.facebook.com/" + id);
+                    }
+                }
+                catch { }
+            }
+
+            if (targets.Count == 0)
+            {
+                // No configured pages: keep scrolling current page until user stops.
+                while (!IsStop())
+                {
+                    try
+                    {
+                        PageScrollCurrent(autoReact, autoCommentLines);
+                    }
+                    catch { }
+                    Thread.Sleep(random.Next(800, 1500));
+                }
+                return;
+            }
+
+            var uniqueTargets = targets
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
+
+            // Open one target page once, then keep scrolling there until user stops.
+            // This avoids the "refresh / reopen page and scroll again" behavior.
+            var targetUrl = uniqueTargets.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(targetUrl))
+            {
+                try
+                {
+                    FBTool.GoToFacebook(driver, targetUrl);
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(1200);
+                }
+                catch { }
+            }
+
+            while (!IsStop())
+            {
+                try
+                {
+                    PageScrollCurrent(autoReact, autoCommentLines);
+                }
+                catch { }
+                Thread.Sleep(random.Next(800, 1500));
+            }
+        }
+
+        private void PageScrollCurrent(React autoReact = null, string[] autoCommentLines = null)
+        {
+            try
+            {
+                int rounds = random.Next(5, 11);
+                for (int i = 0; i < rounds && !IsStop(); i++)
+                {
+                    TryInteractOnPageAutoScroll(autoReact, autoCommentLines);
+                    try
+                    {
+                        ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0, arguments[0]);", random.Next(500, 1100));
+                    }
+                    catch { }
+                    Thread.Sleep(random.Next(900, 1800));
+                }
+
+                // small up-scroll to look more natural on page timeline
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0, arguments[0]);", -random.Next(150, 450));
+                }
+                catch { }
+                Thread.Sleep(random.Next(600, 1200));
+            }
+            catch { }
+        }
+
+        private void TryInteractOnPageAutoScroll(React autoReact, string[] autoCommentLines)
+        {
+            try
+            {
+                if (autoReact == null) return;
+
+                bool doLike = autoReact.Like;
+                bool doComment = autoReact.Comment;
+
+                if (autoReact.Random)
+                {
+                    doLike = random.Next(0, 2) == 1;
+                    doComment = random.Next(0, 2) == 1;
+                }
+
+                if (!doLike && !doComment) return;
+
+                // Don’t try to interact on every scroll tick.
+                if (random.Next(0, 100) > 40) return;
+
+                if (doLike)
+                {
+                    try { WebFBTool.LikePost(driver); } catch { }
+                    Thread.Sleep(random.Next(400, 900));
+                }
+
+                if (doComment && autoCommentLines != null && autoCommentLines.Length > 0)
+                {
+                    try
+                    {
+                        var comment = GetNextPageAutoScrollComment(autoCommentLines);
+                        if (!string.IsNullOrWhiteSpace(comment))
+                        {
+                            WebFBTool.PostComment(driver, comment);
+                            Thread.Sleep(random.Next(700, 1200));
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        private string GetNextPageAutoScrollComment(string[] comments)
+        {
+            try
+            {
+                if (comments == null || comments.Length == 0) return "";
+                if (comments.Length == 1) return comments[0];
+
+                const string orderKey = "page:autoscroll:comment_order";
+                const string indexKey = "page:autoscroll:comment_index";
+
+                int[] order = null;
+                int index = 0;
+
+                try
+                {
+                    var raw = cacheDao?.Get(orderKey)?.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(raw))
+                    {
+                        var parsed = raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x =>
+                            {
+                                int.TryParse(x, out var n);
+                                return n;
+                            })
+                            .ToArray();
+
+                        if (parsed.Length == comments.Length &&
+                            parsed.Distinct().Count() == comments.Length &&
+                            parsed.All(x => x >= 0 && x < comments.Length))
+                        {
+                            order = parsed;
+                        }
+                    }
+                }
+                catch { }
+
+                try { int.TryParse(cacheDao?.Get(indexKey)?.Value?.ToString(), out index); } catch { index = 0; }
+
+                int[] Shuffle() => Enumerable.Range(0, comments.Length).OrderBy(_ => random.Next()).ToArray();
+
+                if (order == null || order.Length != comments.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                if (index < 0 || index >= order.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                var result = comments[order[index]];
+
+                index++;
+                if (index >= order.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                try
+                {
+                    cacheDao?.Set(orderKey, string.Join(",", order));
+                    cacheDao?.Set(indexKey, index.ToString());
+                }
+                catch { }
+
+                return result;
+            }
+            catch
+            {
+                try { return comments[random.Next(0, comments.Length)]; } catch { return ""; }
             }
         }
 

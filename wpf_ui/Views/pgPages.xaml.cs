@@ -43,43 +43,67 @@ namespace ToolKHBrowser.Views
                     PageConfig pageObj = JsonConvert.DeserializeObject<PageConfig>(str);
                     if (pageObj == null) return;
 
-                try
-                {
-                    txtPageCreate.Value = Int32.Parse(pageObj.CreatePage.CreateNumber.ToString());
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtPageNames.Text = pageObj.CreatePage.Names;
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtPageCategories.Text = pageObj.CreatePage.Categies;
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtBio.Text = pageObj.CreatePage.Bio;
-                }
-                catch (Exception) { }
-                try
-                {
-                    txtPageUrl.Text = pageObj.PageUrls;
-                }
-                catch (Exception) { }
-
-                if (pageObj.CreateReel != null)
-                {
                     try
                     {
-                        txtPageCreateReel.Value = Int32.Parse(pageObj.CreateReel.CreateNumber.ToString());
-                        txtCreateReelSourceFolder.Text = pageObj.CreateReel.SourceFolder;
-                        txtReelCaptions.Text = pageObj.CreateReel.Captions;
-                        txtReelHashtag.Text = pageObj.CreateReel.Hashtag;
+                        txtPageCreate.Value = Int32.Parse(pageObj.CreatePage.CreateNumber.ToString());
                     }
                     catch (Exception) { }
-                }
+                    try
+                    {
+                        txtPageNames.Text = pageObj.CreatePage.Names;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        txtPageCategories.Text = pageObj.CreatePage.Categies;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        txtBio.Text = pageObj.CreatePage.Bio;
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        txtPageUrl.Text = pageObj.PageUrls;
+                    }
+                    catch (Exception) { }
+
+                    if (pageObj.AutoScroll != null)
+                    {
+                        try
+                        {
+                            txtPageAutoScrollComments.Text = pageObj.AutoScroll.Comments ?? "";
+                        }
+                        catch (Exception) { }
+
+                        try
+                        {
+                            var r = pageObj.AutoScroll.React;
+                            bool isRandom = r?.Random == true;
+                            bool isLike = r?.Like == true;
+                            bool isComment = r?.Comment == true;
+
+                            chbPageAutoScrollReactRandom.IsChecked = isRandom;
+                            chbPageAutoScrollReactLikeComment.IsChecked = !isRandom && isLike && isComment;
+                            chbPageAutoScrollReactLike.IsChecked = !isRandom && isLike && !isComment;
+                            chbPageAutoScrollReactComment.IsChecked = !isRandom && !isLike && isComment;
+                            chbPageAutoScrollReactNone.IsChecked = !isRandom && !isLike && !isComment;
+                        }
+                        catch (Exception) { }
+                    }
+
+                    if (pageObj.CreateReel != null)
+                    {
+                        try
+                        {
+                            txtPageCreateReel.Value = Int32.Parse(pageObj.CreateReel.CreateNumber.ToString());
+                            txtCreateReelSourceFolder.Text = pageObj.CreateReel.SourceFolder;
+                            txtReelCaptions.Text = pageObj.CreateReel.Captions;
+                            txtReelHashtag.Text = pageObj.CreateReel.Hashtag;
+                        }
+                        catch (Exception) { }
+                    }
                 }
             }
         }
@@ -98,10 +122,26 @@ namespace ToolKHBrowser.Views
             reelObj.Captions = txtReelCaptions.Text;
             reelObj.CreateNumber = Int32.Parse(txtPageCreateReel.Value.ToString());
 
+            bool pageAutoRandom = chbPageAutoScrollReactRandom.IsChecked == true;
+            bool pageAutoLikeComment = chbPageAutoScrollReactLikeComment.IsChecked == true;
+            bool pageAutoLike = chbPageAutoScrollReactLike.IsChecked == true;
+            bool pageAutoComment = chbPageAutoScrollReactComment.IsChecked == true;
+
+            React pageAutoReactObj = new React();
+            pageAutoReactObj.Random = pageAutoRandom;
+            pageAutoReactObj.Like = pageAutoLikeComment || pageAutoLike;
+            pageAutoReactObj.Comment = pageAutoLikeComment || pageAutoComment;
+            pageAutoReactObj.None = !pageAutoReactObj.Random && !pageAutoReactObj.Like && !pageAutoReactObj.Comment;
+
+            PageAutoScrollConfig pageAutoScrollObj = new PageAutoScrollConfig();
+            pageAutoScrollObj.React = pageAutoReactObj;
+            pageAutoScrollObj.Comments = txtPageAutoScrollComments.Text;
+
             PageConfig pageObj = new PageConfig();
             pageObj.CreatePage = createPageObj;
             pageObj.CreateReel = reelObj;
             pageObj.PageUrls = txtPageUrl.Text;
+            pageObj.AutoScroll = pageAutoScrollObj;
 
             string output = JsonConvert.SerializeObject(pageObj);
 

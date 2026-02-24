@@ -48,6 +48,7 @@ namespace ToolKHBrowser.ViewModels
         public bool ReadMessenger { get; set; }
         public bool PostTimeline { get; set; }
         public bool PlayNewsFeed { get; set; }
+        public bool NewsFeedCommentPost { get; set; }
         public bool AutoScroll { get; set; }
 
         public bool CreatePage { get; set; }
@@ -223,6 +224,7 @@ namespace ToolKHBrowser.ViewModels
         public string PageUrls { get; set; }
         public CreatePageConfig CreatePage { get; set; }
         public CreateReelConfig CreateReel { get; set; }
+        public PageAutoScrollConfig AutoScroll { get; set; }
 
         // ✅ ALIAS for code that expects PageConfig.Create
         [JsonIgnore]
@@ -235,6 +237,11 @@ namespace ToolKHBrowser.ViewModels
     public class PageFollowConfig
     {
         public string Value { get; set; }
+    }
+    public class PageAutoScrollConfig
+    {
+        public React React { get; set; }
+        public string Comments { get; set; }
     }
     public class PagePostConfig
     {
@@ -281,7 +288,13 @@ namespace ToolKHBrowser.ViewModels
         public string Comments { get; set; }
         public int MinComments { get; set; } = 1;
         public int MaxComments { get; set; } = 1;
-
+        public CommentPostByUrlConfig CommentPost { get; set; }
+    }
+    public class CommentPostByUrlConfig
+    {
+        public string VideoUrls { get; set; }
+        public string Comments { get; set; }
+        public React React { get; set; }
     }
     public class Messenger
     {

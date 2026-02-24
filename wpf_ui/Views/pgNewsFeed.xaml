@@ -61,7 +61,6 @@
                         <Grid Grid.Row="0" Grid.Column="1">
                             <Grid.ColumnDefinitions >
                                 <ColumnDefinition Width="60"></ColumnDefinition>
-                                <ColumnDefinition Width="95"></ColumnDefinition>
                                 <ColumnDefinition Width="53"></ColumnDefinition>
                                 <ColumnDefinition Width="85"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -70,10 +69,9 @@
                                 <RowDefinition Height="30"></RowDefinition>
                             </Grid.RowDefinitions>
                             <RadioButton x:Name="chbReachNone" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">None</RadioButton>
-                            <RadioButton x:Name="chbReachLikeComment" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Like+Comment</RadioButton>
-                            <RadioButton x:Name="chbReachLike" Grid.Row="0" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Like</RadioButton>
-                            <RadioButton x:Name="chbReachComment" Grid.Row="0" Grid.Column="3" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Comment</RadioButton>
-                            <RadioButton x:Name="chbReachRandom" Grid.Row="0" Grid.Column="4" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Random</RadioButton>
+                            <RadioButton x:Name="chbReachLike" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Like</RadioButton>
+                            <RadioButton x:Name="chbReachComment" Grid.Row="0" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Comment</RadioButton>
+                            <RadioButton x:Name="chbReachRandom" Grid.Row="0" Grid.Column="3" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Random</RadioButton>
                         </Grid>
                     </Grid>
                     <Grid Margin="0,5">
@@ -143,8 +141,6 @@
                VerticalAlignment="Top">
         <Run Text="Comments"/>
                         </TextBlock>
-
-                        <!-- Row 1: Textbox -->
                         <TextBox Name="txtComments"
              Grid.Row="1"
              Grid.Column="1"
@@ -157,6 +153,97 @@
              TextWrapping="Wrap"
              AcceptsReturn="True"
              VerticalScrollBarVisibility="Visible"/>
+                    </Grid>
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="70"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="70"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Margin="2"
+                               FontSize="11"
+                               Foreground="#FF20B2AA"
+                               VerticalAlignment="Center"
+                               Text="Comment/like on Post"/>
+
+                            <Separator Grid.Column="1" Foreground="#FF20B2AA"
+                               Margin="8,0,2,0"
+                               VerticalAlignment="Center"/>
+                        </Grid>
+
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Margin="2"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   VerticalAlignment="Center">
+                            <Run Text="Comment/Like Post"/>
+                        </TextBlock>
+
+                        <Grid Grid.Row="1" Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="75"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="chbCommentPostLikeComment" IsChecked="True" Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Like+Comment</RadioButton>
+                            <RadioButton x:Name="chbCommentPostLikeOnly" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Like</RadioButton>
+                            <RadioButton x:Name="chbCommentPostCommentOnly" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Comment</RadioButton>
+                        </Grid>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Margin="2,6,2,2"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   VerticalAlignment="Top">
+                            <Run Text="Video URL(s)"/>
+                        </TextBlock>
+
+                        <TextBox Name="txtCommentPostVideoUrls"
+                                 Grid.Row="2"
+                                 Grid.Column="1"
+                                 Margin="2,2,2,2"
+                                 Height="60"
+                                 Background="WhiteSmoke"
+                                 Foreground="Black"
+                                 BorderBrush="#FFDCDCDC"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Visible"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0"
+                                   Margin="2,6,2,2"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   VerticalAlignment="Top">
+                            <Run Text="Comments"/>
+                        </TextBlock>
+
+                        <TextBox Name="txtCommentPostComments"
+                                 Grid.Row="4"
+                                 Grid.Column="1"
+                                 Margin="2,2,2,2"
+                                 Height="60"
+                                 Background="WhiteSmoke"
+                                 Foreground="Black"
+                                 BorderBrush="#FFDCDCDC"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Visible"/>
                     </Grid>
 
 
