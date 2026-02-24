@@ -68,14 +68,31 @@ namespace ToolKHBrowser.Views
             if (nf?.React != null)
             {
                 chbReachRandom.IsChecked = nf.React.Random;
-                chbReachLikeComment.IsChecked = !nf.React.Random && nf.React.Like && nf.React.Comment;
-                chbReachLike.IsChecked = !nf.React.Random && nf.React.Like && !nf.React.Comment;
+                chbReachLike.IsChecked = !nf.React.Random && nf.React.Like;
                 chbReachComment.IsChecked = !nf.React.Random && !nf.React.Like && nf.React.Comment;
                 chbReachNone.IsChecked = !nf.React.Random && !nf.React.Like && !nf.React.Comment;
             }
             txtComments.Text = nf?.Comments ?? "";
             txtMinComments.Value = ToInt(nf?.MinComments, 1);
             txtMaxComments.Value = ToInt(nf?.MaxComments, 1);
+
+            if (nf?.CommentPost != null)
+            {
+                txtCommentPostVideoUrls.Text = nf.CommentPost.VideoUrls ?? "";
+                txtCommentPostComments.Text = nf.CommentPost.Comments ?? "";
+
+                var cpReact = nf.CommentPost.React;
+                bool cpLike = cpReact?.Like == true;
+                bool cpComment = cpReact?.Comment == true;
+                chbCommentPostLikeComment.IsChecked = cpLike && cpComment;
+                chbCommentPostLikeOnly.IsChecked = cpLike && !cpComment;
+                chbCommentPostCommentOnly.IsChecked = !cpLike && cpComment;
+
+                if (cpReact == null || (!cpLike && !cpComment))
+                {
+                    chbCommentPostLikeComment.IsChecked = true;
+                }
+            }
 
             // TIMELINE
             var tl = newsfeedObj.Timeline;
@@ -138,15 +155,29 @@ namespace ToolKHBrowser.Views
             numberObj.NumberEnd = Int32.Parse(txtPlayTimeEnd.Value.ToString());
 
             bool isReactRandom = chbReachRandom.IsChecked == true;
-            bool isReactLikeComment = chbReachLikeComment.IsChecked == true;
             bool isReactLike = chbReachLike.IsChecked == true;
             bool isReactComment = chbReachComment.IsChecked == true;
 
             React reactObj = new React();
             reactObj.Random = isReactRandom;
-            reactObj.Like = isReactLikeComment || isReactLike;
-            reactObj.Comment = isReactLikeComment || isReactComment;
+            reactObj.Like = isReactLike;
+            reactObj.Comment = isReactComment;
             reactObj.None = !reactObj.Random && !reactObj.Like && !reactObj.Comment;
+
+            bool isCommentPostLikeComment = chbCommentPostLikeComment.IsChecked == true;
+            bool isCommentPostLikeOnly = chbCommentPostLikeOnly.IsChecked == true;
+            bool isCommentPostCommentOnly = chbCommentPostCommentOnly.IsChecked == true;
+
+            React commentPostReactObj = new React();
+            commentPostReactObj.Random = false;
+            commentPostReactObj.Like = isCommentPostLikeComment || isCommentPostLikeOnly;
+            commentPostReactObj.Comment = isCommentPostLikeComment || isCommentPostCommentOnly;
+            commentPostReactObj.None = !commentPostReactObj.Like && !commentPostReactObj.Comment;
+
+            CommentPostByUrlConfig commentPostObj = new CommentPostByUrlConfig();
+            commentPostObj.VideoUrls = txtCommentPostVideoUrls.Text;
+            commentPostObj.Comments = txtCommentPostComments.Text;
+            commentPostObj.React = commentPostReactObj;
 
             MessageCallSound callSoundObj = new MessageCallSound();
             callSoundObj.None = chbCallSoundNone.IsChecked.Value;
@@ -181,6 +212,7 @@ namespace ToolKHBrowser.Views
             playObj.Comments = txtComments.Text;
             playObj.MinComments = Int32.Parse(txtMinComments.Value.ToString());
             playObj.MaxComments = Int32.Parse(txtMaxComments.Value.ToString());
+            playObj.CommentPost = commentPostObj;
 
             Messenger messengerObj = new Messenger();
             messengerObj.MessageCallSound = callSoundObj;
