@@ -67,12 +67,15 @@ namespace ToolKHBrowser.Views
 
             if (nf?.React != null)
             {
-                chbReachNone.IsChecked = nf.React.None;
-                chbReachLike.IsChecked = nf.React.Like;
-                chbReachComment.IsChecked = nf.React.Comment;
                 chbReachRandom.IsChecked = nf.React.Random;
+                chbReachLikeComment.IsChecked = !nf.React.Random && nf.React.Like && nf.React.Comment;
+                chbReachLike.IsChecked = !nf.React.Random && nf.React.Like && !nf.React.Comment;
+                chbReachComment.IsChecked = !nf.React.Random && !nf.React.Like && nf.React.Comment;
+                chbReachNone.IsChecked = !nf.React.Random && !nf.React.Like && !nf.React.Comment;
             }
             txtComments.Text = nf?.Comments ?? "";
+            txtMinComments.Value = ToInt(nf?.MinComments, 1);
+            txtMaxComments.Value = ToInt(nf?.MaxComments, 1);
 
             // TIMELINE
             var tl = newsfeedObj.Timeline;
@@ -134,11 +137,16 @@ namespace ToolKHBrowser.Views
             numberObj.NumberStart = Int32.Parse(txtPlayTimeStart.Value.ToString());
             numberObj.NumberEnd = Int32.Parse(txtPlayTimeEnd.Value.ToString());
 
+            bool isReactRandom = chbReachRandom.IsChecked == true;
+            bool isReactLikeComment = chbReachLikeComment.IsChecked == true;
+            bool isReactLike = chbReachLike.IsChecked == true;
+            bool isReactComment = chbReachComment.IsChecked == true;
+
             React reactObj = new React();
-            reactObj.None = chbReachNone.IsChecked.Value;
-            reactObj.Like = chbReachLike.IsChecked.Value;
-            reactObj.Comment = chbReachComment.IsChecked.Value;
-            reactObj.Random = chbReachRandom.IsChecked.Value;
+            reactObj.Random = isReactRandom;
+            reactObj.Like = isReactLikeComment || isReactLike;
+            reactObj.Comment = isReactLikeComment || isReactComment;
+            reactObj.None = !reactObj.Random && !reactObj.Like && !reactObj.Comment;
 
             MessageCallSound callSoundObj = new MessageCallSound();
             callSoundObj.None = chbCallSoundNone.IsChecked.Value;
@@ -171,6 +179,8 @@ namespace ToolKHBrowser.Views
             playObj.React = reactObj;
             playObj.PlayTime = numberObj;
             playObj.Comments = txtComments.Text;
+            playObj.MinComments = Int32.Parse(txtMinComments.Value.ToString());
+            playObj.MaxComments = Int32.Parse(txtMaxComments.Value.ToString());
 
             Messenger messengerObj = new Messenger();
             messengerObj.MessageCallSound = callSoundObj;

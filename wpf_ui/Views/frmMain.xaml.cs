@@ -510,7 +510,7 @@ namespace ToolKHBrowser.Views
         }
         private string GetMB(long bytes)
         {
-            return Math.Round((bytes / 1024f) / 1024f,2) + " MB";
+            return Math.Round((bytes / 1024f) / 1024f, 2) + " MB";
         }
         private long GetDirectorySize2(string dirPath)
         {
@@ -558,12 +558,12 @@ namespace ToolKHBrowser.Views
 
                 item.Description = "Size: " + size;
                 int status = 0;
-                if(item.Status == "Live")
+                if (item.Status == "Live")
                 {
-                    status= 1;
+                    status = 1;
                 }
 
-                fbAccountViewModel.getAccountDao().updateStatus(item.UID, item.Description,status);
+                fbAccountViewModel.getAccountDao().updateStatus(item.UID, item.Description, status);
             }
         }
         private void deleteProfile_Click(object sender, RoutedEventArgs e)
@@ -1081,29 +1081,29 @@ namespace ToolKHBrowser.Views
 
         public void AddGroup(string listGroupIDs, int numGroup)
         {
-            if(string.IsNullOrEmpty(listGroupIDs))
-            {                
+            if (string.IsNullOrEmpty(listGroupIDs))
+            {
                 return;
             }
             string[] arrGroup = listGroupIDs.Trim().Split('\n');
             int groupIndex = 0;
             int gLeng = arrGroup.Count();
-            if(gLeng < numGroup)
+            if (gLeng < numGroup)
             {
                 numGroup = gLeng;
             }
             foreach (FbAccount selectedItem in dgAccounts.SelectedItems)
             {
                 string groupIds = "";
-                int total = 0,i = 0;
+                int total = 0, i = 0;
                 do
                 {
                     i++;
-                    if(groupIndex >= gLeng)
+                    if (groupIndex >= gLeng)
                     {
                         groupIndex = 0;
                     }
-                    if(!string.IsNullOrEmpty(groupIds))
+                    if (!string.IsNullOrEmpty(groupIds))
                     {
                         groupIds += ",";
                     }
@@ -1114,7 +1114,7 @@ namespace ToolKHBrowser.Views
 
                 selectedItem.GroupIDs = groupIds;
                 selectedItem.TotalGroup = total;
-                fbAccountViewModel.getAccountDao().UpdateGroup(selectedItem.UID,total,groupIds);
+                fbAccountViewModel.getAccountDao().UpdateGroup(selectedItem.UID, total, groupIds);
             }
         }
         private void removeNote_Click(object sender, RoutedEventArgs e)
@@ -1756,7 +1756,7 @@ namespace ToolKHBrowser.Views
         }
 
         private bool isCleanTMP = false, isCleanChrom = false, isCleanEDGE = false;
-        public string[] groupWithoutJoinArr = null; 
+        public string[] groupWithoutJoinArr = null;
 
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -3009,11 +3009,11 @@ namespace ToolKHBrowser.Views
                                            {
                                                if (!inp.Displayed || !inp.Enabled) return false;
                                                string name = (inp.GetAttribute("name") ?? "").ToLower();
-                                               string id   = (inp.GetAttribute("id")   ?? "").ToLower();
+                                               string id = (inp.GetAttribute("id") ?? "").ToLower();
                                                string type = (inp.GetAttribute("type") ?? "text").ToLower();
                                                // Exclude password, hidden, checkbox, radio, submit, email
                                                return type != "password" && type != "hidden" && type != "checkbox"
-                                                   && type != "radio"   && type != "submit" && type != "email"
+                                                   && type != "radio" && type != "submit" && type != "email"
                                                    && !name.Contains("email") && !id.Contains("email");
                                            }
                                            catch { return false; }
@@ -4930,7 +4930,7 @@ namespace ToolKHBrowser.Views
                     }
                     catch (Exception) { }
                 }
-            }while (element==null && counter-- > 0);
+            } while (element == null && counter-- > 0);
             if (element != null)
             {
                 try
@@ -5813,13 +5813,18 @@ namespace ToolKHBrowser.Views
 
                             rawComments = newsfeedObj?.NewsFeed?.Comments ?? "";
 
-                            // if your model has these props
-                            try
+                            // Avoid NullReference first-chance exceptions when config is missing.
+                            var nfCfg = newsfeedObj?.NewsFeed;
+                            if (nfCfg != null)
                             {
-                                minComments = Math.Max(1, newsfeedObj.NewsFeed.MinComments);
-                                maxComments = Math.Max(minComments, newsfeedObj.NewsFeed.MaxComments);
+                                minComments = Math.Max(1, nfCfg.MinComments);
+                                maxComments = Math.Max(minComments, nfCfg.MaxComments);
                             }
-                            catch { minComments = 1; maxComments = 1; }
+                            else
+                            {
+                                minComments = 1;
+                                maxComments = 1;
+                            }
                         }
                         catch { }
 
@@ -6019,7 +6024,7 @@ namespace ToolKHBrowser.Views
             if (processActionsData.EnglishUS && !FBTool.IsEnglish(driver))
             {
                 //MobileFBTool.ChangeLanguage(driver);
-                WebFBTool.ChangeLanguage(driver,false);
+                WebFBTool.ChangeLanguage(driver, false);
                 Thread.Sleep(1000);
             }
         }
@@ -6040,7 +6045,7 @@ namespace ToolKHBrowser.Views
                 catch (Exception)
                 {
                 }
-                
+
                 if (shareUrlArr != null)
                 {
                     foreach (var url in shareUrlArr)
@@ -6246,7 +6251,7 @@ namespace ToolKHBrowser.Views
                 WebFBTool.GetTotalGroup(driver);
 
                 string groupIds = WebFBTool.GetGroupIDs(driver);
-                if(!string.IsNullOrEmpty(data.OldGroupIds) && !string.IsNullOrEmpty(data.GroupIDs))
+                if (!string.IsNullOrEmpty(data.OldGroupIds) && !string.IsNullOrEmpty(data.GroupIDs))
                 {
                     data.OldGroupIds += ",";
                 }
@@ -6257,25 +6262,26 @@ namespace ToolKHBrowser.Views
                     isBackupNewGroup = processActionsData.GroupConfig.Backup.BackupNewGroup;
                 }
                 catch (Exception) { }
-                if(isBackupNewGroup)
+                if (isBackupNewGroup)
                 {
                     string newGroupIds = "";
                     string[] gArr = groupIds.Split(',');
-                    for(int i = 0; i < gArr.Count(); i ++)
+                    for (int i = 0; i < gArr.Count(); i++)
                     {
                         string g_id = gArr[i].ToString().Trim();
                         if (data.OldGroupIds.Contains(g_id))
                         {
                             continue;
                         }
-                        if(!string.IsNullOrEmpty(newGroupIds))
+                        if (!string.IsNullOrEmpty(newGroupIds))
                         {
                             newGroupIds += ",";
                         }
                         newGroupIds += g_id;
                     }
                     data.GroupIDs = newGroupIds;
-                } else
+                }
+                else
                 {
                     data.OldGroupIds = "";
                     data.GroupIDs = groupIds;
@@ -6287,11 +6293,12 @@ namespace ToolKHBrowser.Views
                 if (string.IsNullOrEmpty(data.GroupIDs))
                 {
                     data.TotalGroup = 0;
-                } else
+                }
+                else
                 {
                     num = (data.TotalGroup = array.Length);
                 }
-                fbAccountViewModel.getAccountDao().UpdateGroup(data.UID, data.TotalGroup, data.GroupIDs,data.OldGroupIds);
+                fbAccountViewModel.getAccountDao().UpdateGroup(data.UID, data.TotalGroup, data.GroupIDs, data.OldGroupIds);
                 groupsDao.deleteByUID(data.UID);
 
                 for (int i = 0; i < num; i++)

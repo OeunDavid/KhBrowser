@@ -107,8 +107,9 @@ namespace ToolKHBrowser.ViewModels
                 var captions = this.processActionData?.NewsFeed?.Timeline?.Captions;
                 if (!string.IsNullOrWhiteSpace(captions))
                 {
-                    captionArr = captions
-                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    // NewsFeed -> Post Timeline should post exactly what user typed in Caption(s).
+                    // Keep all lines and blank lines.
+                    captionArr = new[] { captions };
                 }
             }
             catch { }
@@ -133,7 +134,7 @@ namespace ToolKHBrowser.ViewModels
                 }
                 catch (Exception) { }
             }
-            if(isWorking)
+            if (isWorking)
             {
                 try
                 {
@@ -164,22 +165,53 @@ namespace ToolKHBrowser.ViewModels
             int sT = this.form.processActionsData.NewsFeed.NewsFeed.PlayTime.NumberStart;
             int eT = this.form.processActionsData.NewsFeed.NewsFeed.PlayTime.NumberEnd;
             int time = GetRankNumber(sT, eT);
+            var reactCfg = processActionData.NewsFeed.NewsFeed.React;
+
+            bool doLike = reactCfg != null && reactCfg.Like;
+            bool doComment = reactCfg != null && reactCfg.Comment;
+            if (reactCfg != null && reactCfg.Random)
+            {
+                doLike = random.Next(0, 2) == 1;
+                doComment = random.Next(0, 2) == 1;
+            }
+
+            string[] commentLines = Array.Empty<string>();
+            try
+            {
+                commentLines = (processActionData.NewsFeed.NewsFeed.Comments ?? "")
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+            catch (Exception) { }
 
             if (time > 0)
             {
-                bool isLike = false;
+                bool isLike = !doLike;
+                bool isComment = !doComment;
                 do
                 {
-                    if (!isLike)
+                    if (!isLike || !isComment)
                     {
-                        isLike = true;
-                        if (processActionData.NewsFeed.NewsFeed.React.Like)
+                        if (!isLike && doLike)
                         {
-                            WebFBTool.LikePost(driver);
+                            isLike = true;
+                            try { WebFBTool.LikePost(driver); } catch (Exception) { }
                         }
-                        else if (processActionData.NewsFeed.NewsFeed.React.Random && random.Next(0, 2) == 1)
+
+                        if (!isComment && doComment)
                         {
-                            WebFBTool.LikePost(driver);
+                            isComment = true;
+                            if (commentLines.Length > 0)
+                            {
+                                string comment = commentLines[random.Next(commentLines.Length)];
+                                if (!string.IsNullOrWhiteSpace(comment))
+                                {
+                                    Thread.Sleep(500);
+                                    try { WebFBTool.PostComment(driver, comment); } catch (Exception) { }
+                                }
+                            }
                         }
                     }
                     time--;
@@ -193,8 +225,8 @@ namespace ToolKHBrowser.ViewModels
                 return;
 
             bool isWorking = ReadMessenger();
-            
-            if(isWorking)
+
+            if (isWorking)
             {
                 isWorking = false;
                 if (!processActionData.NewsFeed.Messenger.MessageSound.None)
@@ -346,12 +378,12 @@ namespace ToolKHBrowser.ViewModels
                         }
                     }
                 }
-                if(!processActionData.NewsFeed.Messenger.ActiveStatus.None)
+                if (!processActionData.NewsFeed.Messenger.ActiveStatus.None)
                 {
                     MessengerOption();
                     isWorking = false;
 
-                    if(processActionData.NewsFeed.Messenger.ActiveStatus.On)
+                    if (processActionData.NewsFeed.Messenger.ActiveStatus.On)
                     {
                         try
                         {
@@ -360,8 +392,8 @@ namespace ToolKHBrowser.ViewModels
                             Thread.Sleep(1500);
                         }
                         catch (Exception) { }
-                    } 
-                    else if(processActionData.NewsFeed.Messenger.ActiveStatus.Off)
+                    }
+                    else if (processActionData.NewsFeed.Messenger.ActiveStatus.Off)
                     {
                         try
                         {
@@ -381,7 +413,7 @@ namespace ToolKHBrowser.ViewModels
                             isWorking = true;
                         }
                         catch (Exception) { }
-                        if(isWorking)
+                        if (isWorking)
                         {
                             isWorking = false;
                             IWebElement element = null;
@@ -391,7 +423,7 @@ namespace ToolKHBrowser.ViewModels
                                 isWorking = true;
                             }
                             catch (Exception) { }
-                            if(!isWorking)
+                            if (!isWorking)
                             {
                                 try
                                 {
@@ -427,7 +459,7 @@ namespace ToolKHBrowser.ViewModels
                                         .Click()
                                         .Build()
                                         .Perform();
-                                    
+
                                     Thread.Sleep(1500);
                                 }
                                 catch (Exception) { }
@@ -504,7 +536,7 @@ namespace ToolKHBrowser.ViewModels
             int numberPost = GetRankNumber(min, max);
             for (int i = 0; i < numberPost; i++)
             {
-                if(IsStop())
+                if (IsStop())
                 {
                     break;
                 }
@@ -515,7 +547,7 @@ namespace ToolKHBrowser.ViewModels
                 catch (Exception) { }
                 FBTool.WaitingPageLoading(driver);
                 Thread.Sleep(1000);
-                var source = this.form.GetSourceTimeline(data.TimelineSource,processActionData.NewsFeed.Timeline.DeleteAfterPost);
+                var source = this.form.GetSourceTimeline(data.TimelineSource, processActionData.NewsFeed.Timeline.DeleteAfterPost);
                 source = source.Replace('\\', '/').Trim();
                 if (string.IsNullOrEmpty(source) || !File.Exists(source))
                 {
@@ -523,12 +555,12 @@ namespace ToolKHBrowser.ViewModels
                 }
 
                 string caption = GetCaption();
-                
+
                 if (!string.IsNullOrEmpty(caption) || !string.IsNullOrEmpty(source))
                 {
                     WebFBTool.PostTimeline(driver, caption, source, 3000, 30000);
                     Thread.Sleep(1000);
-                    if(!string.IsNullOrEmpty(source) && File.Exists(source) && processActionData.NewsFeed.Timeline.DeleteAfterPost)
+                    if (!string.IsNullOrEmpty(source) && File.Exists(source) && processActionData.NewsFeed.Timeline.DeleteAfterPost)
                     {
                         LocalData.DeleteFile(source);
                     }
@@ -540,14 +572,18 @@ namespace ToolKHBrowser.ViewModels
             string str = "";
             try
             {
+                if (captionArr == null || captionArr.Length == 0)
+                {
+                    return "";
+                }
                 if (captionIndex >= captionArr.Length)
                 {
                     captionIndex = 0;
                 }
-                str = captionArr[sourceFolderFileIndex];
+                str = captionArr[captionIndex];
                 captionIndex++;
 
-                this.form.cacheViewModel.GetCacheDao().Set("group:view:source_index", captionIndex + "");
+                this.form.cacheViewModel.GetCacheDao().Set("newsfeed:caption_index", captionIndex + "");
             }
             catch (Exception) { }
 

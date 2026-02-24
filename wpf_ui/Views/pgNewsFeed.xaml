@@ -56,11 +56,12 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reach on Post"/></TextBlock>
+                            <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="React on Video/Post"/></TextBlock>
                         </StackPanel>
                         <Grid Grid.Row="0" Grid.Column="1">
                             <Grid.ColumnDefinitions >
                                 <ColumnDefinition Width="60"></ColumnDefinition>
+                                <ColumnDefinition Width="95"></ColumnDefinition>
                                 <ColumnDefinition Width="53"></ColumnDefinition>
                                 <ColumnDefinition Width="85"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -69,9 +70,10 @@
                                 <RowDefinition Height="30"></RowDefinition>
                             </Grid.RowDefinitions>
                             <RadioButton x:Name="chbReachNone" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">None</RadioButton>
-                            <RadioButton x:Name="chbReachLike" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Like</RadioButton>
-                            <RadioButton x:Name="chbReachComment" Grid.Row="0" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Comment</RadioButton>
-                            <RadioButton x:Name="chbReachRandom" Grid.Row="0" Grid.Column="3" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Random</RadioButton>
+                            <RadioButton x:Name="chbReachLikeComment" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Like+Comment</RadioButton>
+                            <RadioButton x:Name="chbReachLike" Grid.Row="0" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Like</RadioButton>
+                            <RadioButton x:Name="chbReachComment" Grid.Row="0" Grid.Column="3" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Comment</RadioButton>
+                            <RadioButton x:Name="chbReachRandom" Grid.Row="0" Grid.Column="4" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Random</RadioButton>
                         </Grid>
                     </Grid>
                     <Grid Margin="0,5">

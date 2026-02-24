@@ -399,111 +399,129 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             do
             {
-                if (isThread) Thread.Sleep(1000);
-
-                string source = "";
-                string url = "";
-                try { source = (driver.PageSource ?? "").ToLowerInvariant().Trim(); } catch { source = ""; }
-                try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { url = ""; }
-
-                // ✅ IMPORTANT: Do NOT stop loading during auth/redirect flows
-                bool isAuthFlow =
-                    url.Contains("/login") ||
-                    url.Contains("two_factor") ||
-                    url.Contains("two_step_verification") ||
-                    url.Contains("/checkpoint") ||
-                    url.Contains("remember_browser") ||
-                    source.Contains("check your notifications") ||
-                    source.Contains("waiting for approval") ||
-                    source.Contains("try another way") ||
-                    source.Contains("approvals_code");
-
-                if (!isAuthFlow)
-                {
-                    try { ((IJavaScriptExecutor)driver).ExecuteScript("window.stop();"); } catch { }
-                }
-
-                // ✅ Detect login form even if URL looks like facebook.com/
-                bool hasLoginForm = false;
                 try
                 {
-                    hasLoginForm =
-                        driver.FindElements(By.Name("email")).Any() ||
-                        driver.FindElements(By.Name("pass")).Any();
-                }
-                catch { }
+                    if (isThread) Thread.Sleep(1000);
 
-                // ✅ If cookie exists -> logged in (best signal)
-                if (!string.IsNullOrEmpty(GetUserId(driver)))
-                {
-                    result = "success";
-                    isWorking = true;
-                }
-                // ✅ If login form exists -> not logged in
-                else if (hasLoginForm)
-                {
-                    TwoFaHelper.DebugAuthCookies(driver, "BACK_TO_LOGIN");
-                    result = "Login required";
-                    isWorking = true;
-                }
-                // ✅ remember browser prompt (post-login)
-                else if (url.Contains("remember_browser") || url.Contains("remember-browser")
-                      || source.Contains("trust this device")
-                      || source.Contains("always confirm"))
-                {
-                    // Don’t “force” anything; just treat as post-login prompt
-                    result = "success";
-                    isWorking = true;
-                }
-                // ✅ checkpoint
-                else if (url.Contains("/checkpoint/"))
-                {
-                    isWorking = true;
-
-                    if (url.Contains("/checkpoint/?next"))
-                        result = "Approvals";
-                    else if (url.Contains("/checkpoint/disabled"))
-                        result = "Disabled";
-                    else
-                        result = "Checkpoint";
-                }
-                // ✅ real 2FA pages (don’t confuse with remember_browser)
-                else if ((url.Contains("two_step_verification") || url.Contains("two_factor"))
-                         && !url.Contains("remember_browser"))
-                {
-                    isWorking = true;
-
-                    // Captcha hint
-                    if (source.Contains("captcha") || source.Contains("enter the characters"))
-                        result = "Need enter captcha";
-                    else
-                        result = "Need 2FA";
-                }
-                // ✅ safe-device / accounts center pages
-                else if (url.Contains("accountscenter")
-                      || url.Contains("login/save-device")
-                      || url.Contains("save-device"))
-                {
-                    result = "success";
-                    isWorking = true;
-                }
-                // ✅ confirm email / confirmation / account creation
-                else if (url.Contains("confirmemail")
-                      || url.Contains("confirmation")
-                      || url.Contains("account_creation"))
-                {
-                    result = "Confirm";
-                    isWorking = true;
-                }
-                else
-                {
-                    // If we can’t classify but the page isn’t obviously login,
-                    // keep waiting until counter expires (thread mode)
-                    if (!isThread)
+                    // User may close Chrome manually while this polling loop is running.
+                    // Treat it as a normal result instead of throwing.
+                    try
                     {
-                        result = "unknown";
+                        var _ = driver.WindowHandles;
+                    }
+                    catch
+                    {
+                        return "Browser closed";
+                    }
+
+                    string source = "";
+                    string url = "";
+                    try { source = (driver.PageSource ?? "").ToLowerInvariant().Trim(); } catch { source = ""; }
+                    try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { url = ""; }
+
+                    // ✅ IMPORTANT: Do NOT stop loading during auth/redirect flows
+                    bool isAuthFlow =
+                        url.Contains("/login") ||
+                        url.Contains("two_factor") ||
+                        url.Contains("two_step_verification") ||
+                        url.Contains("/checkpoint") ||
+                        url.Contains("remember_browser") ||
+                        source.Contains("check your notifications") ||
+                        source.Contains("waiting for approval") ||
+                        source.Contains("try another way") ||
+                        source.Contains("approvals_code");
+
+                    if (!isAuthFlow)
+                    {
+                        try { ((IJavaScriptExecutor)driver).ExecuteScript("window.stop();"); } catch { }
+                    }
+
+                    // ✅ Detect login form even if URL looks like facebook.com/
+                    bool hasLoginForm = false;
+                    try
+                    {
+                        hasLoginForm =
+                            driver.FindElements(By.Name("email")).Any() ||
+                            driver.FindElements(By.Name("pass")).Any();
+                    }
+                    catch { }
+
+                    // ✅ If cookie exists -> logged in (best signal)
+                    if (!string.IsNullOrEmpty(GetUserId(driver)))
+                    {
+                        result = "success";
                         isWorking = true;
                     }
+                    // ✅ If login form exists -> not logged in
+                    else if (hasLoginForm)
+                    {
+                        TwoFaHelper.DebugAuthCookies(driver, "BACK_TO_LOGIN");
+                        result = "Login required";
+                        isWorking = true;
+                    }
+                    // ✅ remember browser prompt (post-login)
+                    else if (url.Contains("remember_browser") || url.Contains("remember-browser")
+                          || source.Contains("trust this device")
+                          || source.Contains("always confirm"))
+                    {
+                        // Don’t “force” anything; just treat as post-login prompt
+                        result = "success";
+                        isWorking = true;
+                    }
+                    // ✅ checkpoint
+                    else if (url.Contains("/checkpoint/"))
+                    {
+                        isWorking = true;
+
+                        if (url.Contains("/checkpoint/?next"))
+                            result = "Approvals";
+                        else if (url.Contains("/checkpoint/disabled"))
+                            result = "Disabled";
+                        else
+                            result = "Checkpoint";
+                    }
+                    // ✅ real 2FA pages (don’t confuse with remember_browser)
+                    else if ((url.Contains("two_step_verification") || url.Contains("two_factor"))
+                             && !url.Contains("remember_browser"))
+                    {
+                        isWorking = true;
+
+                        // Captcha hint
+                        if (source.Contains("captcha") || source.Contains("enter the characters"))
+                            result = "Need enter captcha";
+                        else
+                            result = "Need 2FA";
+                    }
+                    // ✅ safe-device / accounts center pages
+                    else if (url.Contains("accountscenter")
+                          || url.Contains("login/save-device")
+                          || url.Contains("save-device"))
+                    {
+                        result = "success";
+                        isWorking = true;
+                    }
+                    // ✅ confirm email / confirmation / account creation
+                    else if (url.Contains("confirmemail")
+                          || url.Contains("confirmation")
+                          || url.Contains("account_creation"))
+                    {
+                        result = "Confirm";
+                        isWorking = true;
+                    }
+                    else
+                    {
+                        // If we can’t classify but the page isn’t obviously login,
+                        // keep waiting until counter expires (thread mode)
+                        if (!isThread)
+                        {
+                            result = "unknown";
+                            isWorking = true;
+                        }
+                    }
+                }
+                catch
+                {
+                    return "Browser closed";
                 }
 
             } while (!isWorking && counter-- > 0);
