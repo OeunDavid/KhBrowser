@@ -45,6 +45,10 @@ namespace ToolKHBrowser.ViewModels
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        void CommentPostByUrl();
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
         void Timeline();
     }
     public class NewsFeedViewModel : INewsFeedViewModel
@@ -217,6 +221,265 @@ namespace ToolKHBrowser.ViewModels
                     time--;
                     FBTool.Scroll(driver, 1000, false);
                 } while (!IsStop() && time > 0);
+            }
+        }
+        public void CommentPostByUrl()
+        {
+            string[] commentLines = Array.Empty<string>();
+            try
+            {
+                var raw = processActionData?.NewsFeed?.NewsFeed?.CommentPost?.Comments;
+                if (string.IsNullOrWhiteSpace(raw))
+                {
+                    raw = processActionData?.NewsFeed?.NewsFeed?.Comments ?? "";
+                }
+
+                commentLines = raw
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+            catch (Exception) { }
+
+            RunCommentPostByUrl(commentLines);
+        }
+        private void RunCommentPostByUrl(string[] commentLines)
+        {
+            try
+            {
+                var cfg = processActionData?.NewsFeed?.NewsFeed?.CommentPost;
+                if (cfg == null) return;
+
+                var react = cfg.React;
+                bool doLike = react?.Like == true;
+                bool doComment = react?.Comment == true;
+                if (!doLike && !doComment) return;
+
+                var urls = (cfg.VideoUrls ?? "")
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct()
+                    .ToArray();
+
+                if (urls.Length == 0) return;
+
+                int minComments = Math.Max(1, processActionData.NewsFeed.NewsFeed.MinComments);
+                int maxComments = Math.Max(minComments, processActionData.NewsFeed.NewsFeed.MaxComments);
+
+                foreach (var url in urls)
+                {
+                    if (IsStop()) break;
+
+                    try
+                    {
+                        FBTool.GoToFacebook(driver, url);
+                    }
+                    catch (Exception)
+                    {
+                        try { driver.Navigate().GoToUrl(url); } catch (Exception) { }
+                    }
+
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(1500);
+
+                    if (doLike)
+                    {
+                        try
+                        {
+                            TryLikeCommentPostWithoutToggle();
+                        }
+                        catch (Exception) { }
+                        Thread.Sleep(700);
+                    }
+
+                    if (doComment && commentLines != null && commentLines.Length > 0)
+                    {
+                        int totalComments = GetRankNumber(minComments, maxComments);
+                        if (totalComments <= 0) totalComments = 1;
+
+                        for (int i = 0; i < totalComments; i++)
+                        {
+                            if (IsStop()) break;
+                            try
+                            {
+                                string comment = GetNextCommentPostComment(commentLines);
+                                if (!string.IsNullOrWhiteSpace(comment))
+                                {
+                                    bool commented = false;
+                                    try
+                                    {
+                                        commented = WebFBTool.PostComment(driver, comment);
+                                    }
+                                    catch (Exception) { }
+
+                                    if (!commented)
+                                    {
+                                        Thread.Sleep(1200);
+                                        try
+                                        {
+                                            // Retry comment on the same page after like UI settles (no refresh).
+                                            commented = WebFBTool.PostComment(driver, comment);
+                                        }
+                                        catch (Exception) { }
+                                    }
+
+                                    Thread.Sleep(commented ? 900 : 600);
+                                }
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+
+                    Thread.Sleep(800);
+                }
+
+                try
+                {
+                    driver.Navigate().GoToUrl(Constant.FB_WEB_URL);
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(1000);
+                }
+                catch (Exception) { }
+            }
+            catch (Exception) { }
+        }
+        private bool TryLikeCommentPostWithoutToggle()
+        {
+            try
+            {
+                // If the visible Like control is already pressed, skip clicking so we can still comment.
+                var likeButtons = driver.FindElements(By.XPath(
+                    "//div[(@aria-label='Like' or @aria-label='Thích' or @aria-label='ចូលចិត្ត') and (@role='button' or @tabindex)]"));
+
+                foreach (var el in likeButtons)
+                {
+                    try
+                    {
+                        if (!el.Displayed) continue;
+
+                        var pressed = (el.GetAttribute("aria-pressed") ?? "").Trim().ToLowerInvariant();
+                        if (pressed == "true")
+                        {
+                            return false; // already liked -> skip click, continue comment
+                        }
+
+                        WebFBTool.ClickElement(driver, el);
+                        return true;
+                    }
+                    catch (Exception) { }
+                }
+            }
+            catch (Exception) { }
+
+            try
+            {
+                // Fallback to existing logic (may no-op if no Like button found).
+                WebFBTool.LikePost(driver);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        private string GetNextCommentPostComment(string[] commentLines)
+        {
+            try
+            {
+                if (commentLines == null || commentLines.Length == 0)
+                {
+                    return "";
+                }
+                if (commentLines.Length == 1)
+                {
+                    return commentLines[0];
+                }
+
+                const string orderKey = "newsfeed:commentpost:comment_order";
+                const string indexKey = "newsfeed:commentpost:comment_index";
+
+                int[] order = null;
+                int index = 0;
+
+                try
+                {
+                    var rawOrder = cacheDao?.Get(orderKey)?.Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(rawOrder))
+                    {
+                        var parsed = rawOrder
+                            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x =>
+                            {
+                                int.TryParse(x, out var n);
+                                return n;
+                            })
+                            .ToArray();
+
+                        if (parsed.Length == commentLines.Length
+                            && parsed.Distinct().Count() == commentLines.Length
+                            && parsed.All(x => x >= 0 && x < commentLines.Length))
+                        {
+                            order = parsed;
+                        }
+                    }
+                }
+                catch (Exception) { }
+
+                try
+                {
+                    int.TryParse(cacheDao?.Get(indexKey)?.Value?.ToString(), out index);
+                }
+                catch (Exception) { index = 0; }
+
+                int[] Shuffle()
+                {
+                    return Enumerable.Range(0, commentLines.Length)
+                        .OrderBy(_ => random.Next())
+                        .ToArray();
+                }
+
+                if (order == null || order.Length != commentLines.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                if (index < 0 || index >= order.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                string result = commentLines[order[index]];
+
+                index++;
+                if (index >= order.Length)
+                {
+                    order = Shuffle();
+                    index = 0;
+                }
+
+                try
+                {
+                    cacheDao?.Set(orderKey, string.Join(",", order));
+                    cacheDao?.Set(indexKey, index.ToString());
+                }
+                catch (Exception) { }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    return commentLines[random.Next(commentLines.Length)];
+                }
+                catch (Exception)
+                {
+                    return "";
+                }
             }
         }
         public void Messenger()
@@ -609,7 +872,13 @@ namespace ToolKHBrowser.ViewModels
         }
         public int GetRankNumber(int min, int max)
         {
-            return new Random().Next(min, max);
+            min = Math.Max(0, min);
+            max = Math.Max(min, max);
+            if (max == min)
+            {
+                return min;
+            }
+            return new Random().Next(min, max + 1);
         }
         public bool IsStop()
         {

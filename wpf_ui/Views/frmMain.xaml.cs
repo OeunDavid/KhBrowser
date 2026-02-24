@@ -2022,6 +2022,7 @@ namespace ToolKHBrowser.Views
             processActions.ReadNotification = chbNewsFeedReadNotification.IsChecked.Value;
             processActions.PostTimeline = chbNewsFeedPostTimeline.IsChecked.Value;
             processActions.PlayNewsFeed = chbNewsFeedPlay.IsChecked.Value;
+            processActions.NewsFeedCommentPost = chbNewsFeedCommentPost.IsChecked.Value;
             processActions.AutoScroll = chbAutoScroll.IsChecked.Value;
             processActions.CreatePage = chbPageCreate.IsChecked.Value;
             processActions.FollowPage = chbPageFollow.IsChecked.Value;
@@ -5575,7 +5576,7 @@ namespace ToolKHBrowser.Views
                 pageViewModel.CreateReel(isNoSwitchPage);
 
             if (!IsStop() && processActionsData.AutoScrollPage)
-                StartAutoScroll(driver, data);
+                pageViewModel.AutoScroll();
 
             if (!IsStop() && processActionsData.PagePost)
                 pageViewModel.Post();
@@ -5940,7 +5941,7 @@ namespace ToolKHBrowser.Views
 
         public void StartNewsFeedConfig(IWebDriver driver, FbAccount data)
         {
-            if (processActionsData.ReadMessenger || processActionsData.PostTimeline || processActionsData.PlayNewsFeed || processActionsData.ReadNotification || processActionsData.AutoScroll)
+            if (processActionsData.ReadMessenger || processActionsData.PostTimeline || processActionsData.PlayNewsFeed || processActionsData.NewsFeedCommentPost || processActionsData.ReadNotification || processActionsData.AutoScroll)
             {
                 processActionsData.NewsFeed = GetCacheConfig<NewsFeedConfig>("newsfeed:config");
                 INewsFeedViewModel newsFeedViewModel = DIConfig.Get<INewsFeedViewModel>();
@@ -5956,6 +5957,10 @@ namespace ToolKHBrowser.Views
                 if (processActionsData.PostTimeline && !IsStop())
                 {
                     newsFeedViewModel.Timeline();
+                }
+                if (processActionsData.NewsFeedCommentPost && !IsStop())
+                {
+                    newsFeedViewModel.CommentPostByUrl();
                 }
                 if (processActionsData.PlayNewsFeed && !IsStop())
                 {

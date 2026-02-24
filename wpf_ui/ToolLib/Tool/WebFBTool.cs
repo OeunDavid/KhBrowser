@@ -3389,7 +3389,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[@aria-label='Leave a comment']")).Click();
+                        driver.FindElement(By.XPath("//div[@aria-label='Leave a comment' or @aria-label='Comment' or @aria-label='Bình luận' or @aria-label='បញ្ចេញមតិ']")).Click();
                         isComment = true;
                         Thread.Sleep(2500);
                     }
@@ -3410,7 +3410,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     try
                     {
                         elements = driver.FindElements(By.XPath("//div[@data-lexical-editor='true']"));
-                        isWorking = true;
+                        isWorking = elements != null && elements.Count > 0;
                     }
                     catch (Exception) { }
                 }
@@ -3418,8 +3418,10 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     try
                     {
-                        elements = driver.FindElements(By.XPath("//div[@aria-label='Write a comment']"));
-                        isWorking = true;
+                        elements = driver.FindElements(By.XPath(
+                            "//div[@aria-label='Write a comment' or @aria-label='Write a comment…' or @role='textbox']" +
+                            " | //div[@contenteditable='true' and (@role='textbox' or @data-lexical-editor='true')]"));
+                        isWorking = elements != null && elements.Count > 0;
                     }
                     catch (Exception) { }
                 }
@@ -3427,7 +3429,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[text() = 'Comment']")).Click();
+                        driver.FindElement(By.XPath("//div[text() = 'Comment' or text() = 'Bình luận' or text() = 'បញ្ចេញមតិ']")).Click();
                         isComment = true;
                         Thread.Sleep(1000);
                     }
@@ -3441,8 +3443,41 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     if (elements != null && elements.Count > 0)
                     {
-                        elements.ElementAt(elements.Count - 1).FindElement(By.TagName("br")).SendKeys(comment + OpenQA.Selenium.Keys.Enter);
-                        isWorking = true;
+                        var target = elements.ElementAt(elements.Count - 1);
+                        try { target.Click(); Thread.Sleep(300); } catch (Exception) { }
+
+                        // Prefer direct send to editor; many layouts do not expose a <br> child reliably.
+                        try
+                        {
+                            target.SendKeys(comment + OpenQA.Selenium.Keys.Enter);
+                            isWorking = true;
+                        }
+                        catch (Exception) { }
+
+                        if (!isWorking)
+                        {
+                            try
+                            {
+                                var br = target.FindElement(By.TagName("br"));
+                                br.SendKeys(comment + OpenQA.Selenium.Keys.Enter);
+                                isWorking = true;
+                            }
+                            catch (Exception) { }
+                        }
+
+                        if (!isWorking)
+                        {
+                            try
+                            {
+                                new Actions(driver)
+                                    .SendKeys(target, comment)
+                                    .SendKeys(OpenQA.Selenium.Keys.Enter)
+                                    .Build()
+                                    .Perform();
+                                isWorking = true;
+                            }
+                            catch (Exception) { }
+                        }
                     }
                 }
                 catch (Exception) { }
