@@ -1,10 +1,12 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using OtpNet;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ToolKHBrowser.ViewModels;
 
 namespace ToolKHBrowser.Helper
 {
@@ -78,12 +80,13 @@ namespace ToolKHBrowser.Helper
         // =========================
         // DETECTION
         // =========================
-        public static bool IsPushApprovalScreen(IWebDriver driver)
+        private static bool IsPushApprovalScreen(IWebDriver driver)
         {
-            if (driver == null) return false;
-
-            return Exists(driver, By.XPath("//*[contains(.,'Waiting for approval')]"), 1)
-                || Exists(driver, By.XPath("//*[contains(.,'Check your notifications on another device')]"), 1);
+            try
+            {
+                return driver.PageSource.Contains("Check your notifications on another device");
+            }
+            catch { return false; }
         }
 
         public static bool IsCodeInputScreenStrong(IWebDriver driver)
@@ -129,27 +132,42 @@ namespace ToolKHBrowser.Helper
         // =========================
         // SWITCH PUSH -> AUTH APP
         // =========================
-        public static bool GoToAuthenticatorOptionStrong(IWebDriver driver)
+        private static bool GoToAuthenticatorOptionStrong(IWebDriver driver)
         {
-            if (driver == null) return false;
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
-            // Click "Try another way"
-            if (!ClickByTextStrong(driver, "Try another way", 10))
-                return false;
+                // 1️⃣ Click "Try another way"
+                var tryAnother = wait.Until(d =>
+                    d.FindElements(By.XPath("//div[@role='button']//span[contains(text(),'Try another way')]"))
+                     .FirstOrDefault());
 
-            Thread.Sleep(800);
+                if (tryAnother != null)
+                {
+                    tryAnother.Click();
+                }
 
-            // Choose "Authentication app"
-            if (!ClickByTextStrong(driver, "Authentication app", 10))
-                return false;
+                // 2️⃣ WAIT until Authentication app option appears
+                wait.Until(d => d.PageSource.Contains("Authentication app"));
 
-            Thread.Sleep(400);
+                // 3️⃣ Click Authentication app
+                var authApp = driver.FindElements(By.XPath("//div[@role='button']//span[contains(text(),'Authentication app')]"))
+                                    .FirstOrDefault();
 
-            // Click Continue
-            ClickByTextStrong(driver, "Continue", 10);
+                if (authApp != null)
+                {
+                    authApp.Click();
+                    return true;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Option not found
+            }
+            catch { }
 
-            Thread.Sleep(800);
-            return true;
+            return false;
         }
 
         // =========================
@@ -211,7 +229,7 @@ namespace ToolKHBrowser.Helper
                 Thread.Sleep(400);
 
                 // click Continue
-                if (ClickByTextStrong(driver, "Continue", 8))
+                if (JsClickByTextStrong(driver, "Continue"))
                     return true;
 
                 // fallback: click any enabled button in form
@@ -380,46 +398,40 @@ namespace ToolKHBrowser.Helper
             return null;
         }
 
-        private static bool ClickByTextStrong(IWebDriver driver, string text, int timeoutSeconds)
+        public static bool JsClickByTextStrong(IWebDriver driver, params string[] needles)
         {
             try
             {
-                DateTime end = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+                var js = (IJavaScriptExecutor)driver;
 
-                // normalize-space contains works better on FB
-                string xp =
-                    $"//div[@role='button' and contains(normalize-space(.),'{text}')]" +
-                    $"|//button[contains(normalize-space(.),'{text}')]" +
-                    $"|//*[@role='button' and contains(normalize-space(.),'{text}')]";
+                // Pass needles into JS
+                var ok = (bool)js.ExecuteScript(@"
+                    const needles = arguments[0].map(x => (x||'').toLowerCase());
+                    const candidates = Array.from(document.querySelectorAll(
+                      'div[role=""button""], button, a, [role=""link""], [role=""menuitem""], label, [role=""radio""]'
+                    ));
 
-                while (DateTime.UtcNow < end)
-                {
-                    var el = driver.FindElements(By.XPath(xp)).FirstOrDefault(e => e.Displayed);
-                    if (el != null)
-                    {
-                        try
-                        {
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", el);
-                            Thread.Sleep(150);
-                        }
-                        catch { }
-
-                        try { el.Click(); return true; } catch { }
-
-                        try
-                        {
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el);
-                            return true;
-                        }
-                        catch { }
+                    function txt(el){
+                      return ((el.innerText || el.textContent || '') + '').trim().toLowerCase();
                     }
 
-                    Thread.Sleep(250);
-                }
-            }
-            catch { }
+                    for (const el of candidates) {
+                      const t = txt(el);
+                      if (!t) continue;
+                      if (needles.some(n => n && t.includes(n))) {
+                        try {
+                          el.scrollIntoView({block:'center', inline:'center'});
+                          el.click();
+                          return true;
+                        } catch (e) {}
+                      }
+                    }
+                    return false;
+                ", needles);
 
-            return false;
+                return ok;
+            }
+            catch { return false; }
         }
 
         // =========================
@@ -489,7 +501,6 @@ namespace ToolKHBrowser.Helper
 
             return IsCodeInputScreenStrong(driver);
         }
-
         public static bool AutoFillTotp(IWebDriver driver, string secretOrOtpAuth)
         {
             if (driver == null) return false;
@@ -500,5 +511,257 @@ namespace ToolKHBrowser.Helper
             // Use the method that exists in this class
             return FillCodeAndSubmitStrong(driver, code);
         }
+        public static bool HandleRememberBrowser_AlwaysConfirm(IWebDriver driver, int tries = 6)
+        {
+            if (driver == null) return false;
+
+            for (int i = 0; i < tries; i++)
+            {
+                string url = "";
+                try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { }
+                if (!url.Contains("remember_browser") && !url.Contains("remember-browser"))
+                    return true; // already left the page
+
+                try
+                {
+                    // A) Direct XPath by visible text (works when Text is readable)
+                    var el = driver.FindElements(By.XPath(
+                        "//*[@role='button' or self::button][.//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'always confirm')]" +
+                        " or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'always confirm')]"
+                    )).FirstOrDefault();
+
+                    if (el != null)
+                    {
+                        ForceClick(driver, el);
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    // B) JS scan innerText/textContent (works when Selenium Text is empty)
+                    bool jsClicked = (bool)((IJavaScriptExecutor)driver).ExecuteScript(@"
+                const nodes = Array.from(document.querySelectorAll('div[role=""button""],button'));
+                const txt = el => ((el.innerText || el.textContent || '')+'').trim().toLowerCase();
+                for (const el of nodes) {
+                  const t = txt(el);
+                  if (t && t.includes('always confirm')) {
+                    el.scrollIntoView({block:'center'});
+                    el.click();
+                    return true;
+                  }
+                }
+                return false;
+            ");
+                    if (jsClicked)
+                    {
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    // C) LAST RESORT: click the SECOND big button (your screenshot shows 2 buttons)
+                    var buttons = driver.FindElements(By.XPath("//div[@role='button'] | //button"))
+                                        .Where(x => x.Displayed)
+                                        .ToList();
+
+                    if (buttons.Count >= 2)
+                    {
+                        ForceClick(driver, buttons[1]); // 0=Trust this device, 1=Always confirm it's me
+                        Thread.Sleep(800);
+                        continue;
+                    }
+                }
+                catch { }
+
+                Thread.Sleep(600);
+            }
+
+            // Still on remember_browser -> failed
+            return false;
+        }
+
+        private static void ForceClick(IWebDriver driver, IWebElement el)
+        {
+            try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", el); } catch { }
+
+            try { el.Click(); return; } catch { }
+
+            try { new Actions(driver).MoveToElement(el).Click().Perform(); return; } catch { }
+
+            try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); } catch { }
+        }
+
+        public static void DebugAuthCookies(IWebDriver driver, string tag)
+        {
+            try
+            {
+                string url = "";
+                try { url = driver.Url ?? ""; } catch { }
+
+                string cUser = "", xs = "";
+                try { cUser = driver.Manage().Cookies.GetCookieNamed("c_user")?.Value ?? ""; } catch { }
+                try { xs = driver.Manage().Cookies.GetCookieNamed("xs")?.Value ?? ""; } catch { }
+
+                Console.WriteLine($"[{tag}] url={url} c_user={(string.IsNullOrEmpty(cUser) ? "NULL" : cUser)} xs={(string.IsNullOrEmpty(xs) ? "NULL" : "OK")}");
+            }
+            catch { }
+        }
+        public static string FinalizeLoginFlow_SafeWait(IWebDriver driver, FbAccount account, int seconds = 240)
+        {
+            if (driver == null) return "Driver null";
+
+            DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+
+            // Require login page to be stable for a few seconds before deciding "Back to login"
+            int loginSeenTicks = 0; // counts consecutive checks where login form exists
+
+            while (DateTime.UtcNow < end)
+            {
+                string url = "";
+                string html = "";
+
+                try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { url = ""; }
+                try { html = (driver.PageSource ?? "").ToLowerInvariant(); } catch { html = ""; }
+
+                // ✅ 1) Success if c_user exists
+                string cUser = "";
+                try { cUser = GetUserIdSafe(driver); } catch { cUser = ""; }
+                if (!string.IsNullOrEmpty(cUser))
+                    return "success";
+
+                // ✅ 2) Detect 2FA pages (so you can proceed to fill code)
+                // URL based
+                if (url.Contains("two_factor") || url.Contains("two_step_verification") || url.Contains("/checkpoint/"))
+                    return "Need 2FA";
+
+                // HTML based (code input / approvals)
+                if (html.Contains("approvals_code") || html.Contains("authentication app") || html.Contains("two-factor")
+                    || html.Contains("two-step verification") || html.Contains("enter the code") || html.Contains("6-digit"))
+                    return "Need 2FA";
+
+                // ✅ 3) Detect CAPTCHA / human verification (manual required)
+                if (html.Contains("captcha") || html.Contains("verify you are human") || html.Contains("select all squares"))
+                    return "Captcha/Verify required (manual)";
+
+                // ✅ 4) Back to login (session restarted) — only if it stays like that for a while
+                if (HasLoginForm(driver) || url.Contains("/login"))
+                {
+                    loginSeenTicks++;
+
+                    // If it's stable for ~3 seconds (3 ticks), then it's truly back to login
+                    if (loginSeenTicks >= 3)
+                        return "Back to login (session not created)";
+
+                    Thread.Sleep(1000);
+                    continue;
+                }
+                else
+                {
+                    loginSeenTicks = 0; // reset if we left login page
+                }
+
+                // ✅ 5) Auth flow page? just wait (do not navigate / refresh)
+                if (IsAuthFlow(url, html))
+                {
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
+                // Otherwise wait a bit more (FB redirect)
+                Thread.Sleep(1000);
+            }
+
+            // timeout diagnosis
+            try
+            {
+                if (!string.IsNullOrEmpty(GetUserIdSafe(driver))) return "success";
+                if (HasLoginForm(driver)) return "Timeout: back to login";
+            }
+            catch { }
+
+            return "Login not finalized (timeout)";
+        }
+        private static string GetUserIdSafe(IWebDriver driver)
+        {
+            try
+            {
+                var c = driver.Manage().Cookies.GetCookieNamed("c_user");
+                return c?.Value ?? "";
+            }
+            catch { return ""; }
+        }
+        public static bool HasLoginForm(IWebDriver driver)
+        {
+            try
+            {
+                return driver.FindElements(By.Name("email")).Any()
+                    || driver.FindElements(By.Name("pass")).Any()
+                    || driver.FindElements(By.CssSelector("input[name='email'], input[name='pass']")).Any();
+            }
+            catch { return false; }
+        }
+        private static bool IsAuthFlow(string url, string html)
+        {
+            if (string.IsNullOrEmpty(url)) url = "";
+            if (string.IsNullOrEmpty(html)) html = "";
+
+            // login / checkpoint / 2fa / verification / remember browser
+            if (url.Contains("/login")
+                || url.Contains("two_factor")
+                || url.Contains("two_step_verification")
+                || url.Contains("/checkpoint")
+                || url.Contains("remember_browser")
+                || url.Contains("authentication"))
+                return true;
+
+            // page content hints (don’t try to automate, just detect)
+            if (html.Contains("check your notifications")
+                || html.Contains("waiting for approval")
+                || html.Contains("try another way")
+                || html.Contains("approvals_code")
+                || html.Contains("captcha")
+                || html.Contains("verify you are human")
+                || html.Contains("select all squares"))
+                return true;
+
+            return false;
+        }
+        public static bool IsCaptchaPage(IWebDriver driver)
+        {
+            try
+            {
+                string url = (driver.Url ?? "").ToLowerInvariant();
+                if (url.Contains("captcha")) return true;
+
+                // Check for common captcha indicators that are actually VISIBLE
+                string[] xpaths = {
+                    "//*[contains(text(), 'select all squares')]",
+                    "//*[contains(text(), 'verify you are human') or contains(text(), 'Verify you are human')]",
+                    "//iframe[contains(@src, 'recaptcha') or contains(@src, 'captcha')]",
+                    "//div[contains(@id, 'captcha')]",
+                    "//img[contains(@src, 'captcha')]"
+                };
+
+                foreach (var xpath in xpaths)
+                {
+                    try
+                    {
+                        var els = driver.FindElements(By.XPath(xpath));
+                        if (els.Any(e => e.Displayed)) return true;
+                    }
+                    catch { }
+                }
+
+                return false;
+            }
+            catch { return false; }
+        }
+
     }
 }

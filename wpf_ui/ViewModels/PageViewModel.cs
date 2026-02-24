@@ -4,9 +4,11 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
 using ToolKHBrowser.ToolLib.Data;
@@ -58,6 +60,15 @@ namespace ToolKHBrowser.ViewModels
 
     public class PageViewModel : IPageViewModel
     {
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+
+        [DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        private static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
+
         private IAccountDao accountDao;
         private ICacheDao cacheDao;
         private IPagesDao pageDao;
@@ -65,6 +76,8 @@ namespace ToolKHBrowser.ViewModels
         private FbAccount data;
         private IWebDriver driver;
         private ProcessActions processActionData;
+        private string mainProfileUrl;
+        private string mainProfileName;
 
         private string[] pageUrlArr;
         private string[] pageNameArr;
@@ -93,6 +106,7 @@ namespace ToolKHBrowser.ViewModels
             this.data = data;
             this.driver = driver;
             this.processActionData = this.form.processActionsData;
+            this.mainProfileName = (data?.Name ?? "").Trim();
 
             try
             {
@@ -150,7 +164,6 @@ namespace ToolKHBrowser.ViewModels
         }
 
         // =========================================================
-        // ✅ POST TO PAGE (Photo/Video OR Reel flow)
         // - Open composer
         // - Click Photo/video
         // - SendKeys file into the *dialog* file input
@@ -159,211 +172,229 @@ namespace ToolKHBrowser.ViewModels
         // =========================================================
         public void Post()
         {
-            try { File.WriteAllText(@"C:\debug.txt", "=== POST START ===\r\n"); } catch { }
-
-            if (this.processActionData == null) { Log("STOP: processActionData null"); return; }
-
-            var dao = this.form?.cacheViewModel?.GetCacheDao();
-            if (dao == null) { Log("STOP: dao null"); return; }
-
-            var cache = dao.Get("newsfeed:config");
-            var str = cache?.Value?.ToString();
-            if (string.IsNullOrWhiteSpace(str)) { Log("STOP: newsfeed:config empty"); return; }
-
-            NewsFeedConfig newsfeedObj;
-            try { newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(str); }
-            catch (Exception ex) { Log($"STOP: JSON error {ex.Message}"); return; }
-
-            var config = newsfeedObj?.PagePost;
-            if (config == null) { Log("STOP: PagePost config null"); return; }
-
-            // Prefer Backup(PageIds saved into data.PageIds) else config.PageIds
-            string pageIdsSource = !string.IsNullOrWhiteSpace(data.PageIds) ? data.PageIds : config.PageIds;
-            if (string.IsNullOrWhiteSpace(pageIdsSource))
+            try
             {
-                Log("STOP: BOTH PageIds empty - run Backup first!");
-                return;
-            }
+                try { File.WriteAllText(@"C:\debug.txt", "=== POST START ===\r\n"); } catch { }
 
-            // Captions
-            string[] captionArr = new[] { "" };
-            if (!string.IsNullOrWhiteSpace(config.Captions))
-            {
-                captionArr = config.Captions
-                    .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
+                if (this.processActionData == null) { Log("STOP: processActionData null"); return; }
+
+                var dao = this.form?.cacheViewModel?.GetCacheDao();
+                if (dao == null) { Log("STOP: dao null"); return; }
+
+                var cache = dao.Get("newsfeed:config");
+                var str = cache?.Value?.ToString();
+                if (string.IsNullOrWhiteSpace(str)) { Log("STOP: newsfeed:config empty"); return; }
+
+                NewsFeedConfig newsfeedObj;
+                try { newsfeedObj = JsonConvert.DeserializeObject<NewsFeedConfig>(str); }
+                catch (Exception ex) { Log($"STOP: JSON error {ex.Message}"); return; }
+
+                var config = newsfeedObj?.PagePost;
+                if (config == null) { Log("STOP: PagePost config null"); return; }
+
+                // Prefer Backup(PageIds saved into data.PageIds) else config.PageIds
+                string pageIdsSource = !string.IsNullOrWhiteSpace(data.PageIds) ? data.PageIds : config.PageIds;
+                if (string.IsNullOrWhiteSpace(pageIdsSource))
+                {
+                    Log("STOP: BOTH PageIds empty - run Backup first!");
+                    return;
+                }
+
+                // Captions
+                string[] captionArr = new[] { "" };
+                if (!string.IsNullOrWhiteSpace(config.Captions))
+                {
+                    captionArr = config.Captions
+                        .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => x.Length > 0)
+                        .ToArray();
+                }
+                if (captionArr.Length == 0) captionArr = new[] { "" };
+
+                // Media (supports file OR folder)
+                var mediaFiles = LoadMediaFiles_FileOrFolder(config.SourceFolder);
+                if (mediaFiles.Count == 0)
+                {
+                    Log("STOP: No media found (SourceFolder is empty / invalid).");
+                    return;
+                }
+
+                // Parse Page IDs (allow full URL)
+                var pageArr = pageIdsSource
+                    .Split(new[] { "\r\n", "\n", ",", ";" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(NormalizePageId)
                     .Where(x => x.Length > 0)
                     .ToArray();
-            }
-            if (captionArr.Length == 0) captionArr = new[] { "" };
 
-            // Media (supports file OR folder)
-            var mediaFiles = LoadMediaFiles_FileOrFolder(config.SourceFolder);
-            if (mediaFiles.Count == 0)
-            {
-                Log("STOP: No media found (SourceFolder is empty / invalid).");
-                return;
-            }
+                if (pageArr.Length == 0) { Log("STOP: no pages after parse"); return; }
 
-            // Parse Page IDs (allow full URL)
-            var pageArr = pageIdsSource
-                .Split(new[] { "\r\n", "\n", ",", ";" }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(NormalizePageId)
-                .Where(x => x.Length > 0)
-                .ToArray();
+                int postPerPage = (config.MaxPosts > 0) ? config.MaxPosts : 1;
 
-            if (pageArr.Length == 0) { Log("STOP: no pages after parse"); return; }
+                // Remember the personal profile URL before switching to any Page identity.
+                RememberMainProfileUrl();
 
-            int postPerPage = (config.MaxPosts > 0) ? config.MaxPosts : 1;
-
-            foreach (var pageId in pageArr)
-            {
-                if (IsStop()) break;
-
-                Log($"--- PAGE [{pageId}] ---");
-
-                if (!GoToPage(pageId))
-                {
-                    Log($"SKIP: Cannot open page [{pageId}] (redirect/no access).");
-                    continue;
-                }
-
-                if (!CheckSessionAndHandleSecurity())
-                {
-                    Log("SKIP: Security screen (2FA/Login) detected and could not be bypassed.");
-                    continue;
-                }
-
-                TryClickSwitchNowIfPresent();
-
-                for (int i = 0; i < postPerPage; i++)
+                foreach (var pageId in pageArr)
                 {
                     if (IsStop()) break;
 
-                    string caption = captionArr[random.Next(0, captionArr.Length)];
-                    string media = mediaFiles[random.Next(0, mediaFiles.Count)];
+                    Log($"--- PAGE [{pageId}] ---");
 
-                    Log($"POST {i + 1}/{postPerPage} | media={Path.GetFileName(media)}");
+                    if (!GoToPage(pageId))
+                    {
+                        Log($"SKIP: Cannot open page [{pageId}] (redirect/no access).");
+                        continue;
+                    }
 
                     if (!CheckSessionAndHandleSecurity())
                     {
-                        Log("FAIL: Security screen detected inside post loop. Breaking page flow.");
-                        break;
+                        Log("SKIP: Security screen (2FA/Login) detected and could not be bypassed.");
+                        continue;
                     }
 
-                    // 1) Open Create post dialog
-                    if (!OpenCreatePostDialog())
+                    TryClickSwitchNowIfPresent();
+
+                    for (int i = 0; i < postPerPage; i++)
                     {
-                        Log("FAIL: Cannot open Create post dialog.");
-                        break;
-                    }
+                        if (IsStop()) break;
 
-                    // 2) Type caption
-                    TryTypeInDialogCaption(caption);
+                        string caption = captionArr[random.Next(0, captionArr.Length)];
+                        string media = mediaFiles[random.Next(0, mediaFiles.Count)];
 
-                    // 3) TWO OPTIONS TO PICK MEDIA
-                    // Option A: click Photo/video button
-                    bool clickedPicker = ClickPhotoVideoInDialog();
+                        Log($"POST {i + 1}/{postPerPage} | media={Path.GetFileName(media)}");
 
-                    // Option B: if Photo/video not found -> click textbox + click photo icon
-                    if (!clickedPicker)
-                    {
-                        Log("Option B: Photo/video not found -> focus textbox + click photo icon");
-
-                        if (!ClickWhatsOnYourMindInDialog())
+                        if (!CheckSessionAndHandleSecurity())
                         {
-                            Log("FAIL: Can't click What's on your mind textbox.");
-                            TryCloseAnyDialog();
+                            Log("FAIL: Security screen detected inside post loop. Breaking page flow.");
                             break;
                         }
 
-                        if (!ClickPhotoIconInAddToYourPost())
+                        // 1) Open Create post dialog
+                        if (!OpenCreatePostDialog())
                         {
-                            Log("FAIL: Can't click photo icon in Add to your post.");
-                            TryCloseAnyDialog();
+                            Log("FAIL: Cannot open Create post dialog.");
                             break;
                         }
-                    }
 
-                    // 4) Attach file (works for both options)
-                    if (!AttachMediaInDialog(media))
-                    {
-                        Log("FAIL: Could not attach media.");
-                        TryCloseAnyDialog();
-                        break;
-                    }
+                        // 2) Type caption
+                        TryTypeInDialogCaption(caption);
 
-                    // 5) VIDEO/REEL FLOW (Next twice)
-                    if (IsCreatePostDialogWithNext() || IsEditReelScreen())
-                    {
-                        Log("Detected: VIDEO FLOW (Next twice)");
-
-                        // Next #1 (dialog)
-                        if (IsCreatePostDialogWithNext())
+                        // 3) Prefer direct hidden file-input upload to avoid native OS file dialog.
+                        bool attachedDirectly = AttachMediaInDialog(media);
+                        if (attachedDirectly)
                         {
-                            if (!ClickDialogNext_AndWaitEditReel())
+                            Log("Media attached via file input (no picker dialog).");
+                        }
+
+                        // 4) Fallback path: open picker UI only if direct file-input attach failed.
+                        if (!attachedDirectly)
+                        {
+                            // Option A: click Photo/video button
+                            bool clickedPicker = ClickPhotoVideoInDialog();
+
+                            // Option B: if Photo/video not found -> focus textbox + click photo icon
+                            if (!clickedPicker)
                             {
-                                Log("FAIL: Dialog Next -> Edit reel");
-                                TryShot(@"C:\debug_next1_fail.png");
+                                Log("Option B: Photo/video not found -> focus textbox + click photo icon");
+
+                                if (!ClickWhatsOnYourMindInDialog())
+                                {
+                                    Log("FAIL: Can't click What's on your mind textbox.");
+                                    TryCloseAnyDialog();
+                                    break;
+                                }
+
+                                if (!ClickPhotoIconInAddToYourPost())
+                                {
+                                    Log("FAIL: Can't click photo icon in Add to your post.");
+                                    TryCloseAnyDialog();
+                                    break;
+                                }
+                            }
+
+                            // Attach file after opening upload UI
+                            if (!AttachMediaInDialog(media))
+                            {
+                                Log("FAIL: Could not attach media.");
                                 TryCloseAnyDialog();
                                 break;
                             }
                         }
 
-                        // Next #2 (Edit reel)
-                        if (!ClickReelNext_AndWaitSettings())
+                        // 5) VIDEO/REEL FLOW (Next twice)
+                        if (IsCreatePostDialogWithNext() || IsEditReelScreen())
                         {
-                            Log("FAIL: Edit reel Next -> Reel settings");
-                            TryShot(@"C:\debug_next2_fail.png");
+                            Log("Detected: VIDEO FLOW (Next twice)");
+
+                            // Next #1 (dialog)
+                            if (IsCreatePostDialogWithNext())
+                            {
+                                if (!ClickDialogNext_AndWaitEditReel())
+                                {
+                                    Log("FAIL: Dialog Next -> Edit reel");
+                                    TryShot(@"C:\debug_next1_fail.png");
+                                    TryCloseAnyDialog();
+                                    break;
+                                }
+                            }
+
+                            // Next #2 (Edit reel)
+                            if (!ClickReelNext_AndWaitSettings())
+                            {
+                                Log("FAIL: Edit reel Next -> Reel settings");
+                                TryShot(@"C:\debug_next2_fail.png");
+                                TryCloseAnyDialog();
+                                break;
+                            }
+
+                            // Reel settings -> caption -> Post
+                            TryTypeReelCaption(caption);
+                            ClickNotNowIfPresent();
+
+                            if (!ClickReelPost_AndWaitFinish())
+                            {
+                                Log("FAIL: Reel Post");
+                                TryShot(@"C:\debug_reel_post_fail.png");
+                                TryCloseAnyDialog();
+                                break;
+                            }
+
+                            Log("✅ Reel posted.");
+                            Thread.Sleep(5000);
+                            continue;
+                        }
+
+                        // 6) NORMAL PHOTO FLOW (your screenshot: Next -> Post settings -> Post)
+                        if (!ClickDialogNext_AndWaitPostSettings())
+                        {
+                            Log("FAIL: Next -> Post settings not reached");
+                            TryShot(@"C:\debug_next_postsettings_fail.png");
                             TryCloseAnyDialog();
                             break;
                         }
 
-                        // Reel settings -> caption -> Post
-                        TryTypeReelCaption(caption);
-                        ClickNotNowIfPresent();
-
-                        if (!ClickReelPost_AndWaitFinish())
+                        if (!ClickPostInPostSettings())
                         {
-                            Log("FAIL: Reel Post");
-                            TryShot(@"C:\debug_reel_post_fail.png");
+                            Log("FAIL: Post button not clicked in Post settings");
+                            TryShot(@"C:\debug_postsettings_post_fail.png");
                             TryCloseAnyDialog();
                             break;
                         }
 
-                        Log("✅ Reel posted.");
-                        Thread.Sleep(5000);
-                        continue;
+                        Log("✅ Posted (photo).");
+                        Thread.Sleep(6000);
                     }
-
-                    // 6) NORMAL PHOTO FLOW (your screenshot: Next -> Post settings -> Post)
-                    if (!ClickDialogNext_AndWaitPostSettings())
-                    {
-                        Log("FAIL: Next -> Post settings not reached");
-                        TryShot(@"C:\debug_next_postsettings_fail.png");
-                        TryCloseAnyDialog();
-                        break;
-                    }
-
-                    if (!ClickPostInPostSettings())
-                    {
-                        Log("FAIL: Post button not clicked in Post settings");
-                        TryShot(@"C:\debug_postsettings_post_fail.png");
-                        TryCloseAnyDialog();
-                        break;
-                    }
-
-                    Log("✅ Posted (photo).");
-                    Thread.Sleep(6000);
                 }
+
+                Log("=== POST DONE ===");
+                this.data.Description = "Post to Page Done";
+                this.form.SetGridDataRowStatus(this.data);
             }
-
-            Log("Switching back to personal profile before finish...");
-            SwitchToProfileIdentity();
-
-            Log("=== POST DONE ===");
-            this.data.Description = "Post to Page Done";
-            this.form.SetGridDataRowStatus(this.data);
+            finally
+            {
+                Log("Switching back to personal profile before finish...");
+                SwitchToProfileIdentity();
+            }
         }
         private bool ClickWhatsOnYourMindInDialog()
         {
@@ -469,6 +500,7 @@ namespace ToolKHBrowser.ViewModels
 
                         SafeClick(postBtn);
                         Thread.Sleep(1500);
+                        ClickPublishOriginalPostIfPresent();
                         return true;
                     }
                 }
@@ -586,6 +618,7 @@ namespace ToolKHBrowser.ViewModels
                     Thread.Sleep(1500);
 
                     // Popups may appear
+                    ClickPublishOriginalPostIfPresent();
                     ClickNotNowIfPresent();
 
                     // ✅ success conditions:
@@ -621,6 +654,42 @@ namespace ToolKHBrowser.ViewModels
             }
             catch { }
         }
+
+        private void ClickPublishOriginalPostIfPresent()
+        {
+            try
+            {
+                for (int i = 0; i < 8 && !IsStop(); i++)
+                {
+                    var btn = FindFirstDisplayed(new[]
+                    {
+                        By.XPath("//span[normalize-space(.)='Publish Original Post']/ancestor::div[@role='button'][1]"),
+                        By.XPath("//div[@role='button' and .//span[normalize-space(.)='Publish Original Post']]"),
+                        By.XPath("//span[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'publish original post')]/ancestor::div[@role='button'][1]")
+                    }, 1);
+
+                    if (btn != null)
+                    {
+                        SafeClickScroll(btn);
+                        Thread.Sleep(1200);
+                        Log("Clicked: Publish Original Post");
+                        return;
+                    }
+
+                    // If the upsell is visible but button is not ready yet, wait a little.
+                    if (driver.PageSource.IndexOf("Publish Original Post", StringComparison.OrdinalIgnoreCase) >= 0
+                        || driver.PageSource.IndexOf("Hosting an event", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        Thread.Sleep(600);
+                        continue;
+                    }
+
+                    break;
+                }
+            }
+            catch { }
+        }
+
         private IWebElement FindEnabledButtonByText(string text)
         {
             try
@@ -686,16 +755,16 @@ namespace ToolKHBrowser.ViewModels
                 string url = driver.Url.ToLower();
 
                 // 1) Handle Login Screen (Initial or session loss)
-                bool isLoginScreen = url.Contains("/login/") 
-                    || (url.Contains("facebook.com") && WaitExists(By.Name("login"), 2)) 
-                    || WaitExists(By.Id("email"), 1) 
+                bool isLoginScreen = url.Contains("/login/")
+                    || (url.Contains("facebook.com") && WaitExists(By.Name("login"), 2))
+                    || WaitExists(By.Id("email"), 1)
                     || WaitExists(By.XPath("//input[@name='email']"), 1);
-                
+
                 if (isLoginScreen)
                 {
                     Log("Security: Browser at login screen. Attempting robust sign-in...");
                     RobustLogin(driver, data);
-                    
+
                     // Wait for URL to leave login screen (max 10s)
                     for (int i = 0; i < 5; i++)
                     {
@@ -716,7 +785,7 @@ namespace ToolKHBrowser.ViewModels
                 if (FBTool.Is2FA(driver))
                 {
                     Log("Security: 2FA / Push Approval screen detected. Attempting bypass...");
-                    
+
                     string result = FBTool.AutoFill2FACode(driver, data);
                     if (result == "ok")
                     {
@@ -731,7 +800,7 @@ namespace ToolKHBrowser.ViewModels
                     {
                         Log("Security: 2FA Auto-fill failed: " + result);
                     }
-                    
+
                     url = driver.Url.ToLower();
                 }
 
@@ -739,7 +808,7 @@ namespace ToolKHBrowser.ViewModels
                 if (url.Contains("/login/") || (url.Contains("facebook.com") && WaitExists(By.Name("login"), 2)))
                 {
                     Log("Security: Still at login screen after recovery attempt.");
-                    return false; 
+                    return false;
                 }
 
                 return true;
@@ -747,7 +816,7 @@ namespace ToolKHBrowser.ViewModels
             catch (Exception ex)
             {
                 Log("CheckSessionAndHandleSecurity error: " + ex.Message);
-                return true; 
+                return true;
             }
         }
 
@@ -782,11 +851,13 @@ namespace ToolKHBrowser.ViewModels
                 if (inputEmail != null)
                 {
                     Log("Security: Found Email field. Typing UID...");
-                    try { 
+                    try
+                    {
                         inputEmail.Click();
                         inputEmail.SendKeys(OpenQA.Selenium.Keys.Control + "a");
                         inputEmail.SendKeys(OpenQA.Selenium.Keys.Delete);
-                    } catch { }
+                    }
+                    catch { }
                     Thread.Sleep(500);
                     inputEmail.SendKeys(email);
                 }
@@ -865,10 +936,10 @@ namespace ToolKHBrowser.ViewModels
                 Thread.Sleep(2000);
 
                 var cur = SafeGetUrl();
-                if (IsBlockedUrl(cur)) 
+                if (IsBlockedUrl(cur))
                 {
                     Log("Navigation blocked. Checking security...");
-                    if (CheckSessionAndHandleSecurity()) 
+                    if (CheckSessionAndHandleSecurity())
                     {
                         Log("Security handled. Continuing navigation...");
                         SafeGo(url1, 1500);
@@ -885,7 +956,7 @@ namespace ToolKHBrowser.ViewModels
                 Thread.Sleep(2000);
 
                 cur = SafeGetUrl();
-                if (IsBlockedUrl(cur)) 
+                if (IsBlockedUrl(cur))
                 {
                     if (CheckSessionAndHandleSecurity()) return true; // Let the caller re-verify
                     return false;
@@ -1082,13 +1153,37 @@ namespace ToolKHBrowser.ViewModels
             {
                 Log("Switching back to profile identity...");
 
+                // First try direct navigation to the remembered personal profile URL.
+                if (!string.IsNullOrWhiteSpace(mainProfileUrl))
+                {
+                    Log("Trying remembered main profile URL: " + mainProfileUrl);
+                    try
+                    {
+                        SafeGo(mainProfileUrl, 1000);
+                        FBTool.WaitingPageLoading(driver);
+                        Thread.Sleep(1500);
+                        TryClickSwitchNowIfPresent();
+                        Thread.Sleep(1200);
+                    }
+                    catch { }
+                }
+
+                // Open home so the account/profile menu is in a predictable state.
+                try
+                {
+                    SafeGo("https://www.facebook.com/", 1000);
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(1200);
+                }
+                catch { }
+
                 // Click top-right profile picture menu
                 var profileMenu = FindFirstDisplayed(new[]
                 {
-            By.XPath("//div[@aria-label='Account']"),
-            By.XPath("//div[@role='button' and @aria-label='Your profile']"),
-            By.XPath("//div[@role='button' and .//img]")
-        }, 5);
+                    By.XPath("//div[@aria-label='Account']"),
+                    By.XPath("//div[@role='button' and @aria-label='Your profile']"),
+                    By.XPath("//div[@role='button' and .//img]")
+                }, 5);
 
                 if (profileMenu != null)
                 {
@@ -1096,12 +1191,94 @@ namespace ToolKHBrowser.ViewModels
                     Thread.Sleep(1000);
                 }
 
+                // Primary method for this popup:
+                // Fixed popup-relative OS click for row 2 (main profile under current page).
+                if (TryOsClickSecondProfileRowByPopupLayout())
+                {
+                    Log("OS popup-layout click: selected second profile row.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Primary method fallback:
+                // Native Selenium click on the 2nd row (real/trusted browser click).
+                if (TryNativeClickSecondProfileRowInPopup())
+                {
+                    Log("Native click: selected second profile row.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Secondary method:
+                // Use keyboard navigation instead of DOM click selectors.
+                // Select profile popup starts on current page row -> Home, ArrowDown, Enter => 2nd row.
+                if (TrySelectSecondProfileByKeyboard())
+                {
+                    Log("Keyboard primary: selected second profile row.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Fallback for your popup layout:
+                // Click the 2nd visible profile row (top is current page, second is main profile).
+                if (TryClickSecondProfileRowInPopupJs())
+                {
+                    Log("Clicked 2nd profile row in Select profile popup.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Fallback for "Select profile" popup:
+                // click the profile row immediately after the currently selected row (checked icon).
+                if (TryClickRowAfterCurrentProfile())
+                {
+                    Log("Clicked profile row after current selected page.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Final fallback: name-based click
+                if (!string.IsNullOrWhiteSpace(mainProfileName))
+                {
+                    if (TryClickProfileByNameJs(mainProfileName))
+                    {
+                        Log("Clicked personal profile by JS text match: " + mainProfileName);
+                        if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                    }
+
+                    if (TryClickProfileByVisibleName(mainProfileName))
+                    {
+                        Log("Clicked personal profile by name: " + mainProfileName);
+                        if (WaitSelectProfilePopupClosed(4)) { Log("Switched to profile."); return; }
+                    }
+                }
+
+                // Fallback: click the top profile row directly
+                var topProfileRow = FindFirstDisplayed(new[]
+                {
+                    By.XPath("(//div[@role='dialog']//div[@role='button'][.//img])[1]"),
+                    By.XPath("(//div[@role='menu']//div[@role='button'][.//img])[1]"),
+                    By.XPath("(//div[@role='button'][.//img and not(.//*[normalize-space(.)='See all profiles'])])[1]")
+                }, 2);
+
+                if (topProfileRow != null)
+                {
+                    try
+                    {
+                        var rowText = (topProfileRow.Text ?? "").Trim();
+                        if (!string.IsNullOrWhiteSpace(rowText) &&
+                            rowText.IndexOf("See all profiles", StringComparison.OrdinalIgnoreCase) < 0)
+                        {
+                            SafeClick(topProfileRow);
+                            Thread.Sleep(2000);
+                            Log("Clicked top profile row from account switch popup.");
+                            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                        }
+                    }
+                    catch { }
+                }
+
                 // Click "See all profiles"
                 var seeAll = FindFirstDisplayed(new[]
                 {
-            By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
-            By.XPath("//span[contains(.,'profiles')]/ancestor::div[@role='button'][1]")
-        }, 3);
+                    By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
+                    By.XPath("//span[contains(.,'profiles')]/ancestor::div[@role='button'][1]")
+                }, 3);
 
                 if (seeAll != null)
                 {
@@ -1112,21 +1289,941 @@ namespace ToolKHBrowser.ViewModels
                 // Click your personal profile (not Page)
                 var switchProfile = FindFirstDisplayed(new[]
                 {
-            By.XPath("//span[contains(.,'Switch to')]/ancestor::div[@role='button'][1]"),
-            By.XPath("//span[contains(.,'profile')]/ancestor::div[@role='button'][1]")
-        }, 3);
+                    By.XPath("//span[contains(.,'Switch to')]/ancestor::div[@role='button'][1]"),
+                    By.XPath("//span[contains(.,'profile')]/ancestor::div[@role='button'][1]")
+                }, 3);
 
                 if (switchProfile != null)
                 {
                     SafeClick(switchProfile);
                     Thread.Sleep(2000);
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+                else
+                {
+                    // Fallback: direct menu item text on some FB variants
+                    var personal = FindFirstDisplayed(new[]
+                    {
+                        By.XPath("//span[normalize-space(.)='Switch to profile']/ancestor::div[@role='button'][1]"),
+                        By.XPath("//span[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'switch to profile')]/ancestor::div[@role='button'][1]")
+                    }, 2);
+
+                    if (personal != null)
+                    {
+                        SafeClick(personal);
+                        Thread.Sleep(2000);
+                        if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                    }
                 }
 
-                Log("Switched to profile.");
+                if (IsSelectProfilePopupOpen())
+                {
+                    // Last automatic fallback (outside Selenium): AutoHotkey click on popup row #2.
+                    if (TryAutoHotkeyClickSecondProfileRow())
+                    {
+                        Log("AutoHotkey fallback: clicked second profile row.");
+                        if (WaitSelectProfilePopupClosed(6))
+                        {
+                            Log("Switched to profile.");
+                            return;
+                        }
+                    }
+
+                    Log("Auto switch failed. Waiting manual click on main profile in 'Select profile' popup...");
+                    if (WaitManualSelectProfilePopupClosed(120))
+                    {
+                        Log("Manual switch detected (popup closed).");
+                        return;
+                    }
+
+                    Log("Switch profile failed: Select profile popup still open after manual wait timeout.");
+                }
+                else
+                {
+                    Log("Switch flow finished (popup not visible).");
+                }
             }
             catch (Exception ex)
             {
                 Log("SwitchToProfileIdentity error: " + ex.Message);
+            }
+        }
+
+        private bool IsSelectProfilePopupOpen()
+        {
+            try
+            {
+                var js = (IJavaScriptExecutor)driver;
+                var result = js.ExecuteScript(
+                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }" +
+                    "function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }" +
+                    "var nodes = Array.from(document.querySelectorAll('div')).filter(vis);" +
+                    "for (var i=0;i<nodes.length;i++){" +
+                    "  var el = nodes[i]; var t = txt(el); if(!t) continue;" +
+                    "  if (t.indexOf('See all Pages')<0 && t.indexOf('See all profiles')<0) continue;" +
+                    "  var r = el.getBoundingClientRect();" +
+                    "  if (r.width < 240 || r.width > 700 || r.height < 220 || r.height > 900) continue;" +
+                    "  if (!el.querySelectorAll || el.querySelectorAll('img').length < 2) continue;" +
+                    "  return true;" +
+                    "}" +
+                    "return false;");
+                return result is bool && (bool)result;
+            }
+            catch { return false; }
+        }
+
+        private bool WaitSelectProfilePopupClosed(int seconds)
+        {
+            for (int i = 0; i < seconds * 5; i++)
+            {
+                if (!IsSelectProfilePopupOpen()) return true;
+                Thread.Sleep(200);
+            }
+            return false;
+        }
+
+        private bool WaitSwitchBackConfirmed(int seconds)
+        {
+            if (!WaitSelectProfilePopupClosed(seconds))
+                return false;
+
+            // Popup can close even when the click missed the intended row.
+            // Confirm we are no longer obviously in Page identity UI.
+            for (int i = 0; i < 10; i++)
+            {
+                if (!IsLikelyPageIdentityUi())
+                    return true;
+
+                Thread.Sleep(300);
+            }
+
+            Log("Popup closed but still appears to be Page identity UI.");
+            return false;
+        }
+
+        private bool IsLikelyPageIdentityUi()
+        {
+            try
+            {
+                string src = "";
+                try { src = (driver.PageSource ?? "").ToLowerInvariant(); } catch { src = ""; }
+                if (string.IsNullOrEmpty(src)) return false;
+
+                // English UI signals seen in your screenshots while acting as Page.
+                if (src.Contains("tips for your page")) return true;
+                if (src.Contains("recommended post") && src.Contains("see insights")) return true;
+                if (src.Contains("boost reel")) return true;
+
+                return false;
+            }
+            catch { return false; }
+        }
+
+        private bool WaitManualSelectProfilePopupClosed(int seconds)
+        {
+            // Manual assist fallback:
+            // user clicks the main profile row in the popup, then automation resumes.
+            for (int i = 0; i < seconds; i++)
+            {
+                if (!IsSelectProfilePopupOpen()) return true;
+                Thread.Sleep(1000);
+
+                // Periodic reminder so the operator knows the bot is intentionally waiting.
+                if (i > 0 && i % 10 == 0)
+                {
+                    Log("Waiting manual switch... click main profile row, then bot will continue.");
+                }
+            }
+
+            return !IsSelectProfilePopupOpen();
+        }
+
+        private bool IsSwitchProfileFailedToast()
+        {
+            try
+            {
+                return driver.PageSource.IndexOf("Switch profile failed", StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            catch { return false; }
+        }
+
+        private bool TryClickRowAfterCurrentProfile()
+        {
+            try
+            {
+                // Common structure in "Select profile": current row contains a check icon.
+                // Then the next sibling row is often the personal profile.
+                var nextRow = FindFirstDisplayed(new[]
+                {
+                    By.XPath("(//div[@role='dialog']//div[@role='button'][.//*[name()='svg'] and .//img])[1]/following-sibling::div[@role='button'][1]"),
+                    By.XPath("(//div[@role='dialog']//div[@role='button'][.//img])[1]/following-sibling::div[@role='button'][1]"),
+                    By.XPath("(//div[@role='menu']//div[@role='button'][.//img])[1]/following-sibling::div[@role='button'][1]")
+                }, 2);
+
+                if (nextRow == null) return false;
+
+                var text = (nextRow.Text ?? "").Trim();
+                if (text.IndexOf("See all", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return false;
+
+                SafeClick(nextRow);
+                Thread.Sleep(2000);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private bool TryOsClickSecondProfileRowByPopupLayout()
+        {
+            try
+            {
+                if (!IsSelectProfilePopupOpen()) return false;
+
+                double left, top, width, height, dpr;
+                if (!TryGetSelectProfilePopupRect(out left, out top, out width, out height, out dpr))
+                    return false;
+
+                if (width <= 0 || height <= 0) return false;
+
+                Log($"Popup rect => left={left:0.0}, top={top:0.0}, w={width:0.0}, h={height:0.0}, dpr={dpr:0.##}");
+
+                // Layout-based row-2 click (from your screenshot):
+                // row2 is below title + row1. Click near avatar/text line area, not center of popup.
+                var candidatesCss = new[]
+                {
+                    // Prefer text hotspot ("Ro Bin") over avatar/left shell.
+                    Tuple.Create(left + width * 0.42, top + height * 0.43, "row2-text-main"),
+                    Tuple.Create(left + width * 0.48, top + height * 0.43, "row2-text-right"),
+                    Tuple.Create(left + width * 0.36, top + height * 0.43, "row2-text-left"),
+                    Tuple.Create(left + width * 0.28, top + height * 0.43, "row2-main"),
+                    Tuple.Create(left + width * 0.22, top + height * 0.43, "row2-avatar"),
+                    Tuple.Create(left + width * 0.28, top + height * 0.46, "row2-down"),
+                    Tuple.Create(left + width * 0.28, top + height * 0.40, "row2-up")
+                };
+
+                foreach (var c in candidatesCss)
+                {
+                    var points = new List<Tuple<int, int, string>>
+                    {
+                        Tuple.Create((int)Math.Round(c.Item1), (int)Math.Round(c.Item2), c.Item3 + "-css"),
+                        Tuple.Create((int)Math.Round(c.Item1 * dpr), (int)Math.Round(c.Item2 * dpr), c.Item3 + "-scaled")
+                    };
+
+                    foreach (var p in points)
+                    {
+                        if (!SetCursorPos(p.Item1, p.Item2))
+                            continue;
+
+                        Log($"OS popup-layout click => mode={p.Item3}, x={p.Item1}, y={p.Item2}, dpr={dpr:0.##}");
+
+                        Thread.Sleep(120);
+                        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                        Thread.Sleep(60);
+                        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+
+                        // Some Facebook rows behave better with a second click on text hotspot.
+                        if (p.Item3.IndexOf("text", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            Thread.Sleep(120);
+                            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                            Thread.Sleep(50);
+                            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                        }
+
+                        Thread.Sleep(700);
+
+                        if (!IsSelectProfilePopupOpen())
+                            return true;
+
+                        if (IsSwitchProfileFailedToast())
+                        {
+                            Log("Popup-layout click hit wrong target (Switch profile failed). Retrying...");
+                            Thread.Sleep(350);
+                        }
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log("TryOsClickSecondProfileRowByPopupLayout error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private bool TryGetSelectProfilePopupRect(out double left, out double top, out double width, out double height, out double dpr)
+        {
+            left = top = width = height = 0;
+            dpr = 1.0;
+            try
+            {
+                var js = (IJavaScriptExecutor)driver;
+                var rectObj = js.ExecuteScript(
+                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }" +
+                    "function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }" +
+                    "var panel = null;" +
+                    "var candidates = Array.from(document.querySelectorAll('div')).filter(vis);" +
+                    "for (var i=0;i<candidates.length;i++){" +
+                    "  var el = candidates[i]; var t = txt(el); if(!t) continue;" +
+                    "  if (t.indexOf('See all Pages')<0 && t.indexOf('See all profiles')<0) continue;" +
+                    "  var r = el.getBoundingClientRect();" +
+                    "  if (r.width < 240 || r.width > 700 || r.height < 220 || r.height > 900) continue;" +
+                    "  if (!el.querySelectorAll || el.querySelectorAll('img').length < 2) continue;" +
+                    "  // Prefer panel-like container near top-right (popup), not page sections." +
+                    "  if (!panel) panel = el;" +
+                    "  else { var pr = panel.getBoundingClientRect(); if (r.width*r.height < pr.width*pr.height) panel = el; }" +
+                    "}" +
+                    "if(!panel) return null;" +
+                    "var r = panel.getBoundingClientRect();" +
+                    "var sx = (window.screenX || window.screenLeft || 0);" +
+                    "var sy = (window.screenY || window.screenTop || 0);" +
+                    "var chromeTop = Math.max(0, (window.outerHeight - window.innerHeight));" +
+                    "var chromeLeft = Math.max(0, (window.outerWidth - window.innerWidth) / 2);" +
+                    "return { left: sx + chromeLeft + r.left, top: sy + chromeTop + r.top, width: r.width, height: r.height, dpr: (window.devicePixelRatio || 1) };");
+
+                var dict = rectObj as IDictionary<string, object>;
+                if (dict == null) return false;
+
+                left = Convert.ToDouble(dict["left"]);
+                top = Convert.ToDouble(dict["top"]);
+                width = Convert.ToDouble(dict["width"]);
+                height = Convert.ToDouble(dict["height"]);
+                dpr = dict.ContainsKey("dpr") ? Convert.ToDouble(dict["dpr"]) : 1.0;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log("TryGetSelectProfilePopupRect error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private bool TryAutoHotkeyClickSecondProfileRow()
+        {
+            try
+            {
+                if (!IsSelectProfilePopupOpen()) return false;
+
+                string ahkExe = FindAutoHotkeyExe();
+                if (string.IsNullOrWhiteSpace(ahkExe))
+                {
+                    Log("AutoHotkey fallback skipped: AutoHotkey.exe not found.");
+                    return false;
+                }
+
+                double left, top, width, height, dpr;
+                if (!TryGetSelectProfilePopupRect(out left, out top, out width, out height, out dpr))
+                    return false;
+
+                // Row #2 (main profile) in popup layout from screenshot: click avatar/text band.
+                double clickX = left + (width * 0.28);
+                double clickY = top + (height * 0.43);
+
+                // Use unscaled first (AutoHotkey often works in logical coords on Windows).
+                int x1 = (int)Math.Round(clickX);
+                int y1 = (int)Math.Round(clickY);
+                int x2 = (int)Math.Round(clickX * dpr);
+                int y2 = (int)Math.Round(clickY * dpr);
+
+                string scriptPath = Path.Combine(Path.GetTempPath(), "khbrowser_switch_profile_row2.ahk");
+                string script = BuildAutoHotkeySwitchScript(x1, y1, x2, y2);
+                File.WriteAllText(scriptPath, script);
+
+                Log($"AutoHotkey fallback running => x1={x1},y1={y1}, x2={x2},y2={y2}, dpr={dpr:0.##}");
+
+                var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = ahkExe,
+                    Arguments = "\"" + scriptPath + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                try { if (p != null) p.WaitForExit(6000); } catch { }
+                Thread.Sleep(800);
+                return !IsSelectProfilePopupOpen();
+            }
+            catch (Exception ex)
+            {
+                Log("TryAutoHotkeyClickSecondProfileRow error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private string FindAutoHotkeyExe()
+        {
+            try
+            {
+                var candidates = new[]
+                {
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "AutoHotkey", "AutoHotkey.exe"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "AutoHotkey", "v2", "AutoHotkey64.exe"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "AutoHotkey", "v2", "AutoHotkey.exe"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "AutoHotkey", "AutoHotkey.exe"),
+                };
+
+                foreach (var p in candidates)
+                {
+                    try { if (!string.IsNullOrWhiteSpace(p) && File.Exists(p)) return p; } catch { }
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private string BuildAutoHotkeySwitchScript(int x1, int y1, int x2, int y2)
+        {
+            // AutoHotkey v1 script syntax (most common in automation setups).
+            // Try logical coords first, then scaled coords as retry.
+            return
+                "CoordMode, Mouse, Screen\r\n" +
+                "SetMouseDelay, 50\r\n" +
+                "MouseMove, " + x1 + ", " + y1 + ", 0\r\n" +
+                "Click\r\n" +
+                "Sleep, 700\r\n" +
+                "MouseMove, " + x2 + ", " + y2 + ", 0\r\n" +
+                "Click\r\n" +
+                "Sleep, 700\r\n" +
+                "ExitApp\r\n";
+        }
+
+        private bool TryNativeClickSecondProfileRowInPopup()
+        {
+            try
+            {
+                if (!IsSelectProfilePopupOpen()) return false;
+
+                var js = (IJavaScriptExecutor)driver;
+                var rowObj = js.ExecuteScript(
+                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }" +
+                    "function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }" +
+                    "var marker = Array.from(document.querySelectorAll('div,span')).find(function(n){ if(!vis(n)) return false; var t=txt(n); return t==='See all Pages' || t==='See all profiles' || t==='Select profile'; });" +
+                    "if(!marker) return null;" +
+                    "var panel = marker;" +
+                    "for(var i=0;i<18 && panel; i++){ var t=txt(panel); if((t.indexOf('See all Pages')>=0 || t.indexOf('See all profiles')>=0) && panel.querySelectorAll && panel.querySelectorAll('img').length>=2) break; panel=panel.parentElement; }" +
+                    "if(!panel) return null;" +
+                    "var imgs = Array.from(panel.querySelectorAll('img')).filter(function(img){ if(!vis(img)) return false; var r=img.getBoundingClientRect(); return r.width>=20 && r.height>=20; });" +
+                    "imgs.sort(function(a,b){ return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });" +
+                    "var unique=[];" +
+                    "for(var j=0;j<imgs.length;j++){ var im=imgs[j], r=im.getBoundingClientRect(); if(unique.some(function(u){ var ur=u.getBoundingClientRect(); return Math.abs(ur.top-r.top)<4 && Math.abs(ur.left-r.left)<4; })) continue; unique.push(im); }" +
+                    "if(unique.length < 2) return null;" +
+                    "var row = unique[1];" +
+                    "for(var d=0; d<8 && row; d++){ var rt=txt(row), rr=row.getBoundingClientRect(); if(vis(row) && rr.width>180 && rr.height>35 && rt && rt.indexOf('See all')<0) break; row=row.parentElement; }" +
+                    "return row || null;");
+
+                var row = rowObj as IWebElement;
+                if (row == null)
+                {
+                    Log("Native click fallback: could not resolve second profile row element.");
+                    return false;
+                }
+
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", row);
+                    Thread.Sleep(250);
+                }
+                catch { }
+
+                string rowText = "";
+                try { rowText = (row.Text ?? "").Trim(); } catch { }
+
+                // First try OS-level mouse click at row center (trusted native click).
+                if (TryOsClickElementCenter(row))
+                {
+                    Thread.Sleep(1200);
+                    if (!string.IsNullOrWhiteSpace(rowText))
+                        Log("OS clicked row text: " + rowText.Replace("\r", " ").Replace("\n", " "));
+                    return true;
+                }
+
+                try
+                {
+                    new Actions(driver)
+                        .MoveToElement(row)
+                        .Click()
+                        .Build()
+                        .Perform();
+                    Thread.Sleep(1200);
+                }
+                catch (Exception ex)
+                {
+                    Log("Native click fallback error: " + ex.Message);
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(rowText))
+                    Log("Native clicked row text: " + rowText.Replace("\r", " ").Replace("\n", " "));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log("TryNativeClickSecondProfileRowInPopup error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private bool TryOsClickElementCenter(IWebElement element)
+        {
+            try
+            {
+                if (element == null) return false;
+
+                var js = (IJavaScriptExecutor)driver;
+                var pointObj = js.ExecuteScript(
+                    "var el = arguments[0];" +
+                    "if(!el) return null;" +
+                    "var r = el.getBoundingClientRect();" +
+                    "var sx = (window.screenX || window.screenLeft || 0);" +
+                    "var sy = (window.screenY || window.screenTop || 0);" +
+                    "var chromeTop = Math.max(0, (window.outerHeight - window.innerHeight));" +
+                    "var chromeLeft = Math.max(0, (window.outerWidth - window.innerWidth) / 2);" +
+                    "return { x: sx + chromeLeft + r.left, y: sy + chromeTop + r.top, w: r.width, h: r.height, dpr: (window.devicePixelRatio || 1) };",
+                    element);
+
+                var dict = pointObj as IDictionary<string, object>;
+                if (dict == null || !dict.ContainsKey("x") || !dict.ContainsKey("y"))
+                {
+                    Log("OS click fallback: could not compute screen point.");
+                    return false;
+                }
+
+                double left = Convert.ToDouble(dict["x"]);
+                double top = Convert.ToDouble(dict["y"]);
+                double width = dict.ContainsKey("w") ? Convert.ToDouble(dict["w"]) : 0;
+                double height = dict.ContainsKey("h") ? Convert.ToDouble(dict["h"]) : 0;
+                double dpr = dict.ContainsKey("dpr") ? Convert.ToDouble(dict["dpr"]) : 1.0;
+
+                if (width <= 0 || height <= 0)
+                    return false;
+
+                // Prefer left-center of row (over text/avatar area) over exact center.
+                double cx = left + (width * 0.28);
+                double cy = top + (height * 0.50);
+                double mx = left + (width * 0.50);
+                double my = top + (height * 0.50);
+
+                var candidates = new List<Tuple<int, int, string>>
+                {
+                    Tuple.Create((int)Math.Round(cx), (int)Math.Round(cy), "css-left"),
+                    Tuple.Create((int)Math.Round(mx), (int)Math.Round(my), "css-center"),
+                    Tuple.Create((int)Math.Round(cx * dpr), (int)Math.Round(cy * dpr), "scaled-left"),
+                    Tuple.Create((int)Math.Round(mx * dpr), (int)Math.Round(my * dpr), "scaled-center")
+                };
+
+                foreach (var p in candidates)
+                {
+                    try
+                    {
+                        Log($"OS click point => mode={p.Item3}, x={p.Item1}, y={p.Item2}, dpr={dpr:0.##}");
+
+                        if (!SetCursorPos(p.Item1, p.Item2))
+                            continue;
+
+                        Thread.Sleep(120);
+                        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                        Thread.Sleep(60);
+                        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                        Thread.Sleep(500);
+
+                        if (!IsSelectProfilePopupOpen())
+                            return true;
+
+                        if (IsSwitchProfileFailedToast())
+                        {
+                            Log("OS click attempt triggered 'Switch profile failed' toast. Retrying point...");
+                            Thread.Sleep(400);
+                        }
+                    }
+                    catch { }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log("TryOsClickElementCenter error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private bool TryClickSecondProfileRowInPopupJs()
+        {
+            try
+            {
+                var js = (IJavaScriptExecutor)driver;
+                var script =
+                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }\n" +
+                    "function txt(el){ return ((el && (el.innerText||el.textContent))||'').trim(); }\n" +
+                    "function clickAtCenter(el){\n" +
+                    "  if(!el) return false;\n" +
+                    "  try{ el.scrollIntoView({block:'center'});}catch(e){}\n" +
+                    "  var r = el.getBoundingClientRect();\n" +
+                    "  var x = Math.floor(r.left + r.width/2);\n" +
+                    "  var y = Math.floor(r.top + r.height/2);\n" +
+                    "  try{ var t = document.elementFromPoint(x,y); if(t){ t.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true,view:window,clientX:x,clientY:y})); t.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true,view:window,clientX:x,clientY:y})); t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window,clientX:x,clientY:y})); return 'center:' + (t.tagName||''); } }catch(e){}\n" +
+                    "  try{ el.click(); return 'row'; }catch(e){}\n" +
+                    "  return false;\n" +
+                    "}\n" +
+                    "var marker = Array.from(document.querySelectorAll('div,span')).find(function(n){ if(!vis(n)) return false; var t=txt(n); return t==='See all Pages' || t==='See all profiles' || t==='Select profile'; });\n" +
+                    "if(!marker) return 'ERR:no_marker';\n" +
+                    "var panel = marker;\n" +
+                    "for(var i=0;i<18 && panel; i++){\n" +
+                    "  var t = txt(panel);\n" +
+                    "  if((t.indexOf('See all Pages')>=0 || t.indexOf('See all profiles')>=0) && panel.querySelectorAll && panel.querySelectorAll('img').length>=2) break;\n" +
+                    "  panel = panel.parentElement;\n" +
+                    "}\n" +
+                    "if(!panel) return 'ERR:no_panel';\n" +
+                    "var imgs = Array.from(panel.querySelectorAll('img')).filter(function(img){ if(!vis(img)) return false; var r=img.getBoundingClientRect(); return r.width>=20 && r.height>=20; });\n" +
+                    "imgs.sort(function(a,b){ return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });\n" +
+                    "var unique=[];\n" +
+                    "for(var j=0;j<imgs.length;j++){\n" +
+                    "  var im=imgs[j]; var r=im.getBoundingClientRect();\n" +
+                    "  if(unique.some(function(u){ var ur=u.getBoundingClientRect(); return Math.abs(ur.top-r.top)<4 && Math.abs(ur.left-r.left)<4; })) continue;\n" +
+                    "  unique.push(im);\n" +
+                    "}\n" +
+                    "if(unique.length < 2) return 'ERR:avatars=' + unique.length;\n" +
+                    "var secondImg = unique[1];\n" +
+                    "var row = secondImg;\n" +
+                    "for(var d=0; d<8 && row; d++){\n" +
+                    "  var rt = txt(row);\n" +
+                    "  var rr = row.getBoundingClientRect();\n" +
+                    "  if(vis(row) && rr.width > 180 && rr.height > 35 && rt && rt.indexOf('See all') < 0) break;\n" +
+                    "  row = row.parentElement;\n" +
+                    "}\n" +
+                    "if(!row) return 'ERR:no_row';\n" +
+                    "var rowText = txt(row).replace(/\\s+/g,' ').slice(0,80);\n" +
+                    "var clickRes = clickAtCenter(row);\n" +
+                    "if(!clickRes) return 'ERR:click_false:' + rowText;\n" +
+                    "return 'OK:' + clickRes + ':' + rowText;";
+
+                var result = js.ExecuteScript(script);
+                Log("TryClickSecondProfileRowInPopupJs => " + (result == null ? "null" : result.ToString()));
+
+                var ok = false;
+                if (result is bool) ok = (bool)result;
+                else if (result != null)
+                {
+                    var s = result.ToString();
+                    ok = s.StartsWith("OK:", StringComparison.OrdinalIgnoreCase);
+                }
+
+                if (ok)
+                {
+                    Thread.Sleep(1800);
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private bool TrySelectSecondProfileByKeyboard()
+        {
+            try
+            {
+                if (!IsSelectProfilePopupOpen()) return false;
+
+                var target = FindFirstDisplayed(new[]
+                {
+                    By.XPath("//*[normalize-space(.)='Select profile']"),
+                    By.XPath("//div[@role='dialog']"),
+                    By.TagName("body")
+                }, 1);
+
+                if (target != null)
+                {
+                    try { SafeClickScroll(target); } catch { }
+                    Thread.Sleep(300);
+                }
+
+                // Focus position can vary (header/current row/button). Try multiple sequences.
+                // Strategy A: reset with Home, then ArrowDown N times.
+                int[] downCounts = new[] { 1, 2, 3, 4 };
+                foreach (var downCount in downCounts)
+                {
+                    try
+                    {
+                        // reset to top
+                        new Actions(driver)
+                            .SendKeys(OpenQA.Selenium.Keys.Home)
+                            .Build()
+                            .Perform();
+                        Thread.Sleep(250);
+
+                        for (int i = 0; i < downCount; i++)
+                        {
+                            new Actions(driver)
+                                .SendKeys(OpenQA.Selenium.Keys.ArrowDown)
+                                .Build()
+                                .Perform();
+                            Thread.Sleep(200);
+                        }
+
+                        new Actions(driver)
+                            .SendKeys(OpenQA.Selenium.Keys.Enter)
+                            .Build()
+                            .Perform();
+
+                        Thread.Sleep(1200);
+
+                        // Success: popup closes
+                        if (!IsSelectProfilePopupOpen())
+                            return true;
+
+                        // If FB says failed, retry another offset.
+                        if (IsSwitchProfileFailedToast())
+                        {
+                            Log("Keyboard switch attempt failed toast (down=" + downCount + "). Retrying...");
+                            Thread.Sleep(600);
+                            continue;
+                        }
+                    }
+                    catch { }
+                }
+
+                // Strategy B: tab through focusable elements in popup and press Enter.
+                int[] tabCounts = new[] { 1, 2, 3, 4, 5, 6 };
+                foreach (var tabCount in tabCounts)
+                {
+                    try
+                    {
+                        // Try to focus popup header/body again before tabbing.
+                        var focusTarget = FindFirstDisplayed(new[]
+                        {
+                            By.XPath("//*[normalize-space(.)='Select profile']"),
+                            By.XPath("//div[@role='dialog']"),
+                            By.TagName("body")
+                        }, 1);
+                        if (focusTarget != null)
+                        {
+                            try { SafeClickScroll(focusTarget); } catch { }
+                            Thread.Sleep(250);
+                        }
+
+                        for (int i = 0; i < tabCount; i++)
+                        {
+                            new Actions(driver)
+                                .SendKeys(OpenQA.Selenium.Keys.Tab)
+                                .Build()
+                                .Perform();
+                            Thread.Sleep(180);
+                        }
+
+                        new Actions(driver)
+                            .SendKeys(OpenQA.Selenium.Keys.Enter)
+                            .Build()
+                            .Perform();
+
+                        Thread.Sleep(1200);
+
+                        if (!IsSelectProfilePopupOpen())
+                            return true;
+
+                        if (IsSwitchProfileFailedToast())
+                        {
+                            Log("Keyboard switch attempt failed toast (tab=" + tabCount + "). Retrying...");
+                            Thread.Sleep(600);
+                            continue;
+                        }
+                    }
+                    catch { }
+                }
+
+                return false;
+            }
+            catch { return false; }
+        }
+
+        private bool TryClickProfileByVisibleName(string profileName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(profileName)) return false;
+                string target = profileName.Trim();
+
+                // 1) Exact text node hit (span/div), then climb to clickable row.
+                var textNode = FindFirstDisplayed(new[]
+                {
+                    By.XPath("//div[@role='dialog']//*[self::span or self::div][normalize-space(.)=\"" + EscapeXPathLiteral(target) + "\"]"),
+                    By.XPath("//div[@role='menu']//*[self::span or self::div][normalize-space(.)=\"" + EscapeXPathLiteral(target) + "\"]"),
+                    By.XPath("//div[@role='dialog']//*[self::span or self::div][contains(normalize-space(.),\"" + EscapeXPathLiteral(target) + "\")]"),
+                    By.XPath("//div[@role='menu']//*[self::span or self::div][contains(normalize-space(.),\"" + EscapeXPathLiteral(target) + "\")]")
+                }, 2);
+
+                if (textNode != null)
+                {
+                    if (ClickNearestProfileRow(textNode))
+                        return true;
+                }
+
+                // 2) Brute-force visible rows with images in popup/menu.
+                var rows = driver.FindElements(By.XPath("//div[@role='dialog']//div[.//img] | //div[@role='menu']//div[.//img]"));
+                foreach (var row in rows)
+                {
+                    try
+                    {
+                        if (!row.Displayed) continue;
+                        var t = (row.Text ?? "").Trim();
+                        if (string.IsNullOrWhiteSpace(t)) continue;
+                        if (t.IndexOf("See all", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+
+                        if (t.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            SafeClickScroll(row);
+                            Thread.Sleep(2000);
+                            return true;
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private bool TryClickProfileByNameJs(string profileName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(profileName)) return false;
+
+                var js = (IJavaScriptExecutor)driver;
+                var script =
+                    "var target = (arguments[0] || '').trim().toLowerCase();\n" +
+                    "if (!target) return false;\n" +
+                    "function isVisible(el) {\n" +
+                    "  if (!el) return false;\n" +
+                    "  var r = el.getBoundingClientRect();\n" +
+                    "  var s = window.getComputedStyle(el);\n" +
+                    "  return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';\n" +
+                    "}\n" +
+                    "function clickEl(el) {\n" +
+                    "  try { el.scrollIntoView({block:'center'}); } catch(e) {}\n" +
+                    "  try { el.click(); return true; } catch(e) {}\n" +
+                    "  try { el.dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true, view:window})); return true; } catch(e) {}\n" +
+                    "  return false;\n" +
+                    "}\n" +
+                    "var nodes = Array.from(document.querySelectorAll('div, span'));\n" +
+                    "for (var i = 0; i < nodes.length; i++) {\n" +
+                    "  var n = nodes[i];\n" +
+                    "  if (!isVisible(n)) continue;\n" +
+                    "  var txt = (n.innerText || n.textContent || '').trim();\n" +
+                    "  if (!txt) continue;\n" +
+                    "  if (txt.toLowerCase() !== target) continue;\n" +
+                    "  var cur = n;\n" +
+                    "  for (var d = 0; d < 6 && cur; d++) {\n" +
+                    "    if (isVisible(cur)) {\n" +
+                    "      var rowText = (cur.innerText || '').toLowerCase();\n" +
+                    "      if (rowText.indexOf('see all') < 0 && clickEl(cur)) return true;\n" +
+                    "    }\n" +
+                    "    cur = cur.parentElement;\n" +
+                    "  }\n" +
+                    "  if (clickEl(n)) return true;\n" +
+                    "}\n" +
+                    "return false;";
+                var clicked = js.ExecuteScript(script, profileName);
+
+                if (clicked is bool && (bool)clicked)
+                {
+                    Thread.Sleep(1800);
+                    return true;
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private bool ClickNearestProfileRow(IWebElement el)
+        {
+            if (el == null) return false;
+
+            try
+            {
+                var candidates = new List<IWebElement>();
+
+                try
+                {
+                    var c1 = el.FindElement(By.XPath("./ancestor::div[@role='button'][1]"));
+                    if (c1 != null) candidates.Add(c1);
+                }
+                catch { }
+
+                try
+                {
+                    var c2 = el.FindElement(By.XPath("./ancestor::div[.//img][1]"));
+                    if (c2 != null) candidates.Add(c2);
+                }
+                catch { }
+
+                candidates.Add(el);
+
+                foreach (var c in candidates)
+                {
+                    try
+                    {
+                        if (!c.Displayed) continue;
+                        SafeClickScroll(c);
+                        Thread.Sleep(1500);
+                        return true;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", c);
+                            Thread.Sleep(1500);
+                            return true;
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private string EscapeXPathLiteral(string value)
+        {
+            // Minimal escape for existing usage; avoid double quotes breaking XPath strings.
+            return (value ?? "").Replace("\"", "");
+        }
+
+        private void RememberMainProfileUrl()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(mainProfileUrl))
+                    return;
+
+                Log("Capturing main profile URL...");
+
+                SafeGo("https://www.facebook.com/me", 1000);
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(1500);
+
+                var url = SafeGetUrl();
+                if (string.IsNullOrWhiteSpace(url) || IsBlockedUrl(url))
+                {
+                    Log("Capture main profile URL failed (blocked/empty).");
+                    return;
+                }
+
+                if (url.IndexOf("facebook.com", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    mainProfileUrl = url;
+                    Log("Captured main profile URL: " + mainProfileUrl);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("RememberMainProfileUrl error: " + ex.Message);
             }
         }
 

@@ -30,6 +30,42 @@ namespace ToolKHBrowser.ToolLib.Tool
 {
     public static class WebFBTool
     {
+        private static bool TrySetClipboardTextSafe(string text)
+        {
+            try
+            {
+                var value = text ?? string.Empty;
+                if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+                {
+                    System.Windows.Forms.Clipboard.SetText(value);
+                    return true;
+                }
+
+                Exception clipboardError = null;
+                var thread = new Thread(() =>
+                {
+                    try
+                    {
+                        System.Windows.Forms.Clipboard.SetText(value);
+                    }
+                    catch (Exception ex)
+                    {
+                        clipboardError = ex;
+                    }
+                });
+                thread.IsBackground = true;
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                thread.Join(1500);
+
+                return clipboardError == null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
@@ -980,7 +1016,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     catch (Exception) { }
                 }
             } while (!isWorking && counter-- > 0);
-            if(!isWorking)
+            if (!isWorking)
             {
                 return;
             }
@@ -996,7 +1032,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     isWorking = true;
                 }
                 catch (Exception) { }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
@@ -1006,21 +1042,23 @@ namespace ToolKHBrowser.ToolLib.Tool
                     catch (Exception) { }
                 }
             } while (!isWorking && counter-- > 0);
-            if(!isWorking)
+            if (!isWorking)
             {
                 return;
             }
             try
             {
-                element.SendKeys(OpenQA.Selenium.Keys.Control+'a');
+                element.SendKeys(OpenQA.Selenium.Keys.Control + 'a');
                 Thread.Sleep(500);
                 element.SendKeys(OpenQA.Selenium.Keys.Delete);
-            } catch(Exception) { }
+            }
+            catch (Exception) { }
             Thread.Sleep(1000);
             try
             {
                 element.SendKeys(marketingplace);
-            } catch(Exception) { }
+            }
+            catch (Exception) { }
             Thread.Sleep(1000);
             try
             {
@@ -1037,7 +1075,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 isWorking = true;
             }
             catch (Exception) { }
-            if(!isWorking)
+            if (!isWorking)
             {
                 try
                 {
@@ -1079,7 +1117,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
@@ -1089,7 +1127,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     catch (Exception) { }
                 }
             } while (!isWorking && counter-- > 0);
-            if(!isWorking)
+            if (!isWorking)
             {
                 return;
             }
@@ -1105,7 +1143,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     isWorking = true;
                 }
                 catch (Exception) { }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
@@ -1115,7 +1153,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     catch (Exception) { }
                 }
             } while (!isWorking && counter-- > 0);
-            if(!isWorking)
+            if (!isWorking)
             {
                 return;
             }
@@ -1132,7 +1170,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     isWorking = true;
                 }
                 catch (Exception) { }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
@@ -1141,15 +1179,16 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-            } while(!isWorking && counter-- > 0);
-            if(!isWorking)
+            } while (!isWorking && counter-- > 0);
+            if (!isWorking)
             {
                 return;
             }
             try
             {
                 element.SendKeys(searchCheckin);
-            } catch(Exception) { }
+            }
+            catch (Exception) { }
             Thread.Sleep(1000);
             try
             {
@@ -1160,14 +1199,14 @@ namespace ToolKHBrowser.ToolLib.Tool
             catch (Exception) { }
             Thread.Sleep(1000);
             isWorking = SubmitPost(driver);
-            if(isWorking)
+            if (isWorking)
             {
                 Thread.Sleep(4000);
             }
         }
         public static bool GoToPost(IWebDriver driver)
         {
-            bool isWorking = false,isSuccess= false;
+            bool isWorking = false, isSuccess = false;
             try
             {
                 driver.FindElement(By.XPath("//span[text() = 'Photo/Video']")).Click();
@@ -1303,6 +1342,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         public static void PostTimeline(IWebDriver driver, string caption, string file, int postWaiting, int submitWaiting)
         {
             bool isWorking = false, isPhoto = false;
+            bool captionInserted = string.IsNullOrWhiteSpace(caption);
             int counter = 0;
 
             isWorking = GoToPost(driver);
@@ -1366,6 +1406,183 @@ namespace ToolKHBrowser.ToolLib.Tool
                 do
                 {
                     Thread.Sleep(1000);
+                    if (!isWorking)
+                    {
+                        try
+                        {
+                            var editors = driver.FindElements(By.XPath(
+                                "//div[@role='dialog']//div[@role='textbox' and @contenteditable='true']" +
+                                " | //div[@role='dialog']//div[@contenteditable='true']"));
+                            IWebElement editor = null;
+                            long bestScore = -1;
+                            foreach (var el in editors)
+                            {
+                                try
+                                {
+                                    if (el.Displayed && el.Enabled)
+                                    {
+                                        var size = el.Size;
+                                        long score = (long)Math.Max(1, size.Width) * Math.Max(1, size.Height);
+                                        if (score > bestScore)
+                                        {
+                                            bestScore = score;
+                                            editor = el;
+                                        }
+                                    }
+                                }
+                                catch (Exception) { }
+                            }
+
+                            if (editor != null)
+                            {
+                                try { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", editor); } catch (Exception) { }
+                                try { editor.Click(); Thread.Sleep(300); } catch (Exception) { }
+
+                                bool typed = false;
+                                var normalizedCaption = (caption ?? "").Replace("\r\n", "\n").Replace("\r", "\n");
+                                var lines = normalizedCaption.Split(new[] { '\n' }, StringSplitOptions.None);
+
+                                // First try paste (more reliable for Unicode + multiline in Facebook editor)
+                                try
+                                {
+                                    if (TrySetClipboardTextSafe(caption))
+                                    {
+                                        new Actions(driver)
+                                            .KeyDown(OpenQA.Selenium.Keys.Control)
+                                            .SendKeys("v")
+                                            .KeyUp(OpenQA.Selenium.Keys.Control)
+                                            .Build()
+                                            .Perform();
+                                        Thread.Sleep(500);
+                                    }
+                                }
+                                catch (Exception) { }
+
+                                try
+                                {
+                                    var currentTextAfterPaste = "";
+                                    try
+                                    {
+                                        currentTextAfterPaste = ((IJavaScriptExecutor)driver).ExecuteScript(
+                                            "return (arguments[0].innerText || arguments[0].textContent || '')",
+                                            editor)?.ToString() ?? "";
+                                    }
+                                    catch (Exception)
+                                    {
+                                        currentTextAfterPaste = editor.Text ?? "";
+                                    }
+                                    currentTextAfterPaste = currentTextAfterPaste.Replace("\r\n", "\n").Replace("\r", "\n");
+                                    if (!string.IsNullOrWhiteSpace(normalizedCaption) &&
+                                        currentTextAfterPaste.Contains((lines.Length > 0 ? lines[0] : normalizedCaption).Trim()))
+                                    {
+                                        typed = true;
+                                    }
+                                }
+                                catch (Exception) { }
+
+                                try
+                                {
+                                    if (!typed && lines.Length > 0)
+                                    {
+                                        editor.SendKeys(lines[0]);
+                                        for (int li = 1; li < lines.Length; li++)
+                                        {
+                                            // Facebook post editor usually needs Shift+Enter for a newline
+                                            new Actions(driver)
+                                                .KeyDown(OpenQA.Selenium.Keys.Shift)
+                                                .SendKeys(OpenQA.Selenium.Keys.Enter)
+                                                .KeyUp(OpenQA.Selenium.Keys.Shift)
+                                                .Build()
+                                                .Perform();
+                                            editor.SendKeys(lines[li]);
+                                        }
+                                    }
+                                    // Verify Facebook editor actually received most of the content.
+                                    try
+                                    {
+                                        var currentText = "";
+                                        try
+                                        {
+                                            currentText = ((IJavaScriptExecutor)driver).ExecuteScript(
+                                                "return (arguments[0].innerText || arguments[0].textContent || '')",
+                                                editor)?.ToString() ?? "";
+                                        }
+                                        catch (Exception)
+                                        {
+                                            currentText = editor.Text ?? "";
+                                        }
+                                        currentText = currentText.Replace("\r\n", "\n").Replace("\r", "\n");
+                                        var firstLine = lines.Length > 0 ? lines[0] : "";
+                                        if (!string.IsNullOrWhiteSpace(normalizedCaption))
+                                        {
+                                            // If only the first line appears, treat as failed and use JS fallback below.
+                                            if (!string.IsNullOrWhiteSpace(firstLine) &&
+                                                currentText.Trim() == firstLine.Trim() &&
+                                                normalizedCaption.Contains("\n"))
+                                            {
+                                                typed = false;
+                                            }
+                                            else
+                                            {
+                                                typed = currentText.Trim().Length > 0;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            typed = true;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        typed = true;
+                                    }
+                                }
+                                catch (Exception) { }
+
+                                if (!typed)
+                                {
+                                    try
+                                    {
+                                        var js = (IJavaScriptExecutor)driver;
+                                        js.ExecuteScript(@"
+                                            var el = arguments[0], txt = arguments[1];
+                                            if (!el) return false;
+                                            el.focus();
+                                            try { el.innerText = txt; } catch (e) {}
+                                            if ((el.innerText || '').trim().length === 0 && (el.textContent || '').trim().length === 0) {
+                                                try { el.textContent = txt; } catch (e) {}
+                                            }
+                                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                                            return true;
+                                        ", editor, caption);
+                                        try
+                                        {
+                                            var currentText = ((IJavaScriptExecutor)driver).ExecuteScript(
+                                                "return (arguments[0].innerText || arguments[0].textContent || '')",
+                                                editor)?.ToString() ?? "";
+                                            currentText = currentText.Replace("\r\n", "\n").Replace("\r", "\n");
+                                            var normalizedCaptionCheck = (caption ?? "").Replace("\r\n", "\n").Replace("\r", "\n");
+                                            typed = !string.IsNullOrWhiteSpace(currentText) &&
+                                                    (currentText.Contains(normalizedCaptionCheck.Split('\n')[0]) || currentText.Length >= Math.Min(20, normalizedCaptionCheck.Length));
+                                        }
+                                        catch (Exception)
+                                        {
+                                            typed = true;
+                                        }
+                                    }
+                                    catch (Exception) { }
+                                }
+
+                                if (typed)
+                                {
+                                    isWorking = true;
+                                    captionInserted = true;
+                                }
+                            }
+                        }
+                        catch (Exception) { }
+                    }
                     if (!isPhoto)
                     {
                         try
@@ -1388,6 +1605,24 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     else
                     {
+                        if (!isWorking)
+                        {
+                            try
+                            {
+                                // Newer Facebook create-post dialog editor (works for photo/video posts)
+                                var editor = driver.FindElement(By.XPath(
+                                    "//div[@role='dialog']//div[@role='textbox' and (" +
+                                    "contains(@aria-label,\"What's on your mind\") or " +
+                                    "contains(@aria-label,'Write something') or " +
+                                    "contains(@aria-label,'Create post') or " +
+                                    "@contenteditable='true')]"));
+                                editor.Click();
+                                Thread.Sleep(300);
+                                editor.SendKeys(caption);
+                                isWorking = true;
+                            }
+                            catch (Exception) { }
+                        }
                         try
                         {
                             driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div[2]/div[1]/div/div[2]/div/div/div/form/div/div[1]/div/div/div/div[2]/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div/div/div/div/span/br")).SendKeys(caption);
@@ -1441,6 +1676,24 @@ namespace ToolKHBrowser.ToolLib.Tool
                         }
                     }
                 } while (!isWorking && counter-- > 0);
+
+                // Do not submit file-only post when caption was requested but editor input failed.
+                if (!captionInserted)
+                {
+                    try
+                    {
+                        driver.FindElement(By.XPath("//*[@aria-label='Close']")).Click();
+                        Thread.Sleep(300);
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        driver.FindElement(By.XPath("//div[@aria-label='Close']")).Click();
+                        Thread.Sleep(300);
+                    }
+                    catch (Exception) { }
+                    return;
+                }
             }
             Thread.Sleep(5000);
             isWorking = SubmitPost(driver);
@@ -1472,11 +1725,12 @@ namespace ToolKHBrowser.ToolLib.Tool
                 Thread.Sleep(1000);
                 try
                 {
-                    var el= driver.FindElement(By.XPath("//div[@aria-label='Switch back']"));
+                    var el = driver.FindElement(By.XPath("//div[@aria-label='Switch back']"));
                     //var el = driver.FindElement(By.XPath("//span[text() = 'Switch back for all future videos']"));
                     WebFBTool.ClickElement(driver, el);
                     Thread.Sleep(2000);
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
                 try
                 {
                     driver.FindElement(By.XPath("//div[@aria-label='Next']")).Click();
@@ -2455,7 +2709,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-                if(element == null)
+                if (element == null)
                 {
                     try
                     {
@@ -2538,7 +2792,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
                 catch (Exception) { }
             }
-            if(isWorking)
+            if (isWorking)
             {
                 isWorking = false;
                 int counter = 6;
@@ -2546,7 +2800,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 do
                 {
                     Thread.Sleep(1000);
-                    if(!isWorking)
+                    if (!isWorking)
                     {
                         try
                         {
@@ -2574,7 +2828,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking && counter-- > 0);
-                if(element != null)
+                if (element != null)
                 {
                     ClickElement(driver, element);
                     Thread.Sleep(1000);
@@ -2594,19 +2848,21 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 Thread.Sleep(1000);
                 isWorking = LeaveGroupInvite(driver);
-                if(leavePendingOnly)
+                if (leavePendingOnly)
                 {
                     try
                     {
                         var source = driver.PageSource.ToLower().ToString();
-                        if(source.Contains("pending") && source.Contains("manage posts"))
+                        if (source.Contains("pending") && source.Contains("manage posts"))
                         {
 
-                        } else
-                        {
-                            return ;
                         }
-                    } catch(Exception) { }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    catch (Exception) { }
                 }
                 IWebElement element = null;
                 if (!isWorking)
@@ -2622,7 +2878,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     try
                     {
-                        element= driver.FindElement(By.XPath("//div[@aria-label='Joined']"));
+                        element = driver.FindElement(By.XPath("//div[@aria-label='Joined']"));
                         isWorking = true;
                     }
                     catch (Exception) { }
@@ -2708,7 +2964,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-                if(isWorking)
+                if (isWorking)
                 {
                     ClickElement(driver, element);
                 }
@@ -2800,7 +3056,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                             }
                             catch (Exception) { }
                         }
-                        if(isWorking)
+                        if (isWorking)
                         {
                             ClickElement(driver, el);
                             Thread.Sleep(1000);
@@ -3063,7 +3319,8 @@ namespace ToolKHBrowser.ToolLib.Tool
                                 if (!isLeave)
                                 {
                                     countErrorLeaveGroup++;
-                                } else
+                                }
+                                else
                                 {
                                     Thread.Sleep(2000);
                                     // new update
@@ -3071,7 +3328,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                                     var source = driver.PageSource.ToLower().ToString();
                                     if (source.Contains("find support or report group"))
                                     {
-                                        bool isClose= false;
+                                        bool isClose = false;
                                         if (!isClose)
                                         {
                                             try
@@ -3090,7 +3347,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                                             }
                                             catch (Exception) { }
                                         }
-                                        if(!isClose)
+                                        if (!isClose)
                                         {
                                             try
                                             {
@@ -3127,7 +3384,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             do
             {
                 Thread.Sleep(1000);
-                
+
                 if (!isComment && !isWorking)
                 {
                     try
@@ -3198,7 +3455,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 //    }
                 //    catch (Exception) { }
                 //}
-                if(isWorking)
+                if (isWorking)
                 {
                     Thread.Sleep(2000);
                 }
@@ -3253,7 +3510,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
@@ -3262,8 +3519,8 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                     catch (Exception) { }
                 }
-            } while(!isWorking && counter-- > 0);
-            if(!isWorking) { return; }
+            } while (!isWorking && counter-- > 0);
+            if (!isWorking) { return; }
 
             counter = 6;
             isWorking = false;
@@ -3279,15 +3536,16 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     driver.FindElement(By.XPath("//span[text() = 'English (US)']")).Click();
                     Thread.Sleep(1000);
-                    isWorking=true;
+                    isWorking = true;
                 }
                 catch (Exception) { }
-                if(isWorking)
+                if (isWorking)
                 {
                     try
                     {
                         driver.FindElement(By.XPath("/html/body/div[1]/div/div/div[1]/div/div[4]/div/div[2]/div[1]/div/div[2]/div/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div")).Click();
-                    } catch(Exception) { }
+                    }
+                    catch (Exception) { }
                     try
                     {
                         driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div/div/div[1]/div[2]/div/div/div[3]/div/div[2]/div[1]")).Click();
@@ -3490,13 +3748,14 @@ namespace ToolKHBrowser.ToolLib.Tool
                 source1 = driver.PageSource.ToLower();
             }
             catch (Exception) { }
-            if(source1.Contains("robot are"))
+            if (source1.Contains("robot are"))
             {
                 try
                 {
                     driver.FindElement(By.Id("js-button")).Click();
                     Thread.Sleep(2500);
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
             }
             if (!string.IsNullOrEmpty(protocol))
             {
@@ -3618,16 +3877,17 @@ namespace ToolKHBrowser.ToolLib.Tool
                     isWorking = true;
                 }
                 catch (Exception) { }
-                if(isWorking)
+                if (isWorking)
                 {
                     var source = "";
                     try
                     {
                         source = driver.PageSource.ToLower();
-                    } catch(Exception) { }
-                    if(!source.Contains("confirm email"))
+                    }
+                    catch (Exception) { }
+                    if (!source.Contains("confirm email"))
                     {
-                        isWorking= false;
+                        isWorking = false;
                     }
                 }
                 if (!isWorking)
@@ -3867,7 +4127,8 @@ namespace ToolKHBrowser.ToolLib.Tool
                     if (textCode.Length <= 6)
                     {
                         code = textCode;
-                    } else
+                    }
+                    else
                     {
                         code = textCode.Substring(50, 5);
                     }
@@ -3901,7 +4162,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         }
                     }
                 }
-                if(string.IsNullOrEmpty(code))
+                if (string.IsNullOrEmpty(code))
                 {
                     try
                     {
@@ -4229,7 +4490,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             string strAsset = "delegate_page_id@:@";
             try
             {
-                driver.Navigate().GoToUrl("view-source:https://www.facebook.com/profile.php?id="+page_id);
+                driver.Navigate().GoToUrl("view-source:https://www.facebook.com/profile.php?id=" + page_id);
             }
             catch (Exception) { }
             FBTool.WaitingPageLoading(driver);
@@ -4446,17 +4707,18 @@ namespace ToolKHBrowser.ToolLib.Tool
                     //    inputElement = element.ElementAt(0);
                     //}
                     inputElement = driver.FindElement(By.XPath("//label[@aria-label='Page name (required)']/div/input"));
-                    
+
                     isWorking = true;
                 }
                 catch (Exception) { }
-                if(!isWorking)
+                if (!isWorking)
                 {
                     try
                     {
                         inputElement = driver.FindElement(By.XPath("//label[@aria-label='Page name (required)']/div/div/input"));
                         isWorking = true;
-                    } catch(Exception) { }
+                    }
+                    catch (Exception) { }
                 }
                 if (!isWorking)
                 {
@@ -4509,12 +4771,13 @@ namespace ToolKHBrowser.ToolLib.Tool
                     bioE = driver.FindElement(By.XPath("//textarea[@aria-invalid='false']"));
                 }
                 catch (Exception) { }
-                if(bioE == null)
+                if (bioE == null)
                 {
                     try
                     {
                         bioE = driver.FindElement(By.XPath("//label[@aria-label='Bio (optional)']/div/div/textarea"));
-                    } catch(Exception) { }
+                    }
+                    catch (Exception) { }
                 }
                 if (bioE == null)
                 {
@@ -4588,8 +4851,9 @@ namespace ToolKHBrowser.ToolLib.Tool
                     try
                     {
                         source = driver.PageSource.ToLower();
-                    } catch(Exception) { }
-                    if(!source.Contains("create a page"))
+                    }
+                    catch (Exception) { }
+                    if (!source.Contains("create a page"))
                     {
                         b = true;
                     }
@@ -4600,7 +4864,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static string GetPageIDs(IWebDriver driver, string token,string uid="")
+        public static string GetPageIDs(IWebDriver driver, string token, string uid = "")
         {
             string pageIds = "";
             try
@@ -4616,7 +4880,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 element = driver.FindElement(By.TagName("pre"));
             }
             catch (Exception) { }
-            if(element == null)
+            if (element == null)
             {
                 try
                 {
@@ -4912,7 +5176,7 @@ namespace ToolKHBrowser.ToolLib.Tool
 
         //    return isWorking;
         //}
-        public static void UsePage(IWebDriver driver, int counter = 2, int delaytime= 1000)
+        public static void UsePage(IWebDriver driver, int counter = 2, int delaytime = 1000)
         {
             bool isWorking = false;
             do
@@ -4955,7 +5219,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     catch (Exception) { }
                 }
             } while (!isWorking && counter-- > 0);
-            if(isWorking)
+            if (isWorking)
             {
                 Thread.Sleep(1000);
             }
@@ -4966,11 +5230,12 @@ namespace ToolKHBrowser.ToolLib.Tool
             string url = "";
             try
             {
-                url= driver.Url;
-            } catch(Exception) { }
+                url = driver.Url;
+            }
+            catch (Exception) { }
             try
             {
-                follow = driver.FindElement(By.XPath("//a[@href='"+url+"&sk=followers']")).GetAttribute("innerHTML").Trim();
+                follow = driver.FindElement(By.XPath("//a[@href='" + url + "&sk=followers']")).GetAttribute("innerHTML").Trim();
             }
             catch (Exception) { }
 
@@ -5275,7 +5540,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking && counter-- > 0);
-                if(isWorking)
+                if (isWorking)
                 {
                     try
                     {
@@ -5575,7 +5840,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                             }
                             catch (Exception) { }
                         }
-                        if(isWorking)
+                        if (isWorking)
                         {
                             try
                             {
@@ -6145,7 +6410,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             return false;
         }
 
-        public static int ShareWebsiteToGroup(IWebDriver driver, string groupId, bool isPastLink,string link, string caption, string multipleImageStr)
+        public static int ShareWebsiteToGroup(IWebDriver driver, string groupId, bool isPastLink, string link, string caption, string multipleImageStr)
         {
             int counter = 6;
             bool isWorking = false;
@@ -6174,16 +6439,17 @@ namespace ToolKHBrowser.ToolLib.Tool
                 try
                 {
                     var source = driver.PageSource.ToString().ToLower();
-                    if(source.Contains("invited you to join this group") || source.Contains("decline invite"))
+                    if (source.Contains("invited you to join this group") || source.Contains("decline invite"))
                     {
                         return -1;
                     }
-                } catch(Exception) { }
-                
+                }
+                catch (Exception) { }
+
                 NotNowButton(driver);
 
-            } while(!isWorking && counter-- > 0);
-            if(!isWorking) { return 0; }
+            } while (!isWorking && counter-- > 0);
+            if (!isWorking) { return 0; }
 
             if (!isPastLink)
             {
@@ -6204,14 +6470,14 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
                 } while (!isWorking && counter-- > 0);
                 if (!isWorking) { return 0; }
-                
+
                 ClickElement(driver, elementCaption);
                 Thread.Sleep(2000);
                 //SendCaption(driver, caption);
 
                 // comment link
                 Thread.Sleep(2000);
-                isWorking= false;
+                isWorking = false;
                 if (!string.IsNullOrEmpty(multipleImageStr))
                 {
                     counter = 4;
@@ -6239,8 +6505,8 @@ namespace ToolKHBrowser.ToolLib.Tool
                             }
                             catch (Exception) { }
                         }
-                    }while(!isWorking && counter-- > 0);
-                    if(isWorking)
+                    } while (!isWorking && counter-- > 0);
+                    if (isWorking)
                     {
                         //try
                         //{
@@ -6258,7 +6524,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 }
-                if(!isWorking) { return 0; }
+                if (!isWorking) { return 0; }
 
 
                 Thread.Sleep(4000);
@@ -6339,16 +6605,17 @@ namespace ToolKHBrowser.ToolLib.Tool
                     isWorking = true;
                     Thread.Sleep(1000);
                     var souces = driver.PageSource.ToLower().Trim();
-                    if(souces.Contains("posting"))
+                    if (souces.Contains("posting"))
                     {
                         isWorking = false;
                     }
-                } while(!isWorking && counter-- > 0);
+                } while (!isWorking && counter-- > 0);
                 Thread.Sleep(1000);
                 try
                 {
                     driver.Navigate().GoToUrl("https://www.facebook.com/groups/" + groupId + "/my_posted_content");
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
                 FBTool.WaitingPageLoading(driver);
                 Thread.Sleep(1000);
                 counter = 8;
@@ -6356,7 +6623,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 do
                 {
                     Thread.Sleep(500);
-                    if(!isWorking) 
+                    if (!isWorking)
                     {
                         try
                         {
@@ -6411,7 +6678,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking & counter-- > 0);
-                if(!isWorking) { return 0; }
+                if (!isWorking) { return 0; }
 
                 //try
                 //{
@@ -6455,7 +6722,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 do
                 {
                     Thread.Sleep(1000);
-                    if(!isWorking)
+                    if (!isWorking)
                     {
                         try
                         {
@@ -6474,15 +6741,16 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking & counter-- > 0);
-                if(!isWorking) 
-                { 
+                if (!isWorking)
+                {
                     return 1;// post success
                 }
 
                 try
                 {
                     elementComment.SendKeys(link + OpenQA.Selenium.Keys.Enter);
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
                 Thread.Sleep(2000);
                 isWorking = false;
                 counter = 6;
@@ -6499,7 +6767,8 @@ namespace ToolKHBrowser.ToolLib.Tool
                 Thread.Sleep(1000);
 
                 return 1;
-            } else
+            }
+            else
             {   // past link
 
                 // click element write something....
@@ -6532,7 +6801,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking && counter-- > 0);
-                if(!isWorking) { return 0; }
+                if (!isWorking) { return 0; }
                 try
                 {
                     Thread.Sleep(5000);
@@ -6567,7 +6836,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                         catch (Exception) { }
                     }
                 } while (!isWorking && counter-- > 0);
-                if(!isWorking) { return 0; }
+                if (!isWorking) { return 0; }
                 try
                 {
                     Actions actions = new Actions(driver);
@@ -6644,7 +6913,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                             }
                             catch (Exception) { }
                         }
-                    } while(!isWorking && counter-- > 0);
+                    } while (!isWorking && counter-- > 0);
 
                     Thread.Sleep(4500);
                 }
@@ -6676,7 +6945,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
 
                 } while (!isWorking && counter-- > 0);
-                
+
                 try
                 {
                     Actions actions = new Actions(driver);
@@ -6701,7 +6970,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     if (souces.Contains("chat directly with customers"))
                     {
                         NotNowButton(driver);
-                    } 
+                    }
                     else if (souces.Contains("posting"))
                     {
                         isWorking = false;
@@ -6799,7 +7068,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 Thread.Sleep(1000);
             }
             else
-            {   
+            {
                 // past link
                 counter = 6;
                 isWorking = false;
@@ -6912,17 +7181,18 @@ namespace ToolKHBrowser.ToolLib.Tool
                 {
                     Thread.Sleep(1000);
                     var souce = driver.PageSource.ToLower().Trim();
-                    if(souce.Contains("publish original"))
+                    if (souce.Contains("publish original"))
                     {
                         counter += 1;
                         isWorking = false;
-                        if(!isWorking)
+                        if (!isWorking)
                         {
                             try
                             {
                                 driver.FindElement(By.XPath("//div[@aria-label='Publish Original Post']")).Click();
                                 isWorking = true;
-                            } catch(Exception) { }
+                            }
+                            catch (Exception) { }
                         }
                         if (!isWorking)
                         {
@@ -6964,7 +7234,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 try
                 {
-                    element =driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div[2]/div[1]/div/div[2]/div/div/div/div[4]/div/div[1]/div[2]"));
+                    element = driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div[2]/div[1]/div/div[2]/div/div/div/div[4]/div/div[1]/div[2]"));
                     notNowButton = true;
                 }
                 catch (Exception) { }
@@ -6973,7 +7243,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 try
                 {
-                    element =driver.FindElement(By.XPath("//*[@aria-label='Not now']"));
+                    element = driver.FindElement(By.XPath("//*[@aria-label='Not now']"));
                     notNowButton = true;
                 }
                 catch (Exception) { }
@@ -6982,7 +7252,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             {
                 try
                 {
-                    element= driver.FindElement(By.XPath("//*[@aria-label='Not Now']"));
+                    element = driver.FindElement(By.XPath("//*[@aria-label='Not Now']"));
                     notNowButton = true;
                 }
                 catch (Exception) { }
@@ -7005,7 +7275,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
                 catch (Exception) { }
             }
-            if(notNowButton)
+            if (notNowButton)
             {
                 ClickElement(driver, element);
                 Thread.Sleep(1000);

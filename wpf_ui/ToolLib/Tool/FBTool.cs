@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using OtpNet;
 using System;
 using System.Collections.Generic;
@@ -113,175 +114,420 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        
+
+        //public static string GetResults(IWebDriver driver, int counter = 10)
+        //{
+        //    try { ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop"); } catch { }
+
+        //    bool isThread = counter > 0;
+        //    string result = "";
+        //    bool isWorking = false;
+        //    string url = "";
+        //    string source = "";
+
+        //    do
+        //    {
+        //        if (isThread) Thread.Sleep(1000);
+
+        //        try { source = (driver.PageSource ?? "").ToLower().Trim(); } catch { source = ""; }
+        //        try { url = (driver.Url ?? ""); } catch { url = ""; }
+
+        //        // ✅ CHECKPOINT (includes OTP / approvals / locked / disabled)
+        //        if (url.Contains("/checkpoint/"))
+        //        {
+        //            isWorking = true;
+
+        //            if (url.Contains("/checkpoint/?next"))
+        //            {
+        //                result = "Approvals";
+        //            }
+        //            else if (url.Contains("956"))
+        //            {
+        //                result = "Lock 956";
+        //                if (source.Contains("code by email")) result += ": Need confirm code by email";
+        //                else if (source.Contains("your phone")) result += ": Need confirm code by phone";
+        //                else if (source.Contains("confirm your identity")) result += ": Need confirm identity";
+        //            }
+        //            else if (url.Contains("5049/"))
+        //            {
+        //                IWebElement elDismiss = null;
+        //                try { elDismiss = driver.FindElement(By.XPath("//div[@aria-label='Dismiss']")); } catch { }
+        //                if (elDismiss == null)
+        //                {
+        //                    try
+        //                    {
+        //                        elDismiss = driver.FindElement(By.XPath("/html/body/div[1]/div/div/div/div/div/div/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div"));
+        //                    }
+        //                    catch { }
+        //                }
+
+        //                if (elDismiss != null)
+        //                {
+        //                    WebFBTool.ClickElement(driver, elDismiss);
+        //                    Thread.Sleep(2000);
+        //                    result = "success";
+        //                }
+        //                else
+        //                {
+        //                    // still checkpoint
+        //                    result = "Checkpoint";
+        //                }
+        //            }
+        //            else if (url.Contains("/checkpoint/8282"))
+        //            {
+        //                result = "Lock 2882";
+        //            }
+        //            else if (url.Contains("/checkpoint/disabled"))
+        //            {
+        //                result = "Disabled";
+        //            }
+        //            else
+        //            {
+        //                // ✅ VERY IMPORTANT: checkpoint is not auto-fail
+        //                // It can be OTP / approvals, so we return a “Need …”
+        //                result = "Need 2FA";
+        //            }
+        //        }
+        //        // ✅ LOGIN page
+        //        else if (url.Contains("/login/"))
+        //        {
+        //            isWorking = true;
+        //            result = "Wrong password";
+        //            if (source.Contains("old password")) result += ": Old password";
+        //            else if (source.Contains("incorrect")) result += ": Incorrect username/password";
+        //        }
+        //        // ✅ 2FA page
+        //        else if (url.Contains("two_step_verification") || url.Contains("two_factor"))
+        //        {
+        //            isWorking = true;
+        //            result = "Need 2FA";
+        //            if (source.Contains("enter the characters") || source.Contains("captcha"))
+        //            {
+        //                result = "Need enter captcha";
+        //            }
+        //        }
+        //        // ✅ safe device / accountscenter
+        //        else if (url.Contains("accountscenter") || url.Contains("login/save-device/?login_source=login"))
+        //        {
+        //            isWorking = true;
+        //            result = "success";
+        //        }
+        //        else if (url.Contains("show_webview_confirm_dialog"))
+        //        {
+        //            isWorking = true;
+        //            result = "success";
+        //            StartReviewData(driver);
+        //        }
+        //        else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm")
+        //              || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
+        //        {
+        //            isWorking = true;
+        //            result = "Confirm";
+        //        }
+        //        else
+        //        {
+        //            if (!isThread)
+        //            {
+        //                result = "success";
+        //                isWorking = true;
+        //            }
+        //            else if (!string.IsNullOrEmpty(GetUserId(driver)))
+        //            {
+        //                result = "success";
+        //                isWorking = true;
+        //            }
+        //        }
+
+        //    } while (!isWorking && counter-- > 0);
+
+        //    // keep your spam check block as-is (unchanged)
+        //    if (result.Contains("success"))
+        //    {
+        //        counter = 10;
+        //        isWorking = false;
+
+        //        do
+        //        {
+        //            result = "success";
+        //            Thread.Sleep(1000);
+
+        //            try { source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower(); } catch { source = ""; }
+
+        //            if (!string.IsNullOrEmpty(source))
+        //            {
+        //                if (source.Contains("what happened") &&
+        //                    (source.Contains("use groups") || source.Contains("spam") || source.Contains("we removed")))
+        //                {
+        //                    if (source.Contains("use groups"))
+        //                    {
+        //                        result = "Spam: Can not use groups";
+        //                        isWorking = true;
+        //                    }
+        //                    else if (source.Contains("we removed"))
+        //                    {
+        //                        result = "Spam: Removed content/comment";
+        //                    }
+        //                    else
+        //                    {
+        //                        result = "Need remove spam";
+        //                    }
+
+        //                    Close(driver);
+        //                    Thread.Sleep(1000);
+        //                }
+        //                else
+        //                {
+        //                    result = "success";
+        //                    isWorking = true;
+        //                }
+        //            }
+        //        } while (!isWorking && counter-- > 0);
+        //    }
+
+        //    return result;
+        //}
+
+        //public static string GetResults(IWebDriver driver, int counter = 10)
+        //{
+        //    try { ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop"); } catch { }
+
+        //    bool isThread = counter > 0;
+        //    string result = "";
+        //    bool isWorking = false;
+        //    string url = "";
+        //    string source = "";
+
+        //    do
+        //    {
+        //        if (isThread) Thread.Sleep(1000);
+
+        //        try { source = (driver.PageSource ?? "").ToLower().Trim(); } catch { source = ""; }
+        //        try { url = (driver.Url ?? "").ToLower(); } catch { url = ""; }
+
+        //        // ✅ FORCE SUCCESS if c_user cookie exists
+        //        if (!string.IsNullOrEmpty(GetUserId(driver)))
+        //        {
+        //            result = "success";
+        //            isWorking = true;
+        //        }
+
+        //        // ✅ REMEMBER BROWSER (post 2FA screen)
+        //        else if (url.Contains("remember_browser") || url.Contains("remember-browser"))
+        //        {
+        //            try { ClickAlwaysConfirmRememberBrowser(driver, 5); } catch { }
+
+        //            // Even if not clicked, treat as success
+        //            result = "success";
+        //            isWorking = true;
+        //        }
+
+        //        // ✅ CHECKPOINT
+        //        else if (url.Contains("/checkpoint/"))
+        //        {
+        //            isWorking = true;
+
+        //            if (url.Contains("/checkpoint/?next"))
+        //                result = "Approvals";
+
+        //            else if (url.Contains("/checkpoint/disabled"))
+        //                result = "Disabled";
+
+        //            else
+        //                result = "Need 2FA"; // still real checkpoint
+        //        }
+
+        //        // ✅ LOGIN PAGE
+        //        else if (url.Contains("/login/"))
+        //        {
+        //            isWorking = true;
+        //            result = "Wrong password";
+
+        //            if (source.Contains("incorrect"))
+        //                result = "Wrong password: Incorrect username/password";
+        //        }
+
+        //        // ✅ REAL 2FA INPUT PAGE
+        //        else if ((url.Contains("two_step_verification") || url.Contains("two_factor"))
+        //                 && !url.Contains("remember_browser"))
+        //        {
+        //            isWorking = true;
+        //            result = "Need 2FA";
+
+        //            if (source.Contains("captcha"))
+        //                result = "Need enter captcha";
+        //        }
+
+        //        // ✅ SAFE DEVICE / ACCOUNTS CENTER
+        //        else if (url.Contains("accountscenter")
+        //                 || url.Contains("login/save-device")
+        //                 || url.Contains("save-device"))
+        //        {
+        //            result = "success";
+        //            isWorking = true;
+        //        }
+
+        //        // ✅ CONFIRM EMAIL
+        //        else if (url.Contains("confirmemail")
+        //              || url.Contains("confirmation")
+        //              || url.Contains("account_creation"))
+        //        {
+        //            result = "Confirm";
+        //            isWorking = true;
+        //        }
+
+        //        // ✅ DEFAULT SUCCESS
+        //        else
+        //        {
+        //            if (!isThread)
+        //            {
+        //                result = "success";
+        //                isWorking = true;
+        //            }
+        //        }
+
+        //    } while (!isWorking && counter-- > 0);
+
+        //    return result;
+        //}
         public static string GetResults(IWebDriver driver, int counter = 10)
         {
-            try { ((IJavaScriptExecutor)driver).ExecuteScript("return window.stop"); } catch { }
+            if (driver == null) return "Driver null";
 
             bool isThread = counter > 0;
             string result = "";
             bool isWorking = false;
-            string url = "";
-            string source = "";
 
             do
             {
-                if (isThread) Thread.Sleep(1000);
-
-                try { source = (driver.PageSource ?? "").ToLower().Trim(); } catch { source = ""; }
-                try { url = (driver.Url ?? ""); } catch { url = ""; }
-
-                // ✅ CHECKPOINT (includes OTP / approvals / locked / disabled)
-                if (url.Contains("/checkpoint/"))
+                try
                 {
-                    isWorking = true;
+                    if (isThread) Thread.Sleep(1000);
 
-                    if (url.Contains("/checkpoint/?next"))
+                    // User may close Chrome manually while this polling loop is running.
+                    // Treat it as a normal result instead of throwing.
+                    try
                     {
-                        result = "Approvals";
+                        var _ = driver.WindowHandles;
                     }
-                    else if (url.Contains("956"))
+                    catch
                     {
-                        result = "Lock 956";
-                        if (source.Contains("code by email")) result += ": Need confirm code by email";
-                        else if (source.Contains("your phone")) result += ": Need confirm code by phone";
-                        else if (source.Contains("confirm your identity")) result += ": Need confirm identity";
+                        return "Browser closed";
                     }
-                    else if (url.Contains("5049/"))
-                    {
-                        IWebElement elDismiss = null;
-                        try { elDismiss = driver.FindElement(By.XPath("//div[@aria-label='Dismiss']")); } catch { }
-                        if (elDismiss == null)
-                        {
-                            try
-                            {
-                                elDismiss = driver.FindElement(By.XPath("/html/body/div[1]/div/div/div/div/div/div/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div"));
-                            }
-                            catch { }
-                        }
 
-                        if (elDismiss != null)
-                        {
-                            WebFBTool.ClickElement(driver, elDismiss);
-                            Thread.Sleep(2000);
-                            result = "success";
-                        }
+                    string source = "";
+                    string url = "";
+                    try { source = (driver.PageSource ?? "").ToLowerInvariant().Trim(); } catch { source = ""; }
+                    try { url = (driver.Url ?? "").ToLowerInvariant(); } catch { url = ""; }
+
+                    // ✅ IMPORTANT: Do NOT stop loading during auth/redirect flows
+                    bool isAuthFlow =
+                        url.Contains("/login") ||
+                        url.Contains("two_factor") ||
+                        url.Contains("two_step_verification") ||
+                        url.Contains("/checkpoint") ||
+                        url.Contains("remember_browser") ||
+                        source.Contains("check your notifications") ||
+                        source.Contains("waiting for approval") ||
+                        source.Contains("try another way") ||
+                        source.Contains("approvals_code");
+
+                    if (!isAuthFlow)
+                    {
+                        try { ((IJavaScriptExecutor)driver).ExecuteScript("window.stop();"); } catch { }
+                    }
+
+                    // ✅ Detect login form even if URL looks like facebook.com/
+                    bool hasLoginForm = false;
+                    try
+                    {
+                        hasLoginForm =
+                            driver.FindElements(By.Name("email")).Any() ||
+                            driver.FindElements(By.Name("pass")).Any();
+                    }
+                    catch { }
+
+                    // ✅ If cookie exists -> logged in (best signal)
+                    if (!string.IsNullOrEmpty(GetUserId(driver)))
+                    {
+                        result = "success";
+                        isWorking = true;
+                    }
+                    // ✅ If login form exists -> not logged in
+                    else if (hasLoginForm)
+                    {
+                        TwoFaHelper.DebugAuthCookies(driver, "BACK_TO_LOGIN");
+                        result = "Login required";
+                        isWorking = true;
+                    }
+                    // ✅ remember browser prompt (post-login)
+                    else if (url.Contains("remember_browser") || url.Contains("remember-browser")
+                          || source.Contains("trust this device")
+                          || source.Contains("always confirm"))
+                    {
+                        // Don’t “force” anything; just treat as post-login prompt
+                        result = "success";
+                        isWorking = true;
+                    }
+                    // ✅ checkpoint
+                    else if (url.Contains("/checkpoint/"))
+                    {
+                        isWorking = true;
+
+                        if (url.Contains("/checkpoint/?next"))
+                            result = "Approvals";
+                        else if (url.Contains("/checkpoint/disabled"))
+                            result = "Disabled";
                         else
-                        {
-                            // still checkpoint
                             result = "Checkpoint";
-                        }
                     }
-                    else if (url.Contains("/checkpoint/8282"))
+                    // ✅ real 2FA pages (don’t confuse with remember_browser)
+                    else if ((url.Contains("two_step_verification") || url.Contains("two_factor"))
+                             && !url.Contains("remember_browser"))
                     {
-                        result = "Lock 2882";
+                        isWorking = true;
+
+                        // Captcha hint
+                        if (source.Contains("captcha") || source.Contains("enter the characters"))
+                            result = "Need enter captcha";
+                        else
+                            result = "Need 2FA";
                     }
-                    else if (url.Contains("/checkpoint/disabled"))
+                    // ✅ safe-device / accounts center pages
+                    else if (url.Contains("accountscenter")
+                          || url.Contains("login/save-device")
+                          || url.Contains("save-device"))
                     {
-                        result = "Disabled";
+                        result = "success";
+                        isWorking = true;
+                    }
+                    // ✅ confirm email / confirmation / account creation
+                    else if (url.Contains("confirmemail")
+                          || url.Contains("confirmation")
+                          || url.Contains("account_creation"))
+                    {
+                        result = "Confirm";
+                        isWorking = true;
                     }
                     else
                     {
-                        // ✅ VERY IMPORTANT: checkpoint is not auto-fail
-                        // It can be OTP / approvals, so we return a “Need …”
-                        result = "Need 2FA";
+                        // If we can’t classify but the page isn’t obviously login,
+                        // keep waiting until counter expires (thread mode)
+                        if (!isThread)
+                        {
+                            result = "unknown";
+                            isWorking = true;
+                        }
                     }
                 }
-                // ✅ LOGIN page
-                else if (url.Contains("/login/"))
+                catch
                 {
-                    isWorking = true;
-                    result = "Wrong password";
-                    if (source.Contains("old password")) result += ": Old password";
-                    else if (source.Contains("incorrect")) result += ": Incorrect username/password";
-                }
-                // ✅ 2FA page
-                else if (url.Contains("two_step_verification") || url.Contains("two_factor"))
-                {
-                    isWorking = true;
-                    result = "Need 2FA";
-                    if (source.Contains("enter the characters") || source.Contains("captcha"))
-                    {
-                        result = "Need enter captcha";
-                    }
-                }
-                // ✅ safe device / accountscenter
-                else if (url.Contains("accountscenter") || url.Contains("login/save-device/?login_source=login"))
-                {
-                    isWorking = true;
-                    result = "success";
-                }
-                else if (url.Contains("show_webview_confirm_dialog"))
-                {
-                    isWorking = true;
-                    result = "success";
-                    StartReviewData(driver);
-                }
-                else if (url.Contains("confirmemail") || url.Contains("confirmation") || url.Contains("confirm")
-                      || url.Contains("account_creation") || url.Contains("/login/save-device") || url.Contains("confirmemail.php"))
-                {
-                    isWorking = true;
-                    result = "Confirm";
-                }
-                else
-                {
-                    if (!isThread)
-                    {
-                        result = "success";
-                        isWorking = true;
-                    }
-                    else if (!string.IsNullOrEmpty(GetUserId(driver)))
-                    {
-                        result = "success";
-                        isWorking = true;
-                    }
+                    return "Browser closed";
                 }
 
             } while (!isWorking && counter-- > 0);
 
-            // keep your spam check block as-is (unchanged)
-            if (result.Contains("success"))
-            {
-                counter = 10;
-                isWorking = false;
-
-                do
-                {
-                    result = "success";
-                    Thread.Sleep(1000);
-
-                    try { source = driver.FindElement(By.TagName("body")).Text.Trim().ToLower(); } catch { source = ""; }
-
-                    if (!string.IsNullOrEmpty(source))
-                    {
-                        if (source.Contains("what happened") &&
-                            (source.Contains("use groups") || source.Contains("spam") || source.Contains("we removed")))
-                        {
-                            if (source.Contains("use groups"))
-                            {
-                                result = "Spam: Can not use groups";
-                                isWorking = true;
-                            }
-                            else if (source.Contains("we removed"))
-                            {
-                                result = "Spam: Removed content/comment";
-                            }
-                            else
-                            {
-                                result = "Need remove spam";
-                            }
-
-                            Close(driver);
-                            Thread.Sleep(1000);
-                        }
-                        else
-                        {
-                            result = "success";
-                            isWorking = true;
-                        }
-                    }
-                } while (!isWorking && counter-- > 0);
-            }
+            if (string.IsNullOrWhiteSpace(result))
+                result = "unknown";
 
             return result;
         }
@@ -1600,19 +1846,56 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return totp.ComputeTotp();
         }
+        //public static bool Is2FA(IWebDriver driver)
+        //{
+        //    try
+        //    {
+        //        var url = (driver.Url ?? "").ToLower();
+        //        if (url.Contains("two_step_verification") || url.Contains("two_factor") || url.Contains("/checkpoint/"))
+        //            return true;
+
+        //        string html = (driver.PageSource ?? "").ToLower();
+        //        if (html.Contains("approvals_code") || html.Contains("two-step verification") || html.Contains("two-factor authentication")
+        //            || html.Contains("waiting for approval") || html.Contains("check your notifications") || html.Contains("try another way")
+        //            || html.Contains("authentication app") || html.Contains("6-digit")
+        //            || html.Contains("រង់ចាំការអនុម័ត") || html.Contains("chờ phê duyệt"))
+        //            return true;
+
+        //        return false;
+        //    }
+        //    catch { return false; }
+        //}
+
         public static bool Is2FA(IWebDriver driver)
         {
             try
             {
-                var url = (driver.Url ?? "").ToLower();
+                var url = (driver.Url ?? "").ToLowerInvariant();
+
+                // ✅ IMPORTANT: remember_browser is NOT a 2FA input screen
+                if (url.Contains("remember_browser") || url.Contains("remember-browser"))
+                    return false;
+
+                // 2FA / checkpoint screens
                 if (url.Contains("two_step_verification") || url.Contains("two_factor") || url.Contains("/checkpoint/"))
                     return true;
 
-                string html = (driver.PageSource ?? "").ToLower();
-                if (html.Contains("approvals_code") || html.Contains("two-step verification") || html.Contains("two-factor authentication")
-                    || html.Contains("waiting for approval") || html.Contains("check your notifications") || html.Contains("try another way")
-                    || html.Contains("authentication app") || html.Contains("6-digit")
-                    || html.Contains("រង់ចាំការអនុម័ត") || html.Contains("chờ phê duyệt"))
+                string html = (driver.PageSource ?? "").ToLowerInvariant();
+
+                // If we are on remember_browser, also treat as NOT 2FA even if HTML has "trust this device"
+                if (html.Contains("trust this device") || html.Contains("always confirm"))
+                    return false;
+
+                if (html.Contains("approvals_code")
+                    || html.Contains("two-step verification")
+                    || html.Contains("two-factor authentication")
+                    || html.Contains("waiting for approval")
+                    || html.Contains("check your notifications")
+                    || html.Contains("try another way")
+                    || html.Contains("authentication app")
+                    || html.Contains("6-digit")
+                    || html.Contains("រង់ចាំការអនុម័ត")
+                    || html.Contains("chờ phê duyệt"))
                     return true;
 
                 return false;
@@ -1647,154 +1930,96 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             return baseUrl.TrimEnd('/') + "/groups/" + groupId;
         }
-        /// <summary>
-        /// JS-based helper: Finds any clickable element whose innerText contains any of the keywords.
-        /// Returns true if found and clicked.
-        /// </summary>
-        private static bool JsClickByText(IWebDriver driver, string[] keywords)
-        {
-            var js = (IJavaScriptExecutor)driver;
-            foreach (var kw in keywords)
-            {
-                try
-                {
-                    // Use querySelectorAll to find all elements and match by text
-                    var script = @"
-                        var kw = arguments[0].toLowerCase();
-                        var allEls = document.querySelectorAll('a, button, [role=""button""], [role=""link""], div, span');
-                        for (var i = 0; i < allEls.length; i++) {
-                            var el = allEls[i];
-                            var txt = (el.innerText || el.textContent || '').trim().toLowerCase();
-                            if (txt === kw || txt.indexOf(kw) === 0) {
-                                el.click();
-                                return true;
-                            }
-                        }
-                        return false;
-                    ";
-                    var result = js.ExecuteScript(script, kw);
-                    if (result != null && result is bool && (bool)result) return true;
-                }
-                catch { }
-            }
-            return false;
-        }
-
-        public static bool HandlePushApproval_WWW(IWebDriver driver)
+        public static bool HandlePushApproval_WWW(IWebDriver driver, int timeoutSec = 20)
         {
             try
             {
-                string html = (driver.PageSource ?? "").ToLower();
-                bool isPush = html.Contains("waiting for approval")
-                           || html.Contains("check your notifications")
-                           || html.Contains("approve from another device")
-                           || html.Contains("try another way")
-                           || html.Contains("រង់ចាំការអនុម័ត")
-                           || html.Contains("chờ phê duyệt");
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutSec));
+
+                // Detect push approval screen
+                bool isPush = wait.Until(d =>
+                {
+                    var html = (d.PageSource ?? "").ToLowerInvariant();
+                    return html.Contains("check your notifications")
+                        || html.Contains("waiting for approval")
+                        || html.Contains("approve the login")
+                        || html.Contains("try another way")
+                        || html.Contains("រង់ចាំការអនុម័ត")
+                        || html.Contains("chờ phê duyệt");
+                });
 
                 if (!isPush) return false;
 
-                // ── Step 1: Click "Try another way" ───────────────────────
-                bool clicked = false;
-                string[] tryTexts = { "try another way", "វិធីផ្សេង", "thử cách khác", "use another method" };
+                // Step 1: Click "Try another way"
+                string[] tryTexts = { "try another way", "use another way", "use another method", "វិធីផ្សេង", "thử cách khác" };
 
-                for (int attempt = 0; attempt < 8 && !clicked; attempt++)
+                bool clickedTry = wait.Until(_ =>
+                    TwoFaHelper.JsClickByTextStrong(driver, tryTexts)
+                    || SeleniumClickFallback(driver, tryTexts)
+                );
+
+                if (!clickedTry) return false;
+
+                // Step 2: Wait for methods screen OR OTP input to appear
+                wait.Until(d =>
                 {
-                    // Try JS click first (bypasses visibility)
-                    clicked = JsClickByText(driver, tryTexts);
+                    var html = (d.PageSource ?? "").ToLowerInvariant();
+                    return html.Contains("authentication app")
+                        || html.Contains("code generator")
+                        || html.Contains("enter the code")
+                        || d.FindElements(By.XPath("//input[@type='text' or @type='tel' or @inputmode='numeric']")).Any();
+                });
 
-                    if (!clicked)
+                // Step 3: Click "Authentication app" if it exists
+                string[] authTexts = { "authentication app", "code generator", "enter code", "authenticator", "xác thực", "វិធីផ្ទៀងផ្ទាត់" };
+
+                bool clickedAuth = TwoFaHelper.JsClickByTextStrong(driver, authTexts)
+                                || SeleniumClickFallback(driver, authTexts);
+
+                // Some flows go directly to code input without needing to click auth option
+                // Step 4: Click Continue/Next if present
+                string[] contTexts = { "continue", "next", "confirm", "ok", "បន្ត", "tiếp tục" };
+                TwoFaHelper.JsClickByTextStrong(driver, contTexts);
+                SeleniumClickFallback(driver, contTexts);
+
+                // Final: confirm we are not stuck on push page anymore
+                bool leftPush = wait.Until(d =>
+                {
+                    var html = (d.PageSource ?? "").ToLowerInvariant();
+                    bool stillPush = html.Contains("check your notifications")
+                                  || html.Contains("waiting for approval");
+                    bool hasOtp = d.FindElements(By.XPath("//input[@type='text' or @type='tel' or @inputmode='numeric']")).Any();
+                    bool hasAuth = html.Contains("authentication app") || html.Contains("enter the code") || html.Contains("code generator");
+                    return !stillPush || hasOtp || hasAuth;
+                });
+
+                return leftPush;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        private static bool SeleniumClickFallback(IWebDriver driver, string[] texts)
+        {
+            try
+            {
+                var els = driver.FindElements(By.XPath("//a | //button | //*[@role='button'] | //*[@role='link'] | //*[@role='menuitem'] | //label | //*[@role='radio']"));
+                foreach (var el in els)
+                {
+                    try
                     {
-                        // Fallback: Selenium click
-                        var allEls = driver.FindElements(By.XPath("//a | //button | //*[@role='button'] | //*[@role='link']"));
-                        foreach (var el in allEls)
+                        var t = (el.Text ?? "").Trim().ToLowerInvariant();
+                        if (string.IsNullOrWhiteSpace(t)) continue;
+
+                        if (texts.Any(x => !string.IsNullOrWhiteSpace(x) && t.Contains(x.ToLowerInvariant())))
                         {
-                            try
-                            {
-                                var txt = (el.Text ?? "").Trim().ToLower();
-                                if (tryTexts.Any(t => txt.Contains(t)))
-                                {
-                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
-                                    clicked = true;
-                                    break;
-                                }
-                            }
-                            catch { }
+                            try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
+                            return true;
                         }
                     }
-
-                    if (!clicked) Thread.Sleep(1500);
+                    catch { }
                 }
-
-                if (!clicked) return false;
-
-                Thread.Sleep(3000);
-
-                // ── Step 2: Choose "Authentication app" ───────────────────
-                string[] authTexts = { "authentication app", "code generator", "enter code", "կam, use authentication", "xác thực" };
-                bool authClicked = false;
-
-                for (int attempt = 0; attempt < 8 && !authClicked; attempt++)
-                {
-                    authClicked = JsClickByText(driver, authTexts);
-
-                    if (!authClicked)
-                    {
-                        var allEls = driver.FindElements(By.XPath("//a | //button | //*[@role='button'] | //label | //*[@role='radio'] | //*[@role='menuitem']"));
-                        foreach (var el in allEls)
-                        {
-                            try
-                            {
-                                var txt = (el.Text ?? "").Trim().ToLower();
-                                if (authTexts.Any(t => txt.Contains(t)))
-                                {
-                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
-                                    authClicked = true;
-                                    break;
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-
-                    if (!authClicked) Thread.Sleep(1500);
-                }
-
-                // Even if authClicked is false, try Continue anyway
-                Thread.Sleep(2000);
-
-                // ── Step 3: Click "Continue" ──────────────────────────────
-                string[] contTexts = { "continue", "next", "បន្ត", "tiếp tục", "confirm" };
-                bool contClicked = false;
-
-                for (int attempt = 0; attempt < 5 && !contClicked; attempt++)
-                {
-                    contClicked = JsClickByText(driver, contTexts);
-
-                    if (!contClicked)
-                    {
-                        var allEls = driver.FindElements(By.XPath("//button | //*[@role='button']"));
-                        foreach (var el in allEls)
-                        {
-                            try
-                            {
-                                var txt = (el.Text ?? "").Trim().ToLower();
-                                if (contTexts.Any(t => txt.Contains(t)))
-                                {
-                                    try { el.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", el); }
-                                    contClicked = true;
-                                    break;
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-
-                    if (!contClicked) Thread.Sleep(1000);
-                }
-
-                Thread.Sleep(2000);
-                return true;
             }
             catch { }
             return false;
@@ -1805,15 +2030,132 @@ namespace ToolKHBrowser.ToolLib.Tool
         /// finds the input, fills the TOTP code, clicks Continue.
         /// Returns: "ok" on success, or an error description string.
         /// </summary>
+        //public static string AutoFill2FACode(IWebDriver driver, ToolKHBrowser.ViewModels.FbAccount account)
+        //{
+        //    if (driver == null) return "driver is null";
+        //    string twoFaSecret = account?.TwoFA;
+        //    if (string.IsNullOrWhiteSpace(twoFaSecret)) return "TwoFA secret is empty";
+
+        //    // Helper to update status in the grid
+        //    Action<string> setStatus = (msg) => {
+        //        if (account != null) {
+        //            account.Description = "2FA: " + msg;
+        //        }
+        //    };
+
+        //    try
+        //    {
+        //        // -- Step 1: Handle push screen if present --
+        //        if (HandlePushApproval_WWW(driver))
+        //        {
+        //            setStatus("Switched to code input.");
+        //        }
+
+        //        // -- Step 2: Find the 6-digit code input --
+        //        IWebElement codeInput = null;
+        //        for (int w = 0; w < 15 && codeInput == null; w++)
+        //        {
+        //            codeInput = driver.FindElements(By.Name("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+        //                     ?? driver.FindElements(By.Id("approvals_code")).FirstOrDefault(e => e.Displayed && e.Enabled)
+        //                     ?? driver.FindElements(By.XPath("//input[@placeholder='Code' or @placeholder='code']")).FirstOrDefault(e => e.Displayed && e.Enabled)
+        //                     ?? driver.FindElements(By.XPath("//input[contains(@aria-label,'Code')]")).FirstOrDefault(e => e.Displayed && e.Enabled);
+
+        //            if (codeInput == null)
+        //            {
+        //                // Broad scan
+        //                codeInput = driver.FindElements(By.TagName("input")).FirstOrDefault(inp =>
+        //                {
+        //                    try
+        //                    {
+        //                        if (!inp.Displayed || !inp.Enabled) return false;
+        //                        string n = (inp.GetAttribute("name") ?? "").ToLower();
+        //                        string id = (inp.GetAttribute("id") ?? "").ToLower();
+        //                        string t = (inp.GetAttribute("type") ?? "text").ToLower();
+        //                        return t != "password" && t != "hidden" && t != "checkbox" && t != "radio" && t != "submit" && t != "email"
+        //                            && !n.Contains("email") && !id.Contains("email");
+        //                    }
+        //                    catch { return false; }
+        //                });
+        //            }
+        //            if (codeInput == null) Thread.Sleep(1000);
+        //        }
+
+        //        if (codeInput == null) return "code input not found";
+        //        setStatus("Code input found.");
+
+        //        // -- Step 3: Loop filling codes (retry up to 4x) --
+        //        for (int attempt = 1; attempt <= 4; attempt++)
+        //        {
+        //            string code = TwoFactorRequest.GetPassCode(twoFaSecret);
+        //            if (string.IsNullOrWhiteSpace(code)) { Thread.Sleep(1000); continue; }
+
+        //            setStatus($"Filling code {code}...");
+        //            try { codeInput.Click(); } catch { }
+
+        //            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].value='';", codeInput);
+        //            Thread.Sleep(100);
+        //            codeInput.SendKeys(code);
+        //            Thread.Sleep(200);
+        //            ((IJavaScriptExecutor)driver).ExecuteScript(
+        //                "arguments[0].dispatchEvent(new Event('input',{bubbles:true})); arguments[0].dispatchEvent(new Event('change',{bubbles:true}));", codeInput);
+
+        //            Thread.Sleep(500);
+
+        //            // Click Continue
+        //            IWebElement btnContinue = null;
+        //            btnContinue = driver.FindElements(By.XPath("//button[@type='submit']")).FirstOrDefault(e => e.Displayed && e.Enabled)
+        //                       ?? driver.FindElements(By.XPath("//input[@type='submit']")).FirstOrDefault(e => e.Displayed && e.Enabled);
+
+        //            if (btnContinue == null)
+        //            {
+        //                foreach (var el in driver.FindElements(By.XPath("//div[@role='button'] | //button | //a")))
+        //                {
+        //                    try
+        //                    {
+        //                        string t = (el.Text ?? "").ToLower();
+        //                        if ((t.Contains("continue") || t.Contains("confirm") || t.Contains("submit") || t.Contains("next")
+        //                          || t.Contains("បន្ត") || t.Contains("បញ្ជាក់") || t.Contains("tiếp tục") || t.Contains("xác nhận"))
+        //                          && el.Displayed && el.Enabled)
+        //                        { btnContinue = el; break; }
+        //                    }
+        //                    catch { }
+        //                }
+        //            }
+
+        //            if (btnContinue != null)
+        //            {
+        //                try { btnContinue.Click(); } catch { ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", btnContinue); }
+        //            }
+        //            else
+        //            {
+        //                codeInput.SendKeys(OpenQA.Selenium.Keys.Enter);
+        //            }
+
+        //            Thread.Sleep(4000);
+        //            // Check if success (input gone)
+        //            if (driver.FindElements(By.TagName("input")).All(inp => {
+        //                try { return !inp.Displayed || (inp.GetAttribute("type") ?? "").ToLower() == "hidden"; } catch { return true; }
+        //            }))
+        //            {
+        //                return "ok";
+        //            }
+        //            Thread.Sleep(1000);
+        //        }
+
+        //        return "failed after 4 attempts";
+        //    }
+        //    catch (Exception ex) { return "error: " + ex.Message; }
+        //}
+
         public static string AutoFill2FACode(IWebDriver driver, ToolKHBrowser.ViewModels.FbAccount account)
         {
             if (driver == null) return "driver is null";
             string twoFaSecret = account?.TwoFA;
             if (string.IsNullOrWhiteSpace(twoFaSecret)) return "TwoFA secret is empty";
 
-            // Helper to update status in the grid
             Action<string> setStatus = (msg) => {
-                if (account != null) {
+                if (account != null)
+                {
                     account.Description = "2FA: " + msg;
                 }
             };
@@ -1837,7 +2179,6 @@ namespace ToolKHBrowser.ToolLib.Tool
 
                     if (codeInput == null)
                     {
-                        // Broad scan
                         codeInput = driver.FindElements(By.TagName("input")).FirstOrDefault(inp =>
                         {
                             try
@@ -1866,14 +2207,14 @@ namespace ToolKHBrowser.ToolLib.Tool
 
                     setStatus($"Filling code {code}...");
                     try { codeInput.Click(); } catch { }
-                    
+
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].value='';", codeInput);
                     Thread.Sleep(100);
                     codeInput.SendKeys(code);
                     Thread.Sleep(200);
                     ((IJavaScriptExecutor)driver).ExecuteScript(
                         "arguments[0].dispatchEvent(new Event('input',{bubbles:true})); arguments[0].dispatchEvent(new Event('change',{bubbles:true}));", codeInput);
-                    
+
                     Thread.Sleep(500);
 
                     // Click Continue
@@ -1907,13 +2248,27 @@ namespace ToolKHBrowser.ToolLib.Tool
                     }
 
                     Thread.Sleep(4000);
-                    // Check if success (input gone)
-                    if (driver.FindElements(By.TagName("input")).All(inp => {
-                        try { return !inp.Displayed || (inp.GetAttribute("type") ?? "").ToLower() == "hidden"; } catch { return true; }
-                    }))
+
+                    // ✅ REAL success check: c_user cookie must exist
+                    try
                     {
-                        return "ok";
+                        var cUser = driver.Manage().Cookies.GetCookieNamed("c_user")?.Value;
+                        if (!string.IsNullOrWhiteSpace(cUser))
+                            return "ok";
                     }
+                    catch { }
+
+                    // ✅ Detect if kicked back to login = wrong code or session dropped
+                    string urlNow = "";
+                    try { urlNow = (driver.Url ?? "").ToLower(); } catch { }
+
+                    bool backToLogin = urlNow.Contains("/login")
+                        || driver.FindElements(By.Name("email")).Any()
+                        || driver.FindElements(By.Name("pass")).Any();
+
+                    if (backToLogin)
+                        return "back_to_login";
+
                     Thread.Sleep(1000);
                 }
 
@@ -1921,7 +2276,6 @@ namespace ToolKHBrowser.ToolLib.Tool
             }
             catch (Exception ex) { return "error: " + ex.Message; }
         }
-
         public static void HandlePostLoginPrompts(IWebDriver driver)
         {
             try
@@ -1947,27 +2301,311 @@ namespace ToolKHBrowser.ToolLib.Tool
             }
             catch { }
         }
-
-        public static string FinalizeLoginFlow(IWebDriver driver, FbAccount account, int seconds = 120)
+        public static bool IsDriverAlive(IWebDriver driver)
         {
-            if (driver == null) return "Driver null";
+            if (driver == null) return false;
 
-            DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+            try
+            {
+                // If session is gone, this usually throws WebDriverException
+                var handles = driver.WindowHandles;
+                if (handles == null || handles.Count == 0) return false;
+
+                _ = driver.Title; 
+                return true;
+            }
+            catch (OpenQA.Selenium.NoSuchWindowException)
+            {
+                return false;
+            }
+            catch (OpenQA.Selenium.WebDriverException)
+            {
+                return false;
+            }
+            catch
+            {
+                // if you want: return true here to be less strict
+                return false;
+            }
+        }
+
+        public static bool WaitForCaptchaSolved(IWebDriver driver, int timeoutSeconds = 180)
+        {
+            var end = DateTime.UtcNow.AddSeconds(timeoutSeconds);
 
             while (DateTime.UtcNow < end)
             {
-                string url = "";
-                try { url = (driver.Url ?? "").ToLower(); } catch { }
+                if (!IsDriverAlive(driver)) return false;
 
-                // If 2FA appears
+                // ✅ Best signal: cookie exists = fully logged in
                 try
                 {
-                    if (Is2FA(driver))
-                        return "Need 2FA";
+                    var cUser = driver.Manage().Cookies.GetCookieNamed("c_user")?.Value;
+                    if (!string.IsNullOrWhiteSpace(cUser)) return true;
                 }
                 catch { }
 
-                // If checkpoint appears, click Continue / OK / This was me
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+                // ✅ Captcha is gone
+                if (!TwoFaHelper.IsCaptchaPage(driver))
+                {
+                    // If NOT on login page = success (went to home/feed)
+                    bool onLoginPage = url.Contains("/login")
+                        || driver.FindElements(By.Name("email")).Any()
+                        || driver.FindElements(By.Name("pass")).Any();
+
+                    if (!onLoginPage)
+                        return true;
+
+                    // ⚠️ Captcha solved BUT Facebook sent us back to login
+                    // This is normal — Facebook dropped session after captcha
+                    // Return true anyway so FinalizeLoginFlow can re-login
+                    return true;
+                }
+
+                Thread.Sleep(800);
+            }
+
+            return false; // Timed out, captcha never solved
+        }
+
+        //public static string FinalizeLoginFlow(IWebDriver driver, FbAccount account, int seconds = 120)
+        //{
+        //    if (!IsDriverAlive(driver)) return "Driver disconnected";
+
+        //    DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+
+        //    while (DateTime.UtcNow < end)
+        //    {
+        //        if (!IsDriverAlive(driver)) return "Driver disconnected (during loop)";
+        //        string url = "";
+        //        try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+        //        // ✅ 0) remember_browser FIRST (because URL contains two_factor)
+        //        if (url.Contains("remember_browser") || url.Contains("remember-browser"))
+        //        {
+        //            ClickAlwaysConfirmRememberBrowser(driver, timeoutSec: 8);
+
+        //            // If cookie indicates logged-in, treat as success (prevents timeout)
+        //            try
+        //            {
+        //                var cUser = driver.Manage().Cookies.GetCookieNamed("c_user");
+        //                if (cUser != null && !string.IsNullOrWhiteSpace(cUser.Value))
+        //                    return "success";
+        //            }
+        //            catch { }
+
+        //            Thread.Sleep(1000);
+        //            continue;
+        //        }
+        //        // ✅ Captcha page: DO NOT click, DO NOT stop loading, DO NOT refresh.
+        //        // Just wait for user to solve it.
+        //        if (TwoFaHelper.IsCaptchaPage(driver))
+        //        {
+        //            // wait up to 3 minutes (adjust)
+        //            bool ok = WaitForCaptchaSolved(driver, 180);
+        //            if (!ok) return "Captcha not solved / driver disconnected";
+        //            continue;
+        //        }
+
+        //        // ✅ 1) then check 2FA
+        //        try
+        //        {
+        //            if (Is2FA(driver))
+        //            {
+        //                try { HandlePushApproval_WWW(driver); } catch { }
+
+        //                try
+        //                {
+        //                    var r = AutoFill2FACode(driver, account);
+        //                    if (r == "ok")
+        //                    {
+        //                        Thread.Sleep(2000);
+        //                        continue;
+        //                    }
+        //                }
+        //                catch { }
+
+        //                Thread.Sleep(1500);
+        //                continue;
+        //            }
+        //        }
+        //        catch { }
+
+        //        // checkpoint
+        //        if (url.Contains("/checkpoint/"))
+        //        {
+        //            try { HandleCheckpointContinue(driver); } catch { }
+        //            Thread.Sleep(800);
+        //            continue;
+        //        }
+
+        //        // login page
+        //        if (url.Contains("facebook.com/login") || url.Contains("/login/"))
+        //        {
+        //            Thread.Sleep(1000);
+        //            continue;
+        //        }
+
+        //        // confirm login
+        //        string uid = "";
+        //        try { uid = GetUserId(driver); } catch { }
+
+        //        bool looksLoggedIn =
+        //            !string.IsNullOrEmpty(uid) &&
+        //            !url.Contains("/checkpoint/") &&
+        //            !url.Contains("two_step_verification") &&
+        //            !url.Contains("two_factor") &&
+        //            !url.Contains("/login/");
+
+        //        if (looksLoggedIn)
+        //            return "success";
+
+        //        Thread.Sleep(1000);
+        //    }
+
+        //    string lastUrl = "";
+        //    try { lastUrl = driver.Url ?? ""; } catch { }
+
+        //    return "Login not finalized (timeout). LastUrl=" + lastUrl;
+        //}
+        public static string FinalizeLoginFlow(IWebDriver driver, FbAccount account, int seconds = 120)
+        {
+            if (!IsDriverAlive(driver)) return "Driver disconnected";
+
+            DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+            int loginTicks = 0; // count consecutive sightings of login page
+
+            while (DateTime.UtcNow < end)
+            {
+                if (!IsDriverAlive(driver)) return "Driver disconnected (during loop)";
+
+                string url = "";
+                try { url = (driver.Url ?? "").ToLower(); } catch { }
+
+                // ✅ 0) remember_browser FIRST (because URL contains two_factor)
+                if (url.Contains("remember_browser") || url.Contains("remember-browser"))
+                {
+                    ClickAlwaysConfirmRememberBrowser(driver, timeoutSec: 8);
+
+                    try
+                    {
+                        var cUser = driver.Manage().Cookies.GetCookieNamed("c_user");
+                        if (cUser != null && !string.IsNullOrWhiteSpace(cUser.Value))
+                            return "success";
+                    }
+                    catch { }
+
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
+                // ✅ 1) Captcha page: wait for user to solve, don't touch anything
+                // ✅ 1) Captcha page
+                if (TwoFaHelper.IsCaptchaPage(driver))
+                {
+                    account.Description = "Captcha: Please solve in browser...";
+                    bool ok = WaitForCaptchaSolved(driver, 180);
+
+                    if (!ok)
+                    {
+                        account.Description = "Captcha not solved (timeout)";
+                        return "Captcha not solved";
+                    }
+
+                    account.Description = "Captcha solved, checking state...";
+
+                    // ✅ After captcha, check if we need to re-login
+                    string urlAfter = "";
+                    try { urlAfter = (driver.Url ?? "").ToLower(); } catch { }
+
+                    bool needReLogin = urlAfter.Contains("/login")
+                        || driver.FindElements(By.Name("email")).Any()
+                        || driver.FindElements(By.Name("pass")).Any();
+
+                    if (needReLogin)
+                    {
+                        account.Description = "Captcha solved, re-logging in...";
+                        try
+                        {
+                            var emailEl = driver.FindElements(By.Name("email")).FirstOrDefault(e => e.Displayed);
+                            var passEl = driver.FindElements(By.Name("pass")).FirstOrDefault(e => e.Displayed);
+
+                            if (emailEl != null && passEl != null)
+                            {
+                                emailEl.Clear();
+                                emailEl.SendKeys(account.Email);     
+                                Thread.Sleep(300);
+                                passEl.Clear();
+                                passEl.SendKeys(account.Password); 
+                                Thread.Sleep(300);
+                                passEl.SendKeys(OpenQA.Selenium.Keys.Enter);
+                                Thread.Sleep(3000);
+                            }
+                        }
+                        catch { }
+                    }
+
+                    continue; // Let the loop re-evaluate the new page
+                }
+
+                // ✅ 2) Detect back on login page — wait for it to be stable before failing
+                bool isLoginPage = url.Contains("/login")
+                    || driver.FindElements(By.Name("email")).Any()
+                    || driver.FindElements(By.Name("pass")).Any();
+
+                if (isLoginPage)
+                {
+                    loginTicks++;
+                    if (loginTicks >= 10)
+                    {
+                        account.Description = "Back to login (session lost)";
+                        return "Back to login";
+                    }
+                    else
+                    {
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                }
+                else
+                {
+                    loginTicks = 0; // reset if we are on any other page
+                }
+
+                // ✅ 3) 2FA check
+                try
+                {
+                    if (Is2FA(driver))
+                    {
+                        try { HandlePushApproval_WWW(driver); } catch { }
+
+                        try
+                        {
+                            var r = AutoFill2FACode(driver, account);
+                            if (r == "ok")
+                            {
+                                Thread.Sleep(2000);
+                                continue;
+                            }
+                            // ✅ 2FA code failed, kicked back to login
+                            if (r == "back_to_login")
+                            {
+                                account.Description = "2FA failed: redirected to login";
+                                return "Back to login";
+                            }
+                        }
+                        catch { }
+
+                        Thread.Sleep(1500);
+                        continue;
+                    }
+                }
+                catch { }
+
+                // ✅ 4) Checkpoint
                 if (url.Contains("/checkpoint/"))
                 {
                     try { HandleCheckpointContinue(driver); } catch { }
@@ -1975,14 +2613,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     continue;
                 }
 
-                // If still on login page after captcha, wait a bit and re-check
-                if (url.Contains("facebook.com/login") || url.Contains("/login/"))
-                {
-                    Thread.Sleep(1000);
-                    continue;
-                }
-
-                // Confirm real login
+                // ✅ 5) Confirm login by cookie
                 string uid = "";
                 try { uid = GetUserId(driver); } catch { }
 
@@ -1991,7 +2622,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                     !url.Contains("/checkpoint/") &&
                     !url.Contains("two_step_verification") &&
                     !url.Contains("two_factor") &&
-                    !url.Contains("/login/");
+                    !url.Contains("/login");
 
                 if (looksLoggedIn)
                     return "success";
@@ -1999,10 +2630,141 @@ namespace ToolKHBrowser.ToolLib.Tool
                 Thread.Sleep(1000);
             }
 
-            // timed out -> show where we got stuck
             string lastUrl = "";
             try { lastUrl = driver.Url ?? ""; } catch { }
+
             return "Login not finalized (timeout). LastUrl=" + lastUrl;
+        }
+        public static bool ClickAlwaysConfirmRememberBrowser(IWebDriver driver, int timeoutSec = 15)
+        {
+            if (driver == null) return false;
+
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutSec));
+
+            // Wait until remember_browser page is loaded
+            wait.Until(d =>
+            {
+                var url = (d.Url ?? "").ToLowerInvariant();
+                return url.Contains("remember_browser") || url.Contains("remember-browser");
+            });
+
+            // Try multiple times because FB re-renders UI
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                // 1) Try in current context
+                if (TryClickAlwaysConfirmInCurrentContext(driver))
+                    return true;
+
+                // 2) Try inside iframes (IMPORTANT)
+                driver.SwitchTo().DefaultContent();
+                var frames = driver.FindElements(By.TagName("iframe"));
+                foreach (var fr in frames)
+                {
+                    try
+                    {
+                        driver.SwitchTo().DefaultContent();
+                        driver.SwitchTo().Frame(fr);
+
+                        if (TryClickAlwaysConfirmInCurrentContext(driver))
+                        {
+                            driver.SwitchTo().DefaultContent();
+                            return true;
+                        }
+                    }
+                    catch { /* ignore */ }
+                }
+
+                driver.SwitchTo().DefaultContent();
+                Thread.Sleep(700);
+            }
+
+            driver.SwitchTo().DefaultContent();
+            return false;
+        }
+
+        private static bool TryClickAlwaysConfirmInCurrentContext(IWebDriver driver)
+        {
+            try
+            {
+                // Most FB buttons are div[role=button]
+                var candidates = driver.FindElements(By.CssSelector("div[role='button'], button"));
+
+                // Prefer exact match first
+                foreach (var el in candidates)
+                {
+                    var t = (el.Text ?? "").Trim();
+                    if (t.Equals("Always confirm it’s me", StringComparison.OrdinalIgnoreCase) ||
+                        t.Equals("Always confirm it's me", StringComparison.OrdinalIgnoreCase) ||
+                        t.StartsWith("Always confirm", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DispatchMouseClick(driver, el);
+                    }
+                }
+
+                // Fallback: use JS scan by innerText/textContent (catches when el.Text is empty)
+                bool js = (bool)((IJavaScriptExecutor)driver).ExecuteScript(@"
+            const nodes = Array.from(document.querySelectorAll('div[role=""button""],button'));
+            const txt = el => ((el.innerText || el.textContent || '')+'').trim().toLowerCase();
+            for (const el of nodes) {
+              const t = txt(el);
+              if (t && t.includes('always confirm')) {
+                el.scrollIntoView({block:'center', inline:'center'});
+                // dispatch real events
+                const r = el.getBoundingClientRect();
+                const x = r.left + r.width/2, y = r.top + r.height/2;
+                const opts = {bubbles:true, cancelable:true, view:window, clientX:x, clientY:y};
+                el.dispatchEvent(new MouseEvent('mousemove', opts));
+                el.dispatchEvent(new MouseEvent('mousedown', opts));
+                el.dispatchEvent(new MouseEvent('mouseup', opts));
+                el.dispatchEvent(new MouseEvent('click', opts));
+                return true;
+              }
+            }
+            return false;
+        ");
+                if (js) return true;
+
+                // LAST RESORT: click the 2nd big button (your UI shows 2 buttons)
+                var displayed = candidates.Where(x => x.Displayed).ToList();
+                if (displayed.Count >= 2)
+                    return DispatchMouseClick(driver, displayed[1]);
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool DispatchMouseClick(IWebDriver driver, IWebElement el)
+        {
+            try
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", el);
+            }
+            catch { }
+
+            // Try normal click
+            try { el.Click(); return true; } catch { }
+
+            // Strong click: dispatch mouse events on element
+            try
+            {
+                return (bool)((IJavaScriptExecutor)driver).ExecuteScript(@"
+            const el = arguments[0];
+            el.scrollIntoView({block:'center', inline:'center'});
+            const r = el.getBoundingClientRect();
+            const x = r.left + r.width/2, y = r.top + r.height/2;
+            const opts = {bubbles:true, cancelable:true, view:window, clientX:x, clientY:y};
+            el.dispatchEvent(new MouseEvent('mousemove', opts));
+            el.dispatchEvent(new MouseEvent('mousedown', opts));
+            el.dispatchEvent(new MouseEvent('mouseup', opts));
+            el.dispatchEvent(new MouseEvent('click', opts));
+            return true;
+        ", el);
+            }
+            catch { return false; }
         }
         public static void HandleCheckpointContinue(IWebDriver driver)
         {
