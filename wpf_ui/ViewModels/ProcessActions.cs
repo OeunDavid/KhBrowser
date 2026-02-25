@@ -270,6 +270,7 @@ namespace ToolKHBrowser.ViewModels
     {
         public PostTimelineConfig Timeline { get; set; }
         public PlayOnNewsFeedConfig NewsFeed { get; set; }
+        public PageAutoScrollConfig AutoScroll { get; set; }
         public Messenger Messenger { get; set; }
         public PagePostConfig PagePost { get; set; }
     }

@@ -12,7 +12,8 @@
     <StackPanel Background="#121212">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="569*"></ColumnDefinition>
+                <ColumnDefinition Width="626*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -21,7 +22,7 @@
             </Grid.RowDefinitions>
 
             <!-- Row 0: Top Bar with Store and Main Actions -->
-            <Grid Grid.Row="0" Margin="10,5">
+            <Grid Grid.Row="0" Margin="10,5,10,5" Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="150"/>
@@ -31,12 +32,12 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <TextBlock Text="Store:" VerticalAlignment="Center" Margin="5,0" Foreground="White"/>
-                <ComboBox Grid.Column="1" x:Name="ddlStore" SelectedValuePath="Id" DisplayMemberPath="Name" Margin="5,0"/>
+                <ComboBox Grid.Column="1" x:Name="ddlStore" SelectedValuePath="Id" DisplayMemberPath="Name" Margin="5,0" Foreground="White"/>
 
                 <TextBlock Grid.Column="2" Text="Format:" VerticalAlignment="Center" Margin="15,0,5,0" Foreground="White"/>
-                <ComboBox Grid.Column="3" x:Name="ddlFormat" Margin="5,0" SelectionChanged="ddlFormat_SelectionChanged">
+                <ComboBox Grid.Column="3" x:Name="ddlFormat" Margin="5,0" SelectionChanged="ddlFormat_SelectionChanged" Foreground="White">
                     <ComboBoxItem Content="UID|Password" IsSelected="True"/>
                     <ComboBoxItem Content="UID|Password|2FA"/>
                     <ComboBoxItem Content="UID|Password|Cookie"/>
@@ -48,7 +49,7 @@
                 </ComboBox>
 
                 <Button Grid.Column="4" x:Name="btnSaveAccount" Content="Save Account" Background="DeepSkyBlue" Margin="10,0" Click="btnStartSaveAccount_Click"/>
-                
+
                 <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="No Update (Exist)" Foreground="White" VerticalAlignment="Center" Margin="5,0"/>
                     <ToggleButton x:Name="chbNoNeedUpdateExistData" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Height="15"/>
@@ -56,7 +57,7 @@
             </Grid>
 
             <!-- Row 1: Manual Input Fields and Row Actions -->
-            <StackPanel Grid.Row="1" Margin="10,5" Background="#1E1E1E">
+            <StackPanel Grid.Row="1" Margin="10,5,10,5" Background="#1E1E1E" Grid.ColumnSpan="2">
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
                     <StackPanel x:Name="pnlUID" Margin="5,2">
                         <TextBlock Text="UID" FontSize="11" Foreground="#AAA"/>
@@ -82,7 +83,7 @@
                         <TextBlock Text="PassMail" FontSize="11" Foreground="#AAA"/>
                         <TextBox x:Name="txtPassMail" Width="100" Background="#2D2D2D" Foreground="White" BorderThickness="0" Padding="3"/>
                     </StackPanel>
-                    
+
                     <Button x:Name="btnAddManual" Content="Add" Background="#4CAF50" BorderThickness="0" Height="25" Margin="10,12,5,0" Padding="10,0" Click="btnAddManual_Click"/>
                     <Button x:Name="btnPasteClipboard" Content="Paste Clipboard" Background="#607D8B" BorderThickness="0" Height="25" Margin="5,12,0,0" Padding="10,0" Click="btnPasteClipboard_Click" ToolTip="Bulk add from clipboard using selected format"/>
                     <Button x:Name="btnClearGrid" Content="Clear All" Background="#F44336" BorderThickness="0" Height="25" Margin="5,12,0,0" Padding="10,0" Click="btnClearGrid_Click"/>
@@ -101,7 +102,7 @@
                     Background="#121212"
                     RowBackground="#1E1E1E"
                     Foreground="White"
-                    BorderThickness="0"
+                    BorderThickness="0" Grid.ColumnSpan="2"
             >
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="Auto" Header="No" Binding="{Binding Key}" IsReadOnly="True" />

@@ -81,7 +81,7 @@
                             <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>   
+                        </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -135,39 +135,39 @@
 
                         <!-- Row 1: Left label = Comments (dropped down) -->
                         <TextBlock Grid.Row="1" Grid.Column="0"
-               Margin="2,6,2,2"
-               FontSize="11"
-               Foreground="{DynamicResource MaterialDesignBody}"
-               VerticalAlignment="Top">
-        <Run Text="Comments"/>
+                           Margin="2,6,2,2"
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesignBody}"
+                           VerticalAlignment="Top">
+                    <Run Text="Comments"/>
                         </TextBlock>
                         <TextBox Name="txtComments"
-             Grid.Row="1"
-             Grid.Column="1"
-             Grid.ColumnSpan="4"
-             Margin="2,2,2,2"
-             Height="60"
-             Background="WhiteSmoke"
-             Foreground="Black"
-             BorderBrush="#FFDCDCDC"
-             TextWrapping="Wrap"
-             AcceptsReturn="True"
-             VerticalScrollBarVisibility="Visible"/>
+                                 Grid.Row="1"
+                                 Grid.Column="1"
+                                 Grid.ColumnSpan="4"
+                                 Margin="2,2,2,2"
+                                 Height="30"
+                                 Background="WhiteSmoke"
+                                 Foreground="Black"
+                                 BorderBrush="#FFDCDCDC"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Visible"/>
                     </Grid>
-                    <Grid Margin="0,5,0,0">
+                    <Grid Margin="0,15,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="70"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="70"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0">
+                        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -180,7 +180,7 @@
                                Text="Comment/like on Post"/>
 
                             <Separator Grid.Column="1" Foreground="#FF20B2AA"
-                               Margin="8,0,2,0"
+                               Margin="8,0,2,0" Background="#FF20B2AA"
                                VerticalAlignment="Center"/>
                         </Grid>
 
@@ -193,7 +193,7 @@
                             <Run Text="Comment/Like Post"/>
                         </TextBlock>
 
-                        <Grid Grid.Row="1" Grid.Column="1">
+                        <Grid Grid.Row="1" Grid.Column="1" Margin="0,5,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="95"/>
                                 <ColumnDefinition Width="75"/>
@@ -206,7 +206,7 @@
                         </Grid>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
-                                   Margin="2,6,2,2"
+                                   Margin="2,10,2,10"
                                    FontSize="11"
                                    Foreground="{DynamicResource MaterialDesignBody}"
                                    VerticalAlignment="Top">
@@ -216,14 +216,14 @@
                         <TextBox Name="txtCommentPostVideoUrls"
                                  Grid.Row="2"
                                  Grid.Column="1"
-                                 Margin="2,2,2,2"
-                                 Height="60"
+                                 Margin="2,10,2,10"
+                                 Height="30"
                                  Background="WhiteSmoke"
                                  Foreground="Black"
                                  BorderBrush="#FFDCDCDC"
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"
-                                 VerticalScrollBarVisibility="Visible"/>
+                                 VerticalScrollBarVisibility="Visible" TextChanged="txtCommentPostVideoUrls_TextChanged"/>
 
                         <TextBlock Grid.Row="4" Grid.Column="0"
                                    Margin="2,6,2,2"
@@ -237,7 +237,7 @@
                                  Grid.Row="4"
                                  Grid.Column="1"
                                  Margin="2,2,2,2"
-                                 Height="60"
+                                 Height="30"
                                  Background="WhiteSmoke"
                                  Foreground="Black"
                                  BorderBrush="#FFDCDCDC"
@@ -245,22 +245,132 @@
                                  AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Visible"/>
                     </Grid>
-
-
                 </StackPanel>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="600"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <TextBlock Grid.Row="0" Grid.Column="0"
+               Foreground="#FF20B2AA"
+               Margin="0"
+               Text="Auto Scroll"/>
+
+                <Separator Grid.Row="0" Grid.Column="1"
+               Background="#FF20B2AA"
+               Height="1"
+               Margin="8,0,2,0"
+               VerticalAlignment="Center"/>
+
+                <!-- Content: START LEFT -->
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                      Margin="0"
+                      HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="80"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="Comment/Like"
+                               Foreground="{DynamicResource MaterialDesignBody}"
+                               FontSize="11"
+                               Margin="2,6,2,2"
+                               VerticalAlignment="Center"/>
+
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton Grid.Column="0"
+                                     x:Name="autolike"
+                                     IsChecked="True"
+                                     Margin="0"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Style="{DynamicResource MaterialDesignRadioButton}">
+                            None
+                        </RadioButton>
+                        <RadioButton Grid.Column="1"
+                                     x:Name="autoLike"
+                                     Margin="5,0,0,0"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Style="{DynamicResource MaterialDesignRadioButton}">
+                            Like
+                        </RadioButton>
+                        <RadioButton Grid.Column="2"
+                                     x:Name="autoComment"
+                                     Margin="5,0,0,0"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Style="{DynamicResource MaterialDesignRadioButton}">
+                            Comment
+                        </RadioButton>
+                        <RadioButton Grid.Column="3"
+                                     x:Name="autoCommentAndLike"
+                                     Margin="5,0,0,0"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Style="{DynamicResource MaterialDesignRadioButton}">
+                            Comment+Like
+                        </RadioButton>
+                        <RadioButton Grid.Column="4"
+                                     x:Name="autoRandom"
+                                     Margin="5,0,0,0"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Style="{DynamicResource MaterialDesignRadioButton}">
+                            Random
+                        </RadioButton>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Margin="2"
+                               FontSize="11"
+                               Foreground="{DynamicResource MaterialDesignBody}"
+                               VerticalAlignment="Center">
+                        <Run Text="Comments"/>
+                    </TextBlock>
+
+                    <TextBox Name="txtAutoScrollComments"
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             Margin="2,2,2,2"
+                             Height="70"
+                             Background="WhiteSmoke"
+                             Foreground="Black"
+                             BorderBrush="#FFDCDCDC"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Visible"/>
+                </Grid>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="82.81"/>
+                    <ColumnDefinition Width="517.19"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,130" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2">
                     <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Messenger --------------------------------------------------"/></TextBlock>
                 </StackPanel>
-                <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
+                <StackPanel Margin="5,5,5,5" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>

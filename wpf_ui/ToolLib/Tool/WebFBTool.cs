@@ -4715,166 +4715,171 @@ namespace ToolKHBrowser.ToolLib.Tool
         [STAThread]
         public static void CreatePage(IWebDriver driver, string pageName, string categories, string bio = "")
         {
+            IWebElement FindVisibleElement(params string[] xpaths)
+            {
+                foreach (var xp in xpaths)
+                {
+                    try
+                    {
+                        var els = driver.FindElements(By.XPath(xp));
+                        foreach (var el in els)
+                        {
+                            try
+                            {
+                                if (el != null && el.Displayed && el.Enabled) return el;
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                    catch (Exception) { }
+                }
+                return null;
+            }
+
+            bool TryType(IWebElement el, string text)
+            {
+                if (el == null) return false;
+                if (text == null) text = "";
+
+                try { ClickElement(driver, el); Thread.Sleep(300); } catch (Exception) { }
+
+                try
+                {
+                    var tag = (el.TagName ?? "").ToLower();
+                    if (tag == "input" || tag == "textarea")
+                    {
+                        try { el.Clear(); } catch (Exception) { }
+                    }
+                }
+                catch (Exception) { }
+
+                try
+                {
+                    el.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                    el.SendKeys(OpenQA.Selenium.Keys.Backspace);
+                }
+                catch (Exception) { }
+
+                try
+                {
+                    el.SendKeys(text);
+                    return true;
+                }
+                catch (Exception) { }
+
+                // Fallback for contenteditable/React inputs
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript(@"
+                        var el = arguments[0], txt = arguments[1];
+                        try { el.focus(); } catch(e) {}
+                        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                            el.value = txt;
+                        } else {
+                            el.textContent = txt;
+                            if (el.innerText !== undefined) el.innerText = txt;
+                        }
+                        try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e) {}
+                        try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e) {}
+                    ", el, text);
+                    return true;
+                }
+                catch (Exception) { }
+
+                return false;
+            }
+
+            bool TryClick(params string[] xpaths)
+            {
+                var el = FindVisibleElement(xpaths);
+                if (el == null) return false;
+                try { ClickElement(driver, el); return true; } catch (Exception) { }
+                try { el.Click(); return true; } catch (Exception) { }
+                return false;
+            }
+
             try
             {
                 driver.Navigate().GoToUrl("https://facebook.com/pages/creation?ref_type=launch_point");
             }
             catch (Exception) { }
             FBTool.WaitingPageLoading(driver);
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             bool isWorking = false;
-            int counter = 4;
+            int counter = 8;
+            IWebElement nameE = null;
             do
             {
-                Thread.Sleep(1000);
-                IWebElement inputElement = null;
-                try
-                {
-                    //IReadOnlyCollection<IWebElement> element = driver.FindElements(By.XPath("//input[@aria-invalid='false']"));
-                    //inputElement = element.ElementAt(1);
-                    //if (inputElement.GetAttribute("type") == "search")
-                    //{
-                    //    inputElement = element.ElementAt(2);
-                    //}
-                    //else if (inputElement.GetAttribute("type") == "textarea")
-                    //{
-                    //    inputElement = element.ElementAt(0);
-                    //}
-                    inputElement = driver.FindElement(By.XPath("//label[@aria-label='Page name (required)']/div/input"));
+                Thread.Sleep(700);
+                nameE = FindVisibleElement(
+                    "//input[contains(@aria-label,'Page name')]",
+                    "//input[contains(@placeholder,'Page name')]",
+                    "//label[contains(@aria-label,'Page name')]//input",
+                    "//label[.//*[contains(text(),'Page name')]]//input",
+                    "//div[@role='textbox' and contains(@aria-label,'Page name')]",
+                    "//div[@contenteditable='true' and (@role='textbox' or @data-lexical-editor='true')][contains(@aria-label,'Page name')]"
+                );
 
-                    isWorking = true;
-                }
-                catch (Exception) { }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        inputElement = driver.FindElement(By.XPath("//label[@aria-label='Page name (required)']/div/div/input"));
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (!isWorking)
-                {
-                    try
-                    {
-                        inputElement = driver.FindElement(By.XPath("//label[@aria-label='Page name (required)']/input"));
-                        isWorking = true;
-                    }
-                    catch (Exception) { }
-                }
-                if (inputElement != null)
-                {
-                    try
-                    {
-                        inputElement.SendKeys(pageName);
-                    }
-                    catch (Exception) { }
-                }
+                if (nameE != null)
+                    isWorking = TryType(nameE, pageName);
             } while (!isWorking && counter-- > 0);
             if (!isWorking)
             {
                 return;
             }
             Thread.Sleep(1000);
-            IWebElement catE = null;
-            try
+
+            IWebElement catE = FindVisibleElement(
+                "//input[contains(@aria-label,'Category')]",
+                "//input[contains(@placeholder,'Category')]",
+                "//label[contains(@aria-label,'Category')]//input",
+                "//label[.//*[contains(text(),'Category')]]//input",
+                "//div[@role='combobox']//input[contains(@aria-label,'Category')]",
+                "//div[@role='textbox' and contains(@aria-label,'Category')]",
+                "//div[@contenteditable='true' and (@role='textbox' or @data-lexical-editor='true')][contains(@aria-label,'Category')]"
+            );
+            if (catE != null)
             {
-                catE = driver.FindElement(By.XPath("//input[@aria-label='Category (required)']"));
+                TryType(catE, categories);
+                Thread.Sleep(1200);
+                try { catE.SendKeys(OpenQA.Selenium.Keys.ArrowDown); } catch (Exception) { }
+                Thread.Sleep(600);
+                try { catE.SendKeys(OpenQA.Selenium.Keys.Enter); } catch (Exception) { }
+
+                // Fallback: press Enter on active element in case FB swapped the input after typing.
+                try
+                {
+                    var active = driver.SwitchTo().ActiveElement();
+                    active.SendKeys(OpenQA.Selenium.Keys.ArrowDown);
+                    Thread.Sleep(300);
+                    active.SendKeys(OpenQA.Selenium.Keys.Enter);
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
-            try
-            {
-                catE.SendKeys(categories);
-            }
-            catch (Exception) { }
-            Thread.Sleep(1000);
-            try
-            {
-                catE.SendKeys(OpenQA.Selenium.Keys.ArrowDown);
-                Thread.Sleep(2500);
-                catE.SendKeys(OpenQA.Selenium.Keys.Enter);
-            }
-            catch (Exception) { }
             Thread.Sleep(1000);
             if (!string.IsNullOrEmpty(bio))
             {
-                IWebElement bioE = null;
-                try
-                {
-                    bioE = driver.FindElement(By.XPath("//textarea[@aria-invalid='false']"));
-                }
-                catch (Exception) { }
-                if (bioE == null)
-                {
-                    try
-                    {
-                        bioE = driver.FindElement(By.XPath("//label[@aria-label='Bio (optional)']/div/div/textarea"));
-                    }
-                    catch (Exception) { }
-                }
-                if (bioE == null)
-                {
-                    try
-                    {
-                        bioE = driver.FindElement(By.XPath("//label[@aria-label='Bio (optional)']/div/textarea"));
-                    }
-                    catch (Exception) { }
-                }
-                if (bioE == null)
-                {
-                    try
-                    {
-                        bioE = driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[5]/div/label/div/div/div/textarea"));
-                    }
-                    catch (Exception) { }
-                }
+                IWebElement bioE = FindVisibleElement(
+                    "//textarea[contains(@aria-label,'Bio')]",
+                    "//textarea[contains(@placeholder,'Bio')]",
+                    "//label[contains(@aria-label,'Bio')]//textarea",
+                    "//label[.//*[contains(text(),'Bio')]]//textarea",
+                    "//div[@role='textbox' and contains(@aria-label,'Bio')]",
+                    "//div[@contenteditable='true' and (@role='textbox' or @data-lexical-editor='true')][contains(@aria-label,'Bio')]"
+                );
 
-                if (bioE != null)
-                {
-                    try
-                    {
-                        bioE.SendKeys(bio);
-                    }
-                    catch (Exception) { }
-                }
+                TryType(bioE, bio);
             }
             Thread.Sleep(1000);
             isWorking = false;
-            try
-            {
-                driver.FindElement(By.XPath("//div[@aria-label='Create Page']")).Click();
-                isWorking = true;
-            }
-            catch (Exception) { }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//div[@aria-label='Create page']")).Click();
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//div[@aria-label='Create Page']")).Click();
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
-            if (!isWorking)
-            {
-                try
-                {
-                    driver.FindElement(By.XPath("//div[@aria-label='Create']")).Click();
-                    isWorking = true;
-                }
-                catch (Exception) { }
-            }
+            isWorking = TryClick(
+                "//div[@role='button' and .//span[normalize-space()='Create Page' or normalize-space()='Create page']]",
+                "//span[normalize-space()='Create Page' or normalize-space()='Create page']/ancestor::div[@role='button'][1]",
+                "//div[@aria-label='Create Page' or @aria-label='Create page']",
+                "//div[@role='button' and .//span[normalize-space()='Create']]",
+                "//div[@aria-label='Create']"
+            );
             if (isWorking)
             {
                 int c = 10;

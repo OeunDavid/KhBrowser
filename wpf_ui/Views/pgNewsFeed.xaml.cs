@@ -76,6 +76,21 @@ namespace ToolKHBrowser.Views
             txtMinComments.Value = ToInt(nf?.MinComments, 1);
             txtMaxComments.Value = ToInt(nf?.MaxComments, 1);
 
+            var autoScroll = newsfeedObj.AutoScroll;
+            if (autoScroll?.React != null)
+            {
+                bool isRandom = autoScroll.React.Random;
+                bool isLike = autoScroll.React.Like;
+                bool isComment = autoScroll.React.Comment;
+
+                autoRandom.IsChecked = isRandom;
+                autoCommentAndLike.IsChecked = !isRandom && isLike && isComment;
+                autoLike.IsChecked = !isRandom && isLike && !isComment;
+                autoComment.IsChecked = !isRandom && !isLike && isComment;
+                autolike.IsChecked = !isRandom && !isLike && !isComment;
+            }
+            txtAutoScrollComments.Text = autoScroll?.Comments ?? nf?.Comments ?? "";
+
             if (nf?.CommentPost != null)
             {
                 txtCommentPostVideoUrls.Text = nf.CommentPost.VideoUrls ?? "";
@@ -164,6 +179,17 @@ namespace ToolKHBrowser.Views
             reactObj.Comment = isReactComment;
             reactObj.None = !reactObj.Random && !reactObj.Like && !reactObj.Comment;
 
+            bool isAutoRandom = autoRandom.IsChecked == true;
+            bool isAutoLikeComment = autoCommentAndLike.IsChecked == true;
+            bool isAutoLike = autoLike.IsChecked == true;
+            bool isAutoComment = autoComment.IsChecked == true;
+
+            React autoScrollReactObj = new React();
+            autoScrollReactObj.Random = isAutoRandom;
+            autoScrollReactObj.Like = isAutoLikeComment || isAutoLike;
+            autoScrollReactObj.Comment = isAutoLikeComment || isAutoComment;
+            autoScrollReactObj.None = !autoScrollReactObj.Random && !autoScrollReactObj.Like && !autoScrollReactObj.Comment;
+
             bool isCommentPostLikeComment = chbCommentPostLikeComment.IsChecked == true;
             bool isCommentPostLikeOnly = chbCommentPostLikeOnly.IsChecked == true;
             bool isCommentPostCommentOnly = chbCommentPostCommentOnly.IsChecked == true;
@@ -214,6 +240,10 @@ namespace ToolKHBrowser.Views
             playObj.MaxComments = Int32.Parse(txtMaxComments.Value.ToString());
             playObj.CommentPost = commentPostObj;
 
+            PageAutoScrollConfig autoScrollObj = new PageAutoScrollConfig();
+            autoScrollObj.React = autoScrollReactObj;
+            autoScrollObj.Comments = txtAutoScrollComments.Text;
+
             Messenger messengerObj = new Messenger();
             messengerObj.MessageCallSound = callSoundObj;
             messengerObj.MessageSound = soundObj;
@@ -229,6 +259,7 @@ namespace ToolKHBrowser.Views
 
             NewsFeedConfig newsfeedObj = new NewsFeedConfig();
             newsfeedObj.NewsFeed = playObj;
+            newsfeedObj.AutoScroll = autoScrollObj;
             newsfeedObj.Timeline = timelineObj;
             newsfeedObj.Messenger = messengerObj;
             newsfeedObj.PagePost = pagePostObj;
@@ -284,6 +315,11 @@ namespace ToolKHBrowser.Views
                     txtPagePostSourceFolder.Text = dialog.FileName;
                 }
             }
+        }
+
+        private void txtCommentPostVideoUrls_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
