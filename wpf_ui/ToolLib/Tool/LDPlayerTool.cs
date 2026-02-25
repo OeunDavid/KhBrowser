@@ -270,6 +270,23 @@ namespace ToolLib
             Thread.Sleep(1000);
         }
 
+        public void ViewGroups(int scrollCount = 5)
+        {
+            if (IsStopSignal()) return;
+
+            // Open Groups tab first
+            ClickByText("Groups");
+            Thread.Sleep(2000);
+
+            if (scrollCount <= 0) scrollCount = 1;
+            for (int i = 0; i < scrollCount; i++)
+            {
+                if (IsStopSignal()) return;
+                Swipe(500, 1500, 500, 650); // swipe up to browse group feed/list
+                Thread.Sleep(1200);
+            }
+        }
+
         public void AddFriendsByUID(string[] uids, int limit)
         {
             if (uids == null) return;

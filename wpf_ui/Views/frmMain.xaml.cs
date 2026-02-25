@@ -3519,6 +3519,39 @@ namespace ToolKHBrowser.Views
                     }
                 }
 
+                // Load group config once for LDPlayer group-related actions
+                if (processActionsData.IsJoinGroup ||
+                    processActionsData.IsLeaveGroup ||
+                    processActionsData.IsBackupGroup ||
+                    processActionsData.IsViewGroup ||
+                    processActionsData.GroupPost ||
+                    processActionsData.AutoScrollGroup)
+                {
+                    try
+                    {
+                        if (processActionsData.GroupConfig == null)
+                            processActionsData.GroupConfig = GetCacheConfig<GroupConfig>("group:config");
+                    }
+                    catch { }
+                }
+
+                // Load page config once for LDPlayer page-related actions (Create/Follow/Reel/etc.)
+                if (processActionsData.WorkingOnPage ||
+                    processActionsData.CreatePage ||
+                    processActionsData.FollowPage ||
+                    processActionsData.BackupPage ||
+                    processActionsData.PageCreateReel ||
+                    processActionsData.AutoScrollPage ||
+                    processActionsData.PagePost)
+                {
+                    try
+                    {
+                        if (processActionsData.PageConfig == null)
+                            processActionsData.PageConfig = GetCacheConfig<PageConfig>("page:config");
+                    }
+                    catch { }
+                }
+
                 // Working on Page (Switch page)
                 if (processActionsData.WorkingOnPage && !processActionsData.NoSwitchPage)
                 {
@@ -3686,9 +3719,23 @@ namespace ToolKHBrowser.Views
 
                 if (processActionsData.IsViewGroup)
                 {
-                    account.Status = "LDPlayer: Viewing Group notifications...";
+                    account.Status = "LDPlayer: Viewing Groups...";
                     SetGridDataRowStatus(account);
-                    ldPlayerTool.ReadNotifications();
+
+                    int scrollCount = 5;
+                    try
+                    {
+                        var gv = processActionsData.GroupConfig?.View;
+                        if (gv?.ViewTime != null)
+                        {
+                            var min = Math.Max(1, gv.ViewTime.NumberStart);
+                            var max = Math.Max(min, gv.ViewTime.NumberEnd);
+                            scrollCount = new Random().Next(min, max + 1);
+                        }
+                    }
+                    catch { }
+
+                    ldPlayerTool.ViewGroups(scrollCount);
                 }
 
                 if (processActionsData.ReadMessenger)
@@ -5805,14 +5852,19 @@ namespace ToolKHBrowser.Views
 
                         try
                         {
-                            if (newsfeedObj?.NewsFeed?.React != null)
+                            var autoCfg = newsfeedObj?.AutoScroll;
+                            var autoReact = autoCfg?.React ?? newsfeedObj?.NewsFeed?.React;
+
+                            if (autoReact != null)
                             {
-                                doLike = newsfeedObj.NewsFeed.React.Like;
-                                doComment = newsfeedObj.NewsFeed.React.Comment;
-                                doRandom = newsfeedObj.NewsFeed.React.Random;
+                                doLike = autoReact.Like;
+                                doComment = autoReact.Comment;
+                                doRandom = autoReact.Random;
                             }
 
-                            rawComments = newsfeedObj?.NewsFeed?.Comments ?? "";
+                            rawComments = !string.IsNullOrWhiteSpace(autoCfg?.Comments)
+                                ? autoCfg.Comments
+                                : (newsfeedObj?.NewsFeed?.Comments ?? "");
 
                             // Avoid NullReference first-chance exceptions when config is missing.
                             var nfCfg = newsfeedObj?.NewsFeed;
@@ -6788,14 +6840,11 @@ namespace ToolKHBrowser.Views
                 {
                     try
                     {
-                        string value = "";
                         if (joinGroupIDArr.Length != 0 && joinGroupIDIndex < joinGroupIDArr.Length)
                         {
                             result = joinGroupIDArr[joinGroupIDIndex];
                             joinGroupIDIndex++;
-                            value = string.Join("\n", joinGroupIDArr.Skip(joinGroupIDIndex));
                         }
-                        cacheViewModel.GetCacheDao().Set("group:config:group_ids", value);
                     }
                     catch (Exception)
                     {

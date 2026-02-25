@@ -50,7 +50,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        
+
         public static string LoggedIn(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
@@ -82,7 +82,7 @@ namespace ToolKHBrowser.ToolLib.Tool
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        
+
         public static int Login(IWebDriver driver, FbAccount data, bool isLoginByCookie = false)
         {
             string runType = ConfigData.GetRunType();
@@ -1030,7 +1030,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
                 catch (Exception) { }
             }
-            if(isWorking)
+            if (isWorking)
             {
                 WaitingPageLoading(driver);
                 Thread.Sleep(1000);
@@ -1293,7 +1293,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 try
                 {
                     var soure = driver.PageSource.ToLower();
-                    if(soure.Contains("trust this device?"))
+                    if (soure.Contains("trust this device?"))
                     {
                         isEnglish = true;
                     }
@@ -1344,16 +1344,18 @@ namespace ToolKHBrowser.ToolLib.Tool
             if (string.IsNullOrEmpty(FBTool.GetUserId(driver)))
             {
                 return false;
-            } else
+            }
+            else
             {
                 try
                 {
                     var source = driver.PageSource.ToString().ToLower();
-                    if(source.Contains("log in") || source.Contains("forgot account?"))
+                    if (source.Contains("log in") || source.Contains("forgot account?"))
                     {
                         return false;
                     }
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
             }
 
             return true;
@@ -1373,13 +1375,14 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
             }
             catch (Exception) { }
-            if(!string.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(userId))
             {
                 try
                 {
                     driver.FindElement(By.Name("email"));
                     userId = "";
-                } catch(Exception) { }
+                }
+                catch (Exception) { }
             }
 
             return userId;
@@ -1389,9 +1392,34 @@ namespace ToolKHBrowser.ToolLib.Tool
         [STAThread]
         public static void WaitingPageLoading(IWebDriver driver)
         {
+            if (driver == null) return;
+
             try
             {
-                ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
+                var js = driver as IJavaScriptExecutor;
+                if (js == null) return;
+
+                int counter = 20;
+                do
+                {
+                    object state = null;
+                    try
+                    {
+                        state = js.ExecuteScript("return document.readyState");
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
+
+                    var readyState = state == null ? "" : state.ToString();
+                    if (string.Equals(readyState, "complete", StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(100);
+                } while (counter-- > 0);
             }
             catch (Exception) { }
         }
@@ -1559,7 +1587,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 keydown = a_provider.MoveToElement(element);
                 keydown.Perform();
             }
-            catch(Exception) { }
+            catch (Exception) { }
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
@@ -1574,7 +1602,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 try
                 {
                     string url = driver.Url;
-                    if(!url.Contains("zero/policy/"))
+                    if (!url.Contains("zero/policy/"))
                     {
                         isWorking = true;
                     }
@@ -1773,7 +1801,7 @@ namespace ToolKHBrowser.ToolLib.Tool
             //    }
             //    catch (Exception) { }
             //}
-            if(!isWorking)
+            if (!isWorking)
             {
                 try
                 {
@@ -1914,7 +1942,7 @@ namespace ToolKHBrowser.ToolLib.Tool
 
             groupId = groupId.Trim();
 
-            if (groupId.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            if (groupId.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 groupId.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 return groupId;
@@ -2153,7 +2181,8 @@ namespace ToolKHBrowser.ToolLib.Tool
             string twoFaSecret = account?.TwoFA;
             if (string.IsNullOrWhiteSpace(twoFaSecret)) return "TwoFA secret is empty";
 
-            Action<string> setStatus = (msg) => {
+            Action<string> setStatus = (msg) =>
+            {
                 if (account != null)
                 {
                     account.Description = "2FA: " + msg;
@@ -2311,7 +2340,7 @@ namespace ToolKHBrowser.ToolLib.Tool
                 var handles = driver.WindowHandles;
                 if (handles == null || handles.Count == 0) return false;
 
-                _ = driver.Title; 
+                _ = driver.Title;
                 return true;
             }
             catch (OpenQA.Selenium.NoSuchWindowException)
@@ -2536,10 +2565,10 @@ namespace ToolKHBrowser.ToolLib.Tool
                             if (emailEl != null && passEl != null)
                             {
                                 emailEl.Clear();
-                                emailEl.SendKeys(account.Email);     
+                                emailEl.SendKeys(account.Email);
                                 Thread.Sleep(300);
                                 passEl.Clear();
-                                passEl.SendKeys(account.Password); 
+                                passEl.SendKeys(account.Password);
                                 Thread.Sleep(300);
                                 passEl.SendKeys(OpenQA.Selenium.Keys.Enter);
                                 Thread.Sleep(3000);
