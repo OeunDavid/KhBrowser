@@ -882,16 +882,21 @@ namespace ToolLib.Data
         public List<Account> listAccount(int storeId, string keyword="", bool isTempStore= false)
         {
             List<Account> items = new List<Account>();
-            var p = new Dictionary<string, object> {
-                {"@store_id",storeId }
-            };
-            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_BY_STORE;
+            var p = new Dictionary<string, object>();
+            string sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_FILTER;
             if (isTempStore)
             {
                 p = new Dictionary<string, object> {
                     {"@temp_store_id",storeId }
                 };
                 sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_BY_TEMP_STORE;
+            }
+            else if (storeId > 0)
+            {
+                p = new Dictionary<string, object> {
+                    {"@store_id",storeId }
+                };
+                sql = SQLConstant.AccountSQL.TABLE_ACCOUNT_SELECT_ALL_BY_STORE;
             }
             string where = "";
             if(!string.IsNullOrEmpty(keyword))

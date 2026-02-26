@@ -1565,48 +1565,48 @@ namespace ToolKHBrowser.ViewModels
                 }
                 else
                 {
-                    if (IsLikelyPageIdentityUi())
+                    bool pageUiDetected = false;
+                    try { pageUiDetected = IsLikelyPageIdentityUi(); } catch { }
+
+                    Log("Switch flow finished (popup not visible). pageUiDetected=" + pageUiDetected);
+                    Log("No-popup branch: trying forced profile switch...");
+
+                    try
                     {
-                        Log("Switch flow finished (popup not visible) but still Page identity. Trying forced profile switch...");
+                        var candidates = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(mainProfileUrl))
+                            candidates.Add(mainProfileUrl.Trim());
+                        if (!string.IsNullOrWhiteSpace(data?.UID))
+                            candidates.Add("https://www.facebook.com/profile.php?id=" + data.UID.Trim());
+                        candidates.Add("https://www.facebook.com/me");
 
-                        try
+                        foreach (var url in candidates)
                         {
-                            var candidates = new List<string>();
-                            if (!string.IsNullOrWhiteSpace(mainProfileUrl))
-                                candidates.Add(mainProfileUrl.Trim());
-                            if (!string.IsNullOrWhiteSpace(data?.UID))
-                                candidates.Add("https://www.facebook.com/profile.php?id=" + data.UID.Trim());
-                            candidates.Add("https://www.facebook.com/me");
+                            if (string.IsNullOrWhiteSpace(url)) continue;
 
-                            foreach (var url in candidates)
+                            Log("No-popup forced retry via: " + url);
+                            SafeGo(url, 1000);
+                            FBTool.WaitingPageLoading(driver);
+                            Thread.Sleep(1000);
+                            TryClickSwitchNowIfPresent();
+                            Thread.Sleep(1000);
+
+                            if (!IsLikelyPageIdentityUi())
                             {
-                                if (string.IsNullOrWhiteSpace(url)) continue;
-
-                                Log("No-popup forced retry via: " + url);
-                                SafeGo(url, 1000);
-                                FBTool.WaitingPageLoading(driver);
-                                Thread.Sleep(1000);
-                                TryClickSwitchNowIfPresent();
-                                Thread.Sleep(1000);
-
-                                if (!IsLikelyPageIdentityUi())
-                                {
-                                    Log("No-popup forced retry switched to main profile.");
-                                    return;
-                                }
+                                Log("No-popup forced retry switched to main profile.");
+                                return;
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Log("No-popup forced retry error: " + ex.Message);
-                        }
-
-                        Log("Switch flow finished (popup not visible) and still Page identity.");
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Log("Switch flow finished (popup not visible).");
+                        Log("No-popup forced retry error: " + ex.Message);
                     }
+
+                    if (IsLikelyPageIdentityUi())
+                        Log("Switch flow finished (popup not visible) and still Page identity.");
+                    else
+                        Log("Switch flow finished (popup not visible) after forced retries.");
                 }
             }
             catch (Exception ex)

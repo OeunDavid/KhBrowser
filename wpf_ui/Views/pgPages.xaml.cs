@@ -151,21 +151,17 @@ namespace ToolKHBrowser.Views
         }
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
-                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
-
-                if (!string.IsNullOrEmpty(txtCreateReelSourceFolder.Text) && System.IO.Directory.Exists(txtCreateReelSourceFolder.Text))
+                dialog.Description = "Select source folder";
+                if (!string.IsNullOrWhiteSpace(txtCreateReelSourceFolder.Text) && System.IO.Directory.Exists(txtCreateReelSourceFolder.Text))
                 {
-                    dialog.InitialDirectory = txtCreateReelSourceFolder.Text;
+                    dialog.SelectedPath = txtCreateReelSourceFolder.Text;
                 }
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    txtCreateReelSourceFolder.Text = dialog.FileName;
+                    txtCreateReelSourceFolder.Text = dialog.SelectedPath;
                 }
             }
         }

@@ -53,8 +53,9 @@
             public const string TABLE_ACCOUNT_UPDATE_GROUP_ID = " UPDATE accounts SET group_ids=@group_ids,old_group_ids=@old_group_ids WHERE uid IN ({uid})";
 
             public const string TABLE_ACCOUNT_INSERT = " INSERT INTO accounts(store_id,uid,password,twofa,cookie,is_leave) VALUES(@store_id,@uid, @password, @twofa, @cookie, 0)";  
-            public const string TABLE_ACCOUNT_SELECT_ALL_BY_STORE = " SELECT accounts.*,group_devices.name as temp_name FROM accounts left join group_devices on group_devices.id=accounts.temp_store_id where store_id=@store_id {where} ORDER BY accounts.id asc";
-            public const string TABLE_ACCOUNT_SELECT_ALL_BY_TEMP_STORE = " SELECT accounts.*,group_devices.name as temp_name FROM accounts left join group_devices on group_devices.id=accounts.store_id where temp_store_id=@temp_store_id {where} ORDER BY temp_order asc";
+            public const string TABLE_ACCOUNT_SELECT_ALL_BY_STORE = " SELECT accounts.*, temp_group.name as temp_name, store_group.name as store_name FROM accounts left join group_devices temp_group on temp_group.id=accounts.temp_store_id left join group_devices store_group on store_group.id=accounts.store_id where accounts.store_id=@store_id {where} ORDER BY accounts.id asc";
+            public const string TABLE_ACCOUNT_SELECT_ALL_BY_TEMP_STORE = " SELECT accounts.*, store_group.name as temp_name, main_store.name as store_name FROM accounts left join group_devices store_group on store_group.id=accounts.store_id left join group_devices main_store on main_store.id=accounts.store_id where temp_store_id=@temp_store_id {where} ORDER BY temp_order asc";
+            public const string TABLE_ACCOUNT_SELECT_ALL_FILTER = " SELECT accounts.*, temp_group.name as temp_name, store_group.name as store_name FROM accounts left join group_devices temp_group on temp_group.id=accounts.temp_store_id left join group_devices store_group on store_group.id=accounts.store_id where 1=1 {where} ORDER BY accounts.id asc";
             public const string TABLE_ACCOUNT_SELECT_ALL = " SELECT * FROM accounts where 1=1 {where} ORDER BY id asc OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY";
 
             public const string TABLE_ACCOUNT_SELECT_BY_UID = " SELECT * FROM accounts WHERE uid IN (@uid)";

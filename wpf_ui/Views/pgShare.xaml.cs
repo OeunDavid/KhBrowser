@@ -242,5 +242,29 @@ namespace ToolKHBrowser.Views
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
+        private void btnShareWebsiteFolderBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            BrowseFolderInto(txtShareWebsiteFolderImage);
+        }
+
+        private void BrowseFolderInto(TextBox target)
+        {
+            if (target == null) return;
+
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dialog.Description = "Select source folder";
+                if (!string.IsNullOrWhiteSpace(target.Text) && System.IO.Directory.Exists(target.Text))
+                {
+                    dialog.SelectedPath = target.Text.Trim();
+                }
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    target.Text = dialog.SelectedPath;
+                }
+            }
+        }
     }
 }

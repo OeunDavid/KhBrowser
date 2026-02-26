@@ -1,439 +1,360 @@
-﻿<Page x:Class="ToolKHBrowser.Views.pgShare"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        mc:Ignorable="d" 
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:numeric="http://gu.se/NumericInput"
-        Width="800"
-        Height="860"
-        Title="pgShare">
+<Page x:Class="ToolKHBrowser.Views.pgShare"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:numeric="http://gu.se/NumericInput"
+      mc:Ignorable="d"
+      Width="800"
+      Height="860"
+      Title="pgShare"
+      Background="#05070D">
+    <Page.Resources>
+        <SolidColorBrush x:Key="Bg" Color="#05070D"/>
+        <SolidColorBrush x:Key="Panel" Color="#090C12"/>
+        <SolidColorBrush x:Key="BorderC" Color="#171D28"/>
+        <SolidColorBrush x:Key="Input" Color="#10141C"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#222A38"/>
+        <SolidColorBrush x:Key="Txt" Color="#E7ECF5"/>
+        <SolidColorBrush x:Key="Muted" Color="#858C9D"/>
+        <SolidColorBrush x:Key="Accent" Color="#12E3D8"/>
 
-    <StackPanel Background="Black">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share --------------------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel  Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Link URL(s)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtLinkURL" Grid.Column="2" Margin="2,2,2,2" Height="50"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Captions"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtCaptions" Grid.Column="1" Margin="2,2,2,2" Height="50"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Hashtag"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtHashtag" Grid.Column="1" Margin="2,2,2,2" Height="50"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="130"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delay after each Share(s)"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtDelayAfterEachShareStart" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="2" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="to"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="3"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtDelayAfterEachShareEnd" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="130"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Number of Shares"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtNumberOfShareStart" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="2" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="to"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="3"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtNumberOfShareEnd" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Post -----------------------------------------"/></TextBlock>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Comments"/></TextBlock>
-            </StackPanel>
-            <TextBox Name="txtComments" Grid.Column="1" Margin="2,2,2,2" Height="50"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="90"/>
-                <ColumnDefinition Width="60"/>
-                <ColumnDefinition Width="90"/>
-                <ColumnDefinition Width="60"/>
-                <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="40"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Mix Captions"/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareMixContent" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
+        <Style x:Key="SecTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Accent}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style x:Key="DarkTb" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource Txt}"/>
+            <Setter Property="Background" Value="{StaticResource Input}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+        <Style x:Key="DarkInt" TargetType="{x:Type numeric:IntBox}">
+            <Setter Property="Foreground" Value="{StaticResource Txt}"/>
+            <Setter Property="Background" Value="{StaticResource Input}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style x:Key="RangeWrap" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Input}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+        <Style x:Key="PillSwitch" TargetType="ToggleButton">
+            <Setter Property="Width" Value="66"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                            <Border x:Name="Track" Background="#1F2430" BorderBrush="#252B37" BorderThickness="1" CornerRadius="15"/>
+                            <Ellipse x:Name="Thumb" Width="20" Height="20" Fill="#DCE3EE" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#2563EB"/>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="#2563EB"/>
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="Thumb" Property="Margin" Value="0,0,5,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="RadioDark" TargetType="RadioButton" BasedOn="{StaticResource MaterialDesignRadioButton}">
+            <Setter Property="Foreground" Value="{StaticResource Txt}"/>
+            <Setter Property="Margin" Value="0,0,16,0"/>
+        </Style>
+        <Style x:Key="BrowseBtn" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="BorderBrush" Value="#2563EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#BFDBFE"/>
+                    <Setter Property="BorderBrush" Value="#93C5FD"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
 
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="2">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="One Caption"/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="3" x:Name="chbShareSingleContent" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="4">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share to Group No Pending"/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="5" x:Name="chbShareToGroupNoPending" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0,3,0,4"/>
-
-        </Grid>
-
-
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Website -----------------------------------------"/></TextBlock>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="170"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25"></RowDefinition>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share to groups without join"/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareWebsiteWithoutJoinGroups" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Random Content"/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareWebsiteRandomContent" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share To"/></TextBlock>
-            </StackPanel>
-            <Grid Grid.Row="0" Grid.Column="1">
-                <Grid.ColumnDefinitions >
-                    <ColumnDefinition Width="130"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"></RowDefinition>
-                </Grid.RowDefinitions>
-                <RadioButton x:Name="chbShareWebsiteToPage" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Page</RadioButton>
-                <RadioButton x:Name="chbShareWebsiteToGroup" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Groups</RadioButton>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="{StaticResource Bg}"
+                  Padding="18,16,18,90">
+        <StackPanel>
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource SecTitle}" Text="SHARE"/>
+                <Border Grid.Column="2" Height="1" Background="#16252B" VerticalAlignment="Center"/>
             </Grid>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Type"/></TextBlock>
-            </StackPanel>
-            <Grid Grid.Row="0" Grid.Column="1">
-                <Grid.ColumnDefinitions >
-                    <ColumnDefinition Width="130"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"></RowDefinition>
-                </Grid.RowDefinitions>
-                <RadioButton x:Name="chbShareWebsiteCommentLink" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Comment Link</RadioButton>
-                <RadioButton x:Name="chbShareWebsitePastLink" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Past Link</RadioButton>
+
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource BorderC}" BorderThickness="1" CornerRadius="16" Padding="18" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Lbl}" Text="LINK URL(S)"/>
+                    <TextBox x:Name="txtLinkURL" Style="{StaticResource DarkTb}" Height="96" AcceptsReturn="True" Margin="0,0,0,16"/>
+
+                    <TextBlock Style="{StaticResource Lbl}" Text="CAPTIONS"/>
+                    <TextBox x:Name="txtCaptions" Style="{StaticResource DarkTb}" Height="96" AcceptsReturn="True" Margin="0,0,0,16"/>
+
+                    <TextBlock Style="{StaticResource Lbl}" Text="HASHTAG"/>
+                    <TextBox x:Name="txtHashtag" Style="{StaticResource DarkTb}" Height="96" AcceptsReturn="True" Margin="0,0,0,16"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Style="{StaticResource Lbl}" Text="DELAY AFTER EACH SHARE(S)"/>
+                            <Grid HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource RangeWrap}"
+                                        Width="142"
+                                        Height="40"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="16">
+                                    <numeric:SpinnerDecorator>
+                                        <numeric:IntBox x:Name="txtDelayAfterEachShareStart" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
+                                    </numeric:SpinnerDecorator>
+                                </Border>
+                                <TextBlock Grid.Column="2"
+                                           Style="{StaticResource Lbl}"
+                                           Text="TO"
+                                           Margin="0"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"/>
+                                <Border Grid.Column="4"
+                                        Style="{StaticResource RangeWrap}"
+                                        Width="142"
+                                        Height="40"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="16">
+                                    <numeric:SpinnerDecorator>
+                                        <numeric:IntBox x:Name="txtDelayAfterEachShareEnd" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
+                                    </numeric:SpinnerDecorator>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Style="{StaticResource Lbl}" Text="NUMBER OF SHARES"/>
+                            <Grid HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource RangeWrap}"
+                                        Width="142"
+                                        Height="40"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="16">
+                                    <numeric:SpinnerDecorator>
+                                        <numeric:IntBox x:Name="txtNumberOfShareStart" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="1" PreviewTextInput="NumberValidationTextBox"/>
+                                    </numeric:SpinnerDecorator>
+                                </Border>
+                                <TextBlock Grid.Column="2"
+                                           Style="{StaticResource Lbl}"
+                                           Text="TO"
+                                           Margin="0"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"/>
+                                <Border Grid.Column="4"
+                                        Style="{StaticResource RangeWrap}"
+                                        Width="142"
+                                        Height="40"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="16">
+                                    <numeric:SpinnerDecorator>
+                                        <numeric:IntBox x:Name="txtNumberOfShareEnd" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
+                                    </numeric:SpinnerDecorator>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource SecTitle}" Text="SHARE POST"/>
+                <Border Grid.Column="2" Height="1" Background="#16252B" VerticalAlignment="Center"/>
             </Grid>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Source Folder"/></TextBlock>
-            </StackPanel>
-            <TextBox Name="txtShareWebsiteFolderImage" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-        </Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Random Picture (Post single picture) "/></TextBlock>
-            </StackPanel>
-            <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareWebsiteRandomImage" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-        </Grid>
-        
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share to Groups/Timeline -----------------------------------------"/></TextBlock>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="View before Share(s)"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="1"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtViewBeforeShare" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Watch after Share(s)"/></TextBlock>
-                    </StackPanel>
-                    <numeric:SpinnerDecorator Grid.Column="3"  Grid.Row="0" Margin="2,4">
-                        <numeric:IntBox Name="txtWatchAfterShare" AllowSpinners="True" Foreground="White" Style="{DynamicResource MaterialDesignTextBoxBase}" Margin="4,0" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
-                    </numeric:SpinnerDecorator>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Reach before Share"/></TextBlock>
-                    </StackPanel>
-                    <Grid Grid.Row="0" Grid.Column="1">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="60"></ColumnDefinition>
-                            <ColumnDefinition Width="53"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <RadioButton x:Name="chbReachNone" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">None</RadioButton>
-                        <RadioButton x:Name="chbReachLike" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Like</RadioButton>
-                        <RadioButton x:Name="chbReachRandom" Grid.Row="0" Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Random</RadioButton>
-                    </Grid>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Group for Shares"/></TextBlock>
-                    </StackPanel>
-                    <Grid Grid.Row="0" Grid.Column="1">
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="150"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <RadioButton x:Name="chbShareGroupRandom" IsChecked="True" Grid.Row="0" Grid.Column="0"  Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}">Share Groups Random</RadioButton>
-                        <RadioButton x:Name="chbShareGroupByName" IsEnabled="False" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Style="{DynamicResource MaterialDesignRadioButton}" >Share by Group Name</RadioButton>
-                    </Grid>
-                </Grid>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="2">
-                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="List groups without join -----------------------"/></TextBlock>
-                </StackPanel>
-                <Grid Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="118"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Token"/></TextBlock>
-                    </StackPanel>
-                    <ToggleButton Grid.Row="0" Grid.Column="1" x:Name="chbShareProfilePageNewToken" IsChecked="False" Height="12" Style="{DynamicResource MaterialDesignSwitchToggleButton}" HorizontalAlignment="Left" Margin="0"/>
-                </Grid>
-                <Grid Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Comment(Object_ID)"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtProfilePageCommentObjectId" Grid.Column="1" Margin="2"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC"/>
-                </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Groups ID"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtGroupID" Grid.Column="2" Margin="2,2,2,2" Height="100"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-            </StackPanel>
-            <StackPanel Margin="5" Grid.Column="0" Grid.Row="3" Visibility="Collapsed">
-                <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Share Website -----------------------"/></TextBlock>
-                </StackPanel>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
-                        <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Contents"/></TextBlock>
-                    </StackPanel>
-                    <TextBox Name="txtShareWebsite" Grid.Column="2" Margin="2,2,2,2" Height="80"  Background="WhiteSmoke" Foreground="Black" BorderBrush="#FFDCDCDC" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-                </Grid>
-            </StackPanel>
-        </Grid>
-        <Grid>
-            <StackPanel Margin="5">
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource BorderC}" BorderThickness="1" CornerRadius="16" Padding="18" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Lbl}" Text="COMMENTS"/>
+                    <TextBox x:Name="txtComments" Style="{StaticResource DarkTb}" Height="96" AcceptsReturn="True" Margin="0,0,0,16"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Mix Captions" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="1" x:Name="chbShareMixContent" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                        <TextBlock Grid.Column="3" Text="One Caption" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="4" x:Name="chbShareSingleContent" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                        <TextBlock Grid.Column="6" Text="Share to Group No Pending" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="7" x:Name="chbShareToGroupNoPending" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
-                <Button x:Name="btnSaveConfig" Height="26" Width="130" Margin="0"  IsEnabled="True" Click="btnSaveConfig_Click" >
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ContentSave" Width="15" Height="15" VerticalAlignment="Center" Margin="0"/>
-                        <TextBlock Margin="0" Text="Save Config" TextAlignment="Left" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
-    </StackPanel>
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource SecTitle}" Text="SHARE WEBSITE"/>
+                <Border Grid.Column="2" Height="1" Background="#16252B" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource BorderC}" BorderThickness="1" CornerRadius="16" Padding="18" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Share to groups without join" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="1" x:Name="chbShareWebsiteWithoutJoinGroups" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                        <TextBlock Grid.Column="3" Text="Random Content" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="4" x:Name="chbShareWebsiteRandomContent" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Style="{StaticResource Lbl}" Text="SHARE TO"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="chbShareWebsiteToPage" Style="{StaticResource RadioDark}" IsChecked="True">Page</RadioButton>
+                                <RadioButton x:Name="chbShareWebsiteToGroup" Style="{StaticResource RadioDark}">Groups</RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Style="{StaticResource Lbl}" Text="SHARE TYPE"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="chbShareWebsiteCommentLink" Style="{StaticResource RadioDark}" IsChecked="True">Comment Link</RadioButton>
+                                <RadioButton x:Name="chbShareWebsitePastLink" Style="{StaticResource RadioDark}">Past Link</RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Style="{StaticResource Lbl}" Text="SOURCE FOLDER"/>
+                            <TextBox x:Name="txtShareWebsiteFolderImage" Style="{StaticResource DarkTb}" Height="42" TextWrapping="NoWrap" VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" x:Name="btnShareWebsiteFolderBrowse" Style="{StaticResource BrowseBtn}" Content="Browse" Margin="0,19,0,0" Click="btnShareWebsiteFolderBrowse_Click"/>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Random Picture (Post single picture)" Foreground="{StaticResource Txt}" VerticalAlignment="Center" FontSize="13"/>
+                        <ToggleButton Grid.Column="1" x:Name="chbShareWebsiteRandomImage" Style="{StaticResource PillSwitch}" IsChecked="False"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource SecTitle}" Text="SHARE TO GROUPS/TIMELINE"/>
+                <Border Grid.Column="2" Height="1" Background="#16252B" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource BorderC}" BorderThickness="1" CornerRadius="16" Padding="18" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Style="{StaticResource Lbl}" Text="VIEW BEFORE SHARE(S)"/>
+                            <Border Style="{StaticResource RangeWrap}" Width="220" HorizontalAlignment="Left">
+                                <numeric:SpinnerDecorator>
+                                    <numeric:IntBox x:Name="txtViewBeforeShare" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
+                                </numeric:SpinnerDecorator>
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Style="{StaticResource Lbl}" Text="WATCH AFTER SHARE(S)"/>
+                            <Border Style="{StaticResource RangeWrap}" Width="220" HorizontalAlignment="Left">
+                                <numeric:SpinnerDecorator>
+                                    <numeric:IntBox x:Name="txtWatchAfterShare" AllowSpinners="True" Style="{StaticResource DarkInt}" MinValue="0" MaxValue="10000000" Text="10" PreviewTextInput="NumberValidationTextBox"/>
+                                </numeric:SpinnerDecorator>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Style="{StaticResource Lbl}" Text="REACH BEFORE SHARE"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="chbReachNone" Style="{StaticResource RadioDark}" IsChecked="True">None</RadioButton>
+                                <RadioButton x:Name="chbReachLike" Style="{StaticResource RadioDark}">Like</RadioButton>
+                                <RadioButton x:Name="chbReachRandom" Style="{StaticResource RadioDark}">Random</RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Style="{StaticResource Lbl}" Text="GROUP FOR SHARES"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="chbShareGroupRandom" Style="{StaticResource RadioDark}" IsChecked="True">Share Groups Random</RadioButton>
+                                <RadioButton x:Name="chbShareGroupByName" Style="{StaticResource RadioDark}" IsEnabled="False">Share by Group Name</RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource SecTitle}" Text="LIST GROUPS WITHOUT JOIN"/>
+                <Border Grid.Column="2" Height="1" Background="#16252B" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource BorderC}" BorderThickness="1" CornerRadius="16" Padding="18">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Lbl}" Text="GROUPS ID"/>
+                    <TextBox x:Name="txtGroupID" Style="{StaticResource DarkTb}" Height="130" AcceptsReturn="True"/>
+
+                    <Grid Visibility="Collapsed">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="New Token"/>
+                        <ToggleButton Grid.Column="1" x:Name="chbShareProfilePageNewToken" IsChecked="False"/>
+                    </Grid>
+                    <TextBox x:Name="txtProfilePageCommentObjectId" Visibility="Collapsed"/>
+                    <TextBox x:Name="txtShareWebsite" Visibility="Collapsed" AcceptsReturn="True"/>
+                </StackPanel>
+            </Border>
+
+            <Button x:Name="btnSaveConfig"
+                    Visibility="Collapsed"
+                    Width="1"
+                    Height="1"
+                    Click="btnSaveConfig_Click"/>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

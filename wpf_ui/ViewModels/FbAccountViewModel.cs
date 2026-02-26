@@ -77,6 +77,7 @@ namespace ToolKHBrowser.ViewModels
                     var fbAccount = new FbAccount()
                     {
                         Id = Convert.ToInt64(a.Id.ToString()),
+                        StoreId = a.StoreId,
                         Key = key,
                         UID = a.UID,
                         Name = a.Name,
@@ -113,6 +114,7 @@ namespace ToolKHBrowser.ViewModels
                         PageIds = a.PageIds,
 
                         TempName = a.TempName,
+                        StoreName = !string.IsNullOrWhiteSpace(a.StoreName) ? a.StoreName : a.TempName,
                         Note = a.Note,
                         ReelSourceVideo = a.ReelSourceVideo,
                         MailPass = a.MailPass,

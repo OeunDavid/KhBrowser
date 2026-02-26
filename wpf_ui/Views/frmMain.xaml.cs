@@ -24,6 +24,7 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Xml.Linq;
 using ToolKHBrowser.Helper;
 using ToolKHBrowser.ToolLib.Data;
@@ -66,6 +67,8 @@ namespace ToolKHBrowser.Views
         public int storeId;
 
         public int storeIndex = 0;
+
+        private string dashboardConfigTabKey = "share";
 
         private int openBrowser;
 
@@ -115,10 +118,13 @@ namespace ToolKHBrowser.Views
         public IWebDriver driverYandex;
 
         public Dictionary<int, YandexVerify> yandexVerifyArr;
+        private bool isRunActionBusy = false;
+        private bool? pendingRunActionTargetRunning = null;
 
         public frmMain()
         {
             InitializeComponent();
+            UpdateSidebarStartButtonVisual(false);
             statusId = -1;
             storeId = 0;
             isFirstLoading = true;
@@ -187,16 +193,233 @@ namespace ToolKHBrowser.Views
 
             //LocalData.CatchGroupNoPending("12werw3");
             //LocalData.CatchGroupNoPending("323422");
+
+            SetDashboardConfigTab("share");
+        }
+
+        private void SidebarConfigNav_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tabKey && !string.IsNullOrWhiteSpace(tabKey))
+            {
+                SetDashboardConfigTab(tabKey);
+            }
+        }
+
+        private void DashboardConfigCardAction_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.Equals(dashboardConfigTabKey, "share", StringComparison.OrdinalIgnoreCase))
+            {
+                clearCache_Click(sender, e);
+                return;
+            }
+
+            DashboardConfigOpenDialog_Click(sender, e);
+        }
+
+        private void DashboardConfigOpenDialog_Click(object sender, RoutedEventArgs e)
+        {
+            switch ((dashboardConfigTabKey ?? "share").ToLowerInvariant())
+            {
+                case "share":
+                    chbShareConfig_Click(sender, e);
+                    break;
+                case "groups":
+                    chbGroupConfig_Click(sender, e);
+                    break;
+                case "pages":
+                    chbPageConfig_Click(sender, e);
+                    break;
+                case "newsfeed":
+                    chbNewsFeedConfig_Click(sender, e);
+                    break;
+                case "profile":
+                    chbProfileConfig_Click(sender, e);
+                    break;
+                case "friends":
+                    chbFriendsConfig_Click(sender, e);
+                    break;
+                case "contact":
+                    chbContactConfig_Click(sender, e);
+                    break;
+                case "other":
+                    chbRecoveryConfig_Click(sender, e);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SetDashboardConfigTab(string tabKey)
+        {
+            dashboardConfigTabKey = (tabKey ?? "share").ToLowerInvariant();
+
+            if (pnlDashboardCfgShare != null) pnlDashboardCfgShare.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgGroups != null) pnlDashboardCfgGroups.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgPages != null) pnlDashboardCfgPages.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgNewsFeed != null) pnlDashboardCfgNewsFeed.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgProfile != null) pnlDashboardCfgProfile.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgFriends != null) pnlDashboardCfgFriends.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgContact != null) pnlDashboardCfgContact.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgOther != null) pnlDashboardCfgOther.Visibility = Visibility.Collapsed;
+            if (pnlDashboardCfgCleanPc != null) pnlDashboardCfgCleanPc.Visibility = Visibility.Collapsed;
+
+            string title = "Share Config";
+            bool showAction = true;
+            string actionText = "OPEN CONFIG";
+            bool showOpenDialogButton = true;
+
+            switch (dashboardConfigTabKey)
+            {
+                case "share":
+                    if (pnlDashboardCfgShare != null) pnlDashboardCfgShare.Visibility = Visibility.Visible;
+                    title = "Share Config";
+                    showAction = true;
+                    actionText = "CLEAR CACHE";
+                    break;
+                case "groups":
+                    if (pnlDashboardCfgGroups != null) pnlDashboardCfgGroups.Visibility = Visibility.Visible;
+                    title = "Groups Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "pages":
+                    if (pnlDashboardCfgPages != null) pnlDashboardCfgPages.Visibility = Visibility.Visible;
+                    title = "Pages Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "newsfeed":
+                    if (pnlDashboardCfgNewsFeed != null) pnlDashboardCfgNewsFeed.Visibility = Visibility.Visible;
+                    title = "News Feed Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "profile":
+                    if (pnlDashboardCfgProfile != null) pnlDashboardCfgProfile.Visibility = Visibility.Visible;
+                    title = "Profile Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "friends":
+                    if (pnlDashboardCfgFriends != null) pnlDashboardCfgFriends.Visibility = Visibility.Visible;
+                    title = "Friends Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "contact":
+                    if (pnlDashboardCfgContact != null) pnlDashboardCfgContact.Visibility = Visibility.Visible;
+                    title = "Contact Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "other":
+                    if (pnlDashboardCfgOther != null) pnlDashboardCfgOther.Visibility = Visibility.Visible;
+                    title = "Other Config";
+                    actionText = "OPEN CONFIG";
+                    break;
+                case "cleanpc":
+                    if (pnlDashboardCfgCleanPc != null) pnlDashboardCfgCleanPc.Visibility = Visibility.Visible;
+                    title = "Clean PC";
+                    showAction = false;
+                    showOpenDialogButton = false;
+                    break;
+                default:
+                    if (pnlDashboardCfgShare != null) pnlDashboardCfgShare.Visibility = Visibility.Visible;
+                    dashboardConfigTabKey = "share";
+                    title = "Share Config";
+                    showAction = true;
+                    actionText = "CLEAR CACHE";
+                    break;
+            }
+
+            if (txtDashboardConfigCardTitle != null)
+            {
+                txtDashboardConfigCardTitle.Text = title;
+            }
+            if (btnDashboardConfigCardAction != null)
+            {
+                btnDashboardConfigCardAction.Visibility = showAction ? Visibility.Visible : Visibility.Collapsed;
+            }
+            if (txtDashboardConfigCardActionText != null)
+            {
+                txtDashboardConfigCardActionText.Text = actionText;
+            }
+            if (btnDashboardConfigOpenDialog != null)
+            {
+                btnDashboardConfigOpenDialog.Visibility = showOpenDialogButton ? Visibility.Visible : Visibility.Collapsed;
+            }
+            if (btnDashboardConfigBottomOpenDialog != null)
+            {
+                btnDashboardConfigBottomOpenDialog.Visibility = showOpenDialogButton ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            UpdateSidebarNavVisuals();
+        }
+
+        private void UpdateSidebarNavVisuals()
+        {
+            SetSidebarNavState(btnNavShareConfig, dashboardConfigTabKey == "share");
+            SetSidebarNavState(btnNavGroupConfig, dashboardConfigTabKey == "groups");
+            SetSidebarNavState(btnNavPageConfig, dashboardConfigTabKey == "pages");
+            SetSidebarNavState(btnNavNewsFeedConfig, dashboardConfigTabKey == "newsfeed");
+            SetSidebarNavState(btnNavProfileConfig, dashboardConfigTabKey == "profile");
+            SetSidebarNavState(btnNavFriendsConfig, dashboardConfigTabKey == "friends");
+            SetSidebarNavState(btnNavContactConfig, dashboardConfigTabKey == "contact");
+            SetSidebarNavState(btnNavOtherConfig, dashboardConfigTabKey == "other");
+            SetSidebarNavState(btnNavCleanPcConfig, dashboardConfigTabKey == "cleanpc");
+        }
+
+        private void SetSidebarNavState(Button button, bool isActive)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#0F1F3D" : "Transparent");
+            button.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#17346B" : "Transparent");
+            button.BorderThickness = isActive ? new Thickness(1) : new Thickness(0);
+            button.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#60A5FA" : "#E5E7EB");
+            button.FontWeight = isActive ? FontWeights.SemiBold : FontWeights.Medium;
+        }
+
+        private void SidebarNavButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                button.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void SidebarNavButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                var tabKey = button.Tag?.ToString() ?? string.Empty;
+                SetSidebarNavState(button, string.Equals(dashboardConfigTabKey, tabKey, StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         public void LoadStoreData(int storeId = 0)
         {
             storeData = storeViewModel.listDataForGrid(1);
+            if (storeData == null)
+            {
+                storeData = new ObservableCollection<Store>();
+            }
+            if (storeData.Count == 0 || storeData[0] == null || storeData[0].Id != 0)
+            {
+                storeData.Insert(0, new Store()
+                {
+                    Id = 0,
+                    Name = "All Store",
+                    Key = 0,
+                    State = 1,
+                    TextStatus = "Active",
+                    Temp = "No",
+                    IsTemp = 0
+                });
+            }
             isFirstLoading = true;
             ddlStore.ItemsSource = storeData;
             if (storeId == 0)
             {
                 ddlStore.SelectedIndex = 0;
+                isFirstLoading = false;
                 return;
             }
             ddlStore.SelectedValue = storeId;
@@ -260,6 +483,34 @@ namespace ToolKHBrowser.Views
             }
             text = text.Replace('\n', ',');
             fbAccounts = fbAccountViewModel.fbAccounts(storeId, text, isTempStore, statusId);
+            try
+            {
+                var allStores = storeViewModel.listDataForGrid(-1) ?? new ObservableCollection<Store>();
+                var storeMap = allStores
+                    .Where(s => s != null && s.Id > 0)
+                    .GroupBy(s => s.Id)
+                    .ToDictionary(g => g.Key, g => (g.First().Name ?? "").Trim());
+
+                foreach (var acc in fbAccounts)
+                {
+                    if (acc == null) continue;
+                    if (!string.IsNullOrWhiteSpace(acc.StoreName)) continue;
+
+                    if (acc.StoreId > 0 && storeMap.ContainsKey(acc.StoreId))
+                    {
+                        acc.StoreName = storeMap[acc.StoreId];
+                    }
+                    else if (!string.IsNullOrWhiteSpace(acc.TempName))
+                    {
+                        acc.StoreName = acc.TempName;
+                    }
+                    else if (acc.StoreId > 0)
+                    {
+                        acc.StoreName = "Store #" + acc.StoreId;
+                    }
+                }
+            }
+            catch { }
             dgAccounts.ItemsSource = fbAccounts;
             try
             {
@@ -297,13 +548,45 @@ namespace ToolKHBrowser.Views
         private void ddlStore_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             storeId = GetStoreId();
-            Store store = storeViewModel.getGroupDevicesDao().Get(storeId);
             tempStoreId = 0;
-            if (store.IsTemp == 1)
+            if (storeId > 0)
             {
-                tempStoreId = store.Id;
+                Store store = null;
+                try { store = storeViewModel.getGroupDevicesDao().Get(storeId); } catch { }
+                if (store != null && store.IsTemp == 1)
+                {
+                    tempStoreId = store.Id;
+                }
             }
             loadDataToGrid();
+        }
+
+        private void chkSelectAllAccounts_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (fbAccounts == null) return;
+                foreach (var acc in fbAccounts)
+                {
+                    if (acc == null) continue;
+                    acc.IsSelected = true;
+                }
+            }
+            catch { }
+        }
+
+        private void chkSelectAllAccounts_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (fbAccounts == null) return;
+                foreach (var acc in fbAccounts)
+                {
+                    if (acc == null) continue;
+                    acc.IsSelected = false;
+                }
+            }
+            catch { }
         }
 
         public int GetStoreId()
@@ -1759,41 +2042,99 @@ namespace ToolKHBrowser.Views
         public string[] groupWithoutJoinArr = null;
 
 
-        private void btnStart_Click(object sender, RoutedEventArgs e)
+        private async void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            running = 0;
-            runningRequest = 0;
-            accountLastIndex = 0;
-            shareUrlIndex = 0;
-            reelVideoIndex = 0;
-            timelineIndex = 0;
-            sourceReelVideoArr = null;
-            joinGroupIDIndex = 0;
-            joinGroupIDArr = GetJoinGroupIDArr();
-            dataAccounts = GetAccounts();
+            if (isRunActionBusy)
+            {
+                return;
+            }
 
-            hotmailListIndex = 0;
-            hotmailListArr = GetHotmailFromListArr();
+            BeginRunActionTransition(true);
+            await Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+            bool transitionSignalApplied = false;
+            try
+            {
+                running = 0;
+                runningRequest = 0;
+                accountLastIndex = 0;
+                shareUrlIndex = 0;
+                reelVideoIndex = 0;
+                timelineIndex = 0;
+                sourceReelVideoArr = null;
+                joinGroupIDIndex = 0;
+                joinGroupIDArr = GetJoinGroupIDArr();
+                dataAccounts = GetAccounts();
 
-            processActionsData = GetProcessActionsData();
+                hotmailListIndex = 0;
+                hotmailListArr = GetHotmailFromListArr();
 
-            isStop = false;
-            isCleanTMP = chbCleanTemp.IsChecked.Value;
-            isCleanChrom = chbCleanChrome.IsChecked.Value;
-            isCleanEDGE = chbCleanEdge.IsChecked.Value;
+                processActionsData = GetProcessActionsData();
 
-            Stop(isStop, false);
+                isStop = false;
+                isCleanTMP = chbCleanTemp.IsChecked.Value;
+                isCleanChrom = chbCleanChrome.IsChecked.Value;
+                isCleanEDGE = chbCleanEdge.IsChecked.Value;
 
-            InitShare();
+                Stop(isStop, false);
+                transitionSignalApplied = true;
 
-            Thread thread = new Thread(StartProcess);
-            thread.Start();
+                InitShare();
+
+                Thread thread = new Thread(StartProcess);
+                thread.Start();
+            }
+            finally
+            {
+                if (!transitionSignalApplied)
+                {
+                    CancelRunActionTransition();
+                }
+            }
         }
 
-        private void btnStop_Click(object sender, RoutedEventArgs e)
+        private void btnSidebarStart_Click(object sender, RoutedEventArgs e)
         {
-            isStop = true;
-            Stop(isStop);
+            bool isRunning = false;
+            try
+            {
+                isRunning = btnStop != null && btnStop.IsEnabled;
+            }
+            catch (Exception)
+            {
+            }
+
+            if (isRunning)
+            {
+                btnStop_Click(sender, e);
+                return;
+            }
+
+            btnStart_Click(sender, e);
+        }
+
+        private async void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            if (isRunActionBusy)
+            {
+                return;
+            }
+
+            BeginRunActionTransition(false);
+            await Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+            bool transitionSignalApplied = false;
+            try
+            {
+                isStop = true;
+                Stop(isStop);
+                transitionSignalApplied = true;
+            }
+            finally
+            {
+                if (!transitionSignalApplied)
+                {
+                    CancelRunActionTransition();
+                }
+            }
         }
 
         public void InitShare()
@@ -1873,11 +2214,204 @@ namespace ToolKHBrowser.Views
                 {
                     btnStart.IsEnabled = isStop;
                     btnStop.IsEnabled = !isStop;
+                    UpdateSidebarStartButtonVisual(!isStop);
+                    TryCompleteRunActionTransition(!isStop);
                 }
                 catch (Exception)
                 {
                 }
             });
+        }
+
+        private void UpdateSidebarStartButtonVisual(bool isRunning)
+        {
+            try
+            {
+                if (btnSidebarStart != null)
+                {
+                    var bg = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isRunning ? "#DC2626" : "#2563EB");
+                    btnSidebarStart.Background = bg;
+                    btnSidebarStart.BorderBrush = bg;
+                    btnSidebarStart.Foreground = System.Windows.Media.Brushes.White;
+                    btnSidebarStart.Opacity = 1.0;
+                }
+
+                if (iconSidebarStart != null)
+                {
+                    iconSidebarStart.Kind = MaterialDesignThemes.Wpf.PackIconKind.Play;
+                    iconSidebarStart.Visibility = isRunning ? Visibility.Collapsed : Visibility.Visible;
+                    iconSidebarStart.Margin = isRunning ? new Thickness(0) : new Thickness(0, 0, 8, 0);
+                }
+
+                if (txtSidebarStartLabel != null)
+                {
+                    txtSidebarStartLabel.Text = isRunning ? "STOP ENGINE" : "START ENGINE";
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void UpdateSidebarStartButtonDisabledVisual(bool isRunning)
+        {
+            try
+            {
+                if (btnSidebarStart == null)
+                {
+                    return;
+                }
+
+                // Keep the same meaning color (blue=start, red=stop) but use a lighter disabled shade.
+                var bg = (System.Windows.Media.Brush)new BrushConverter()
+                    .ConvertFromString(isRunning ? "#FECACA" : "#DBEAFE");
+
+                btnSidebarStart.Background = bg;
+                btnSidebarStart.BorderBrush = bg;
+                btnSidebarStart.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FFFFFF");
+                btnSidebarStart.Opacity = 1.0;
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void UpdateSidebarStopButtonVisual()
+        {
+            try
+            {
+                if (btnSidebarStop == null)
+                {
+                    return;
+                }
+                btnSidebarStop.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#1F2937");
+                btnSidebarStop.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#374151");
+                btnSidebarStop.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FCA5A5");
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void UpdateSidebarStopButtonDisabledVisual()
+        {
+            try
+            {
+                if (btnSidebarStop == null)
+                {
+                    return;
+                }
+
+                btnSidebarStop.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#94A3B8");
+                btnSidebarStop.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#A7B4C5");
+                btnSidebarStop.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FFFFFF");
+                btnSidebarStop.Opacity = 1.0;
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void BeginRunActionTransition(bool targetRunning)
+        {
+            pendingRunActionTargetRunning = targetRunning;
+            SetRunActionButtonsBusy(true);
+            try { Keyboard.ClearFocus(); } catch (Exception) { }
+            ForceUiRender();
+        }
+
+        private void CancelRunActionTransition()
+        {
+            pendingRunActionTargetRunning = null;
+            SetRunActionButtonsBusy(false);
+        }
+
+        private void TryCompleteRunActionTransition(bool isRunning)
+        {
+            if (!isRunActionBusy || pendingRunActionTargetRunning == null)
+            {
+                return;
+            }
+
+            if (pendingRunActionTargetRunning.Value != isRunning)
+            {
+                return;
+            }
+
+            pendingRunActionTargetRunning = null;
+            SetRunActionButtonsBusy(false);
+        }
+
+        private void SetRunActionButtonsBusy(bool isBusy)
+        {
+            isRunActionBusy = isBusy;
+            try
+            {
+                if (btnSidebarStart != null)
+                {
+                    btnSidebarStart.IsHitTestVisible = !isBusy;
+                }
+
+                if (btnSidebarStop != null)
+                {
+                    btnSidebarStop.IsHitTestVisible = !isBusy;
+                }
+
+                if (isBusy)
+                {
+                    bool isRunningNow = false;
+                    try
+                    {
+                        isRunningNow = btnStop != null && btnStop.IsEnabled;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    UpdateSidebarStartButtonDisabledVisual(isRunningNow);
+                    UpdateSidebarStopButtonDisabledVisual();
+                }
+                else
+                {
+                    if (btnSidebarStart != null)
+                    {
+                        btnSidebarStart.IsHitTestVisible = true;
+                    }
+                    if (btnSidebarStop != null)
+                    {
+                        btnSidebarStop.IsHitTestVisible = true;
+                    }
+
+                    bool isRunningNow = false;
+                    try
+                    {
+                        isRunningNow = btnStop != null && btnStop.IsEnabled;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    UpdateSidebarStartButtonVisual(isRunningNow);
+                    UpdateSidebarStopButtonVisual();
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void ForceUiRender()
+        {
+            try
+            {
+                if (Application.Current?.Dispatcher != null)
+                {
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { }));
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         public bool IsStop()
