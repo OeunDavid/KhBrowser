@@ -23,15 +23,15 @@
 
         <Border x:Name="gContent"
                 Background="#05070D"
-                BorderBrush="#1A1F2B"
+                BorderBrush="#1B2538"
                 BorderThickness="1"
-                CornerRadius="18"
+                CornerRadius="24"
                 MinWidth="300"
                 MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ActualWidth}"
-                MaxHeight="700"
+                MaxHeight="800"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Margin="28">
+                Margin="8">
 
             <Border.Effect>
                 <DropShadowEffect Color="#000000"
@@ -42,32 +42,32 @@
 
             <Grid ClipToBounds="True">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="72"/>
+                    <RowDefinition Height="108"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="86"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- HEADER -->
                 <Border Grid.Row="0"
-                        Background="#2563EB"
-                        CornerRadius="18,18,0,0">
-                    <Grid Margin="18,0">
+                        Background="#2F62D8"
+                        CornerRadius="24,24,0,0">
+                    <Grid Margin="26,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="44"/>
+                            <ColumnDefinition Width="56"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Width="34"
-                                Height="34"
-                                CornerRadius="8"
-                                Background="#1D4ED8"
-                                BorderBrush="#3B82F6"
+                        <Border Width="48"
+                                Height="48"
+                                CornerRadius="12"
+                                Background="#2B56C5"
+                                BorderBrush="#4D77E3"
                                 BorderThickness="1"
                                 VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="TuneVariant"
-                                                     Width="16"
-                                                     Height="16"
+                                                     Width="20"
+                                                     Height="20"
                                                      Foreground="White"
                                                      VerticalAlignment="Center"
                                                      HorizontalAlignment="Center"/>
@@ -75,7 +75,7 @@
 
                         <TextBlock x:Name="lblWinTitle"
                                    Grid.Column="1"
-                                   Margin="10,0,0,0"
+                                   Margin="14,0,0,0"
                                    VerticalAlignment="Center"
                                    Foreground="White"
                                    FontWeight="Bold"
@@ -84,18 +84,18 @@
 
                         <Button x:Name="btnPower"
                                 Grid.Column="2"
-                                Width="28"
-                                Height="28"
-                                Background="White"
-                                BorderBrush="#E5E7EB"
+                                Width="42"
+                                Height="42"
+                                Background="#F8FAFC"
+                                BorderBrush="#D8DEE9"
                                 BorderThickness="1"
                                 Padding="0"
                                 Foreground="#1E293B"
                                 Click="btnPower_Click"
                                 VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="Power"
-                                                     Width="15"
-                                                     Height="15"/>
+                                                     Width="20"
+                                                     Height="20"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -117,10 +117,11 @@
                 <!-- FOOTER -->
                 <Border x:Name="dialogFooterBar"
                         Grid.Row="2"
+                        Height="92"
                         Background="#080B12"
                         BorderBrush="#1A1F2B"
                         BorderThickness="0,1,0,0"
-                        CornerRadius="0,0,18,18">
+                        CornerRadius="0,0,24,24">
                     <Grid Margin="18,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

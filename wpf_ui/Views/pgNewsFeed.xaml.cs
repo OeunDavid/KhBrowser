@@ -272,20 +272,7 @@ namespace ToolKHBrowser.Views
         }
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
-            {
-                dialog.Description = "Select source folder";
-
-                if (!string.IsNullOrWhiteSpace(txtSourceFolder.Text) && System.IO.Directory.Exists(txtSourceFolder.Text))
-                {
-                    dialog.SelectedPath = txtSourceFolder.Text;
-                }
-
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    txtSourceFolder.Text = dialog.SelectedPath;
-                }
-            }
+            BrowseSourceFileInto(txtSourceFolder);
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
@@ -295,19 +282,40 @@ namespace ToolKHBrowser.Views
 
         private void btnPagePostBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            BrowseSourceFileInto(txtPagePostSourceFolder);
+        }
+
+        private void BrowseSourceFileInto(TextBox target)
+        {
+            if (target == null) return;
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                dialog.Description = "Select source folder";
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
 
-                if (!string.IsNullOrWhiteSpace(txtPagePostSourceFolder.Text) && System.IO.Directory.Exists(txtPagePostSourceFolder.Text))
+            try
+            {
+                var currentPath = (target.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
                 {
-                    dialog.SelectedPath = txtPagePostSourceFolder.Text;
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
                 }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
+                }
+            }
+            catch { }
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    txtPagePostSourceFolder.Text = dialog.SelectedPath;
-                }
+            if (dialog.ShowDialog() == true)
+            {
+                target.Text = dialog.FileName;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using OpenQA.Selenium;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
@@ -85,10 +85,10 @@ namespace ToolKHBrowser.ViewModels
             // processActionsData can be null
             this.processActionData = this.form.processActionsData;
 
-            // ✅ SAFE: cache dao might be null
+            // ? SAFE: cache dao might be null
             var cacheDao = this.form.cacheViewModel?.GetCacheDao();
 
-            // ✅ SAFE: Get(...) might return null, Value might be null
+            // ? SAFE: Get(...) might return null, Value might be null
             try
             {
                 var item = cacheDao?.Get("newsfeed:source_index");
@@ -105,7 +105,7 @@ namespace ToolKHBrowser.ViewModels
             }
             catch { }
 
-            // ✅ SAFE: nested objects might be null
+            // ? SAFE: nested objects might be null
             try
             {
                 var captions = this.processActionData?.NewsFeed?.Timeline?.Captions;
@@ -121,37 +121,100 @@ namespace ToolKHBrowser.ViewModels
 
         public void ReadNotification()
         {
-            bool isWorking = false;
-            IWebElement element = null;
+            bool opened = false;
             try
             {
-                element = driver.FindElement(By.XPath("//a[@href='/notifications/']"));
-                isWorking = true;
+                // Make sure top nav is available before trying to click the notification icon.
+                FBTool.GoToFacebook(driver, Constant.FB_WEB_URL);
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(1000);
             }
             catch (Exception) { }
-            if (!isWorking)
+
+            try
             {
-                try
+                string[] selectors =
                 {
-                    element = driver.FindElement(By.Id("notifications_jewel"));
-                    isWorking = true;
+                    "//a[contains(@href,'/notifications')]",
+                    "//*[@role='link' and contains(@href,'/notifications')]",
+                    "//*[@aria-label='Notifications']",
+                    "//*[@aria-label='Your notifications']",
+                    "//*[@role='button' and @aria-label='Notifications']",
+                    "//*[@role='button' and @aria-label='Your notifications']",
+                    "//*[@id='notifications_jewel']"
+                };
+
+                foreach (string selector in selectors)
+                {
+                    IWebElement element = null;
+                    try
+                    {
+                        element = driver.FindElements(By.XPath(selector))
+                            .FirstOrDefault(e => e.Displayed && e.Enabled);
+                    }
+                    catch (Exception) { }
+
+                    if (element == null)
+                    {
+                        continue;
+                    }
+
+                    if (TryClickElement(element))
+                    {
+                        opened = true;
+                        break;
+                    }
                 }
-                catch (Exception) { }
             }
-            if (isWorking)
+            catch (Exception) { }
+
+            try
             {
-                try
+                string currentUrl = string.Empty;
+                try { currentUrl = driver.Url ?? string.Empty; } catch (Exception) { }
+
+                // Always normalize to the notifications page (icon click can open only a popup).
+                if (currentUrl.IndexOf("/notifications", StringComparison.OrdinalIgnoreCase) < 0)
                 {
-                    Actions actions = new Actions(driver);
-                    actions.MoveToElement(element)
-                        .Click()
-                        .Build()
-                        .Perform();
+                    FBTool.GoToFacebook(driver, Constant.FB_WEB_URL + "notifications/");
+                    FBTool.WaitingPageLoading(driver);
                     Thread.Sleep(1000);
+                    opened = true;
                 }
-                catch (Exception) { }
-                FBTool.Scroll(driver, 3000, false);
             }
+            catch (Exception) { }
+
+            if (opened)
+            {
+                try { FBTool.Scroll(driver, 3000, false); } catch (Exception) { }
+            }
+        }
+
+        private bool TryClickElement(IWebElement element)
+        {
+            if (element == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                Actions actions = new Actions(driver);
+                actions.MoveToElement(element).Click().Build().Perform();
+                Thread.Sleep(1000);
+                return true;
+            }
+            catch (Exception) { }
+
+            try
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
+                Thread.Sleep(1000);
+                return true;
+            }
+            catch (Exception) { }
+
+            return false;
         }
         public void Play()
         {

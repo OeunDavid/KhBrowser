@@ -102,8 +102,8 @@ namespace ToolKHBrowser.Views
                 return;
             }
 
-            double maxW = Math.Max(320, SystemParameters.WorkArea.Width - 56);
-            double maxH = Math.Min(700, Math.Max(320, SystemParameters.WorkArea.Height - 56));
+            double maxW = Math.Max(320, SystemParameters.WorkArea.Width - 12);
+            double maxH = Math.Min(800, Math.Max(320, SystemParameters.WorkArea.Height - 12));
 
             gContent.MaxWidth = maxW;
             gContent.MaxHeight = maxH;
@@ -113,14 +113,14 @@ namespace ToolKHBrowser.Views
                 return;
             }
 
-            double pageWidth = (!double.IsNaN(_pageDesignWidth) && _pageDesignWidth > 0) ? _pageDesignWidth : 900;
-            double pageHeight = (!double.IsNaN(_pageDesignHeight) && _pageDesignHeight > 0) ? _pageDesignHeight : 700;
+            double pageWidth = (!double.IsNaN(_pageDesignWidth) && _pageDesignWidth > 0) ? _pageDesignWidth : 1040;
+            double pageHeight = (!double.IsNaN(_pageDesignHeight) && _pageDesignHeight > 0) ? _pageDesignHeight : 760;
 
-            double footerHeight = (dialogFooterBar != null && dialogFooterBar.Visibility == Visibility.Visible) ? 86 : 0;
-            double chromeHeight = 72 + footerHeight;
+            double footerHeight = (dialogFooterBar != null && dialogFooterBar.Visibility == Visibility.Visible) ? 92 : 0;
+            double chromeHeight = 108 + footerHeight;
 
-            double desiredWidth = pageWidth + 48;
-            double desiredHeight = pageHeight + chromeHeight + 16;
+            double desiredWidth = Math.Max(pageWidth + 56, 980);
+            double desiredHeight = Math.Max(pageHeight + chromeHeight + 20, 760);
 
             gContent.Width = Math.Min(desiredWidth, maxW);
             gContent.Height = Math.Min(desiredHeight, maxH);

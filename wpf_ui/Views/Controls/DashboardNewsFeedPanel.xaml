@@ -1,0 +1,114 @@
+<UserControl x:Class="ToolKHBrowser.Views.Controls.DashboardNewsFeedPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             x:Name="Root"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/DashboardPanelStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="56"/>
+            <ColumnDefinition Width="72"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="56"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Play on News Feed"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbNewsFeedPlay"/>
+            </Grid>
+
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Comment/Like Post"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbNewsFeedCommentPost"/>
+            </Grid>
+
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Read Notifications"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbNewsFeedReadNotification"/>
+            </Grid>
+
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Read Messenger"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbNewsFeedReadMessenger"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Column="3">
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Post to Timeline"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbNewsFeedPostTimeline"/>
+            </Grid>
+
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Post to Page"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbPagePost"/>
+            </Grid>
+
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Auto Scroll"/>
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource DashboardPillSwitchStyle}"
+                              Tag="chbAutoScroll"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

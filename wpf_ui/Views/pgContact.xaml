@@ -10,20 +10,42 @@
         Height="580"
         Title="pgContact">
 
+    <Page.Resources>
+        <SolidColorBrush x:Key="MaterialDesignBody" Color="#858C9D"/>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type PasswordBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource MaterialDesignRadioButton}">
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+        </Style>
+    </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
                   Background="#05070D"
                   Padding="16,12,16,80">
     <StackPanel Background="#05070D" Margin="8,6,8,10">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Contact ---------------------------------------------------------------------"/></TextBlock>
+                <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="CONTACT"/></TextBlock>
             </StackPanel>
             <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                 <Grid>
@@ -67,14 +89,14 @@
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="I have Hotmail/Outlook ---------------------------------------------------"/></TextBlock>
+                <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="I HAVE HOTMAIL/OUTLOOK"/></TextBlock>
             </StackPanel>
             <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                 <Grid>
@@ -94,14 +116,14 @@
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Hotmailbox -----------------------------------------------------------------"/></TextBlock>
+                <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="HOTMAILBOX"/></TextBlock>
             </StackPanel>
             <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                 <Grid>
@@ -115,7 +137,7 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="API Key"/></TextBlock>
                     </StackPanel>
-                    <PasswordBox  Grid.Row="0" Grid.Column="1" PasswordChar="*"  x:Name="txtHotmailApiKey" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></PasswordBox >
+                    <PasswordBox  Grid.Row="0" Grid.Column="1" PasswordChar="*"  x:Name="txtHotmailApiKey" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></PasswordBox >
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -128,26 +150,26 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Domain Name"/></TextBlock>
                     </StackPanel>
-                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtHotmailDomain" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtHotmailDomain" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></TextBox>
                 </Grid>
             </StackPanel>
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Yandex -----------------------------------------------------------------------"/></TextBlock>
+                <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="YANDEX"/></TextBlock>
             </StackPanel>
             <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -170,7 +192,7 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Text Fix"/></TextBlock>
                     </StackPanel>
-                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexFix" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexFix" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></TextBox>
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -183,7 +205,7 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Mail"/></TextBlock>
                     </StackPanel>
-                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexMail" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexMail" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></TextBox>
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -196,7 +218,7 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Password"/></TextBlock>
                     </StackPanel>
-                    <PasswordBox  Grid.Row="0" Grid.Column="1" PasswordChar="*"  x:Name="txtYandexPassword" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></PasswordBox >
+                    <PasswordBox  Grid.Row="0" Grid.Column="1" PasswordChar="*"  x:Name="txtYandexPassword" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></PasswordBox >
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -209,7 +231,7 @@
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
                         <TextBlock Margin="2" FontSize="11" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Protocol"/></TextBlock>
                     </StackPanel>
-                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexProtocol" Margin="0,3"  BorderBrush="#FFDCDCDC" Foreground="{DynamicResource MaterialDesignBody}"></TextBox>
+                    <TextBox Grid.Row="0" Grid.Column="1"  x:Name="txtYandexProtocol" Margin="0,3"  BorderBrush="#252C39" Background="#141923" Foreground="#E7ECF5"></TextBox>
                 </Grid>
             </StackPanel>
         </Grid>
@@ -227,4 +249,5 @@
     </StackPanel>
     </ScrollViewer>
 </Page>
+
 
