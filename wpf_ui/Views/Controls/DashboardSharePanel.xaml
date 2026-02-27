@@ -1,0 +1,97 @@
+<UserControl x:Class="ToolKHBrowser.Views.Controls.DashboardSharePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/DashboardPanelStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="56"/>
+            <ColumnDefinition Width="72"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="56"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Share to Timeline"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbShareToTimeline"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Share by Page Profile"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbSharePageProfile"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Auto Like Post"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbNewsFeedPlay"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Column="3">
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Share to Groups"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbShareToGroups"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Share Website"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbShareWebsite"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}"
+                           Text="Auto Comment"/>
+                <ToggleButton Grid.Column="1"
+                              Tag="chbNewsFeedCommentPost"
+                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

@@ -272,18 +272,33 @@ namespace ToolKHBrowser.Views
         {
             if (target == null) return;
 
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                dialog.Description = "Select source folder";
-                if (!string.IsNullOrWhiteSpace(target.Text) && System.IO.Directory.Exists(target.Text))
-                {
-                    dialog.SelectedPath = target.Text.Trim();
-                }
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            try
+            {
+                var currentPath = (target.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
                 {
-                    target.Text = dialog.SelectedPath;
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
                 }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
+                }
+            }
+            catch { }
+
+            if (dialog.ShowDialog() == true)
+            {
+                target.Text = dialog.FileName;
             }
         }
 

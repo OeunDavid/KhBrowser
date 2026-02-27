@@ -151,18 +151,33 @@ namespace ToolKHBrowser.Views
         }
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                dialog.Description = "Select source folder";
-                if (!string.IsNullOrWhiteSpace(txtCreateReelSourceFolder.Text) && System.IO.Directory.Exists(txtCreateReelSourceFolder.Text))
-                {
-                    dialog.SelectedPath = txtCreateReelSourceFolder.Text;
-                }
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            try
+            {
+                var currentPath = (txtCreateReelSourceFolder.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
                 {
-                    txtCreateReelSourceFolder.Text = dialog.SelectedPath;
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
                 }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
+                }
+            }
+            catch { }
+
+            if (dialog.ShowDialog() == true)
+            {
+                txtCreateReelSourceFolder.Text = dialog.FileName;
             }
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)

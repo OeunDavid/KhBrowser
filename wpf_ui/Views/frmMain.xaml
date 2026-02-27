@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="ToolKHBrowser.Views.frmMain"
+<UserControl x:Class="ToolKHBrowser.Views.frmMain"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dashboard="clr-namespace:ToolKHBrowser.Views.Controls"
              xmlns:numeric="http://gu.se/NumericInput"
              Height="auto"
              Width="auto"
@@ -25,6 +26,24 @@
                          Color="#E7ECF5"/>
         <SolidColorBrush x:Key="DashMutedBrush"
                          Color="#8C95A8"/>
+        <SolidColorBrush x:Key="Menu.Static.Background"
+                         Color="#141923"/>
+        <SolidColorBrush x:Key="Menu.Static.Border"
+                         Color="#232835"/>
+        <SolidColorBrush x:Key="Menu.Static.Foreground"
+                         Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="MenuItem.Highlight.Background"
+                         Color="#1A2232"/>
+        <SolidColorBrush x:Key="MenuItem.Highlight.Border"
+                         Color="#2B3A57"/>
+        <SolidColorBrush x:Key="MenuItem.Static.Background"
+                         Color="Transparent"/>
+        <SolidColorBrush x:Key="MenuItem.Static.Border"
+                         Color="Transparent"/>
+        <SolidColorBrush x:Key="MenuItem.Static.Foreground"
+                         Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="MenuItem.Disabled.Foreground"
+                         Color="#7B8599"/>
 
         <Style x:Key="DashboardCardBorderStyle"
                TargetType="Border">
@@ -179,8 +198,10 @@
 
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground"
-                    Value="{StaticResource DashTextBrush}"/>
+                    Value="White"/>
             <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="BorderBrush"
                     Value="Transparent"/>
         </Style>
     </UserControl.Resources>
@@ -263,17 +284,16 @@
                                         Value="Center"/>
                                 <Setter Property="Padding"
                                         Value="0"/>
+                                <Setter Property="Foreground"
+                                        Value="#F1F5F9"/>
+                                <Setter Property="FontWeight"
+                                        Value="SemiBold"/>
+                                <Setter Property="BorderThickness"
+                                        Value="0"/>
                                 <EventSetter Event="MouseEnter"
                                              Handler="SidebarNavButton_MouseEnter"/>
                                 <EventSetter Event="MouseLeave"
                                              Handler="SidebarNavButton_MouseLeave"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver"
-                                             Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="Black"/>
-                                    </Trigger>
-                                </Style.Triggers>
                             </Style>
                         </StackPanel.Resources>
                         <TextBlock Text="AUTOMATION"
@@ -540,7 +560,8 @@
                         <TextBlock Text="System Idle"
                                    Foreground="{StaticResource DashMutedBrush}"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="24.5ms"
+                        <TextBlock x:Name="txtSidebarElapsedTime"
+                                   Text="00:00:00"
                                    Foreground="{StaticResource DashMutedBrush}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Right"/>
@@ -765,7 +786,7 @@
                                    Margin="2,0,0,2">Control Center</TextBlock>
                     </StackPanel>
 
-                    <!-- ✅ FIXED THIS GRID (RowDefinitions were broken) -->
+                    <!-- ? FIXED THIS GRID (RowDefinitions were broken) -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -1086,82 +1107,6 @@
                         BorderThickness="1"
                         CornerRadius="18"
                         Padding="28,24,28,20">
-                    <Border.Resources>
-                        <Style x:Key="DashboardPillSwitchStyle"
-                               TargetType="ToggleButton">
-                            <Setter Property="Width"
-                                    Value="60"/>
-                            <Setter Property="Height"
-                                    Value="30"/>
-                            <Setter Property="Cursor"
-                                    Value="Hand"/>
-                            <Setter Property="Focusable"
-                                    Value="False"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Grid Width="{TemplateBinding Width}"
-                                              Height="{TemplateBinding Height}">
-                                            <Border x:Name="Track"
-                                                    Background="#232A37"
-                                                    BorderBrush="#232A37"
-                                                    BorderThickness="1"
-                                                    CornerRadius="15"/>
-                                            <Ellipse x:Name="Thumb"
-                                                     Width="20"
-                                                     Height="20"
-                                                     Fill="#F2F5FA"
-                                                     HorizontalAlignment="Left"
-                                                     VerticalAlignment="Center"
-                                                     Margin="5,0,0,0"/>
-                                        </Grid>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsChecked"
-                                                     Value="True">
-                                                <Setter TargetName="Track"
-                                                        Property="Background"
-                                                        Value="#2563EB"/>
-                                                <Setter TargetName="Track"
-                                                        Property="BorderBrush"
-                                                        Value="#2563EB"/>
-                                                <Setter TargetName="Thumb"
-                                                        Property="HorizontalAlignment"
-                                                        Value="Right"/>
-                                                <Setter TargetName="Thumb"
-                                                        Property="Margin"
-                                                        Value="0,0,5,0"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled"
-                                                     Value="False">
-                                                <Setter TargetName="Track"
-                                                        Property="Opacity"
-                                                        Value="0.45"/>
-                                                <Setter TargetName="Thumb"
-                                                        Property="Opacity"
-                                                        Value="0.45"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-
-                        <Style x:Key="ShareCardLabelStyle"
-                               TargetType="TextBlock">
-                            <Setter Property="Foreground"
-                                    Value="#EEF2FA"/>
-                            <Setter Property="FontSize"
-                                    Value="16"/>
-                            <Setter Property="VerticalAlignment"
-                                    Value="Center"/>
-                        </Style>
-                        <Style x:Key="DashboardConfigRowStyle"
-                               TargetType="Grid">
-                            <Setter Property="Margin"
-                                    Value="0,0,0,20"/>
-                        </Style>
-                    </Border.Resources>
-
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -1233,811 +1178,30 @@
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
                             <Grid>
-                                <Grid x:Name="pnlDashboardCfgShare">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Share to Timeline"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbShareToTimeline, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Share by Page Profile"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbSharePageProfile, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Auto Like Post"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedPlay, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Share to Groups"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbShareToGroups, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Share Website"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbShareWebsite, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Auto Comment"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedCommentPost, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
-                                <Grid x:Name="pnlDashboardCfgGroups"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Join Groups"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGroupJoin, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Leave Groups"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGroupLeave, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="View Groups"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGroupView, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Auto Scroll"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbAutoScrollGroup, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Backup Groups"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGroupBackup, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Post to Group"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGroupPost, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardSharePanel x:Name="pnlDashboardCfgShare"/>
+                                <dashboard:DashboardGroupsPanel x:Name="pnlDashboardCfgGroups"
+                                                                Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgPages"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Create Pages"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageCreate, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Follow/Like Pages"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageFollow, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Backup Pages"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageBackup, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Auto Scroll Page"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbAutoScrollPage, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Create Reel"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageCreateReel, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Invite Pages"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageInvite, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Remove Pages"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPageRemoveAdmin, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardPagesPanel x:Name="pnlDashboardCfgPages"
+                                                               Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgNewsFeed"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Play on News Feed"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedPlay, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Comment/Like Post"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedCommentPost, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Read Notifications"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedReadNotification, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Read Messenger"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedReadMessenger, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Post to Timeline"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNewsFeedPostTimeline, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Post to Page"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPagePost, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Auto Scroll"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbAutoScroll, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardNewsFeedPanel x:Name="pnlDashboardCfgNewsFeed"
+                                                                  Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgProfile"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Delete Data"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileDeleteData, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="New Info"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileNewInfo, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Public Post"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfilePublicPost, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Turn on 2FA"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileTurnOn2FA, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="New Password"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileNewPassword, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Get Info (Token)"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbGetInfo, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Delete Activity"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbDeleteActivity, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Check-in"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileCheckIn, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Marketplace"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileMarketplace, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Turn on PM"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbProfileTurnOnPM, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Lock Time"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbLockTime, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Primary Location"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPrimaryLocation, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Creation Date"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbCreationDate, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Token"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbToken, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardProfilePanel x:Name="pnlDashboardCfgProfile"
+                                                                 Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgFriends"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Accept Friends"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbFriendsAccept, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Add Friends"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbFriendsAdd, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Backup Friends"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbFriendsBackup, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Friends by UID"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbFriendsByUID, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardFriendsPanel x:Name="pnlDashboardCfgFriends"
+                                                                 Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgContact"
-                                      Visibility="Collapsed">
-                                    <StackPanel Width="540">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Primary"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPrimary, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="R-Phone,Mail"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbPrimaryRemovePhone, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="R-Instagram"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbRemoveInstragram, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardContactPanel x:Name="pnlDashboardCfgContact"
+                                                                 Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgOther"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Watch Time"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbOtherWatchTime, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Reel Play"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbOtherReelPlay, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="English (US)"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbOtherChangeLanguage, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Logout All Devices"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbLogOutAllDevices, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Unlock Checkpoint"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbAutoUnlockCheckpoint, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Use User Data"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbUseUserData, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Check Reel Invite"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbCheckReelInvite, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="No Switch Page"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbNoSwitchPage, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Working on Page?"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbWorkingOnPage, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Recovery Phone"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbRecoveryPhone, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Share by Graph"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbShareByGraph, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardOtherPanel x:Name="pnlDashboardCfgOther"
+                                                               Visibility="Collapsed"/>
 
-                                <Grid x:Name="pnlDashboardCfgCleanPc"
-                                      Visibility="Collapsed">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                        <ColumnDefinition Width="72"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="56"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Chrome"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbCleanChrome, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Edge"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbCleanEdge, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="3">
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Temp"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbCleanTemp, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid Style="{StaticResource DashboardConfigRowStyle}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource ShareCardLabelStyle}"
-                                                       Text="Use LDPlayer"/>
-                                            <ToggleButton Grid.Column="1"
-                                                          Style="{StaticResource DashboardPillSwitchStyle}"
-                                                          IsChecked="{Binding ElementName=chbUseLDPlayer, Path=IsChecked, Mode=TwoWay}"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
+                                <dashboard:DashboardCleanPcPanel x:Name="pnlDashboardCfgCleanPc"
+                                                                 Visibility="Collapsed"/>
                             </Grid>
                         </ScrollViewer>
 
@@ -4074,7 +3238,7 @@
 
                     <DataGrid.ContextMenu>
                         <ContextMenu Background="#141923"
-                                     Foreground="#E7ECF5">
+                                     Foreground="White">
                             <MenuItem Header="Change Store"
                                       Click="changeStore_Click"/>
                             <MenuItem Header="Check Size (Message Show)"

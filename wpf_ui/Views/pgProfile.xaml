@@ -10,6 +10,27 @@
         Height="820"
         Title="pgProfile">
 
+    <Page.Resources>
+        <SolidColorBrush x:Key="MaterialDesignBody" Color="#858C9D"/>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type PasswordBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource MaterialDesignRadioButton}">
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+        </Style>
+    </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#05070D" Padding="16,12,16,80">
         <StackPanel Background="#05070D" Margin="8,6,8,10">
             <Grid>
@@ -21,7 +42,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Activity Log --------------------------------------------------"/></TextBlock>
+                    <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="DELETE ACTIVITY LOG"/></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                     <Grid>
@@ -50,7 +71,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Delete Data --------------------------------------------------"/></TextBlock>
+                    <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="DELETE DATA"/></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                     <Grid>
@@ -152,7 +173,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="New Info --------------------------------------------------"/></TextBlock>
+                    <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="NEW INFO"/></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                     <Grid>
@@ -288,7 +309,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Turn on 2FA ------------------------------------------------"/></TextBlock>
+                    <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="TURN ON 2FA"/></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                     <Grid>
@@ -341,7 +362,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                    <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Password ------------------------------------------------"/></TextBlock>
+                    <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="PASSWORD"/></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                     <Grid>
@@ -400,4 +421,5 @@
         </StackPanel>
     </ScrollViewer>
 </Page>
+
 

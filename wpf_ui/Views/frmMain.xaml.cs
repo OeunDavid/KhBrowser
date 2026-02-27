@@ -32,6 +32,7 @@ using ToolKHBrowser.ToolLib.Mail; // Assumed new namespace mapping
 using ToolKHBrowser.ToolLib.Tool;
 using ToolKHBrowser.UI;
 using ToolKHBrowser.ViewModels;
+using ToolKHBrowser.Views.Controls;
 using ToolKHBrowser.Views;
 using ToolLib;
 using ToolLib.Data;
@@ -120,10 +121,15 @@ namespace ToolKHBrowser.Views
         public Dictionary<int, YandexVerify> yandexVerifyArr;
         private bool isRunActionBusy = false;
         private bool? pendingRunActionTargetRunning = null;
+        private DispatcherTimer sidebarElapsedTimer;
+        private DateTime? sidebarRunStartedAtUtc;
 
         public frmMain()
         {
             InitializeComponent();
+            BindDashboardPanelToggleBindings();
+            Loaded += frmMain_Loaded;
+            InitializeSidebarElapsedTimer();
             UpdateSidebarStartButtonVisual(false);
             statusId = -1;
             storeId = 0;
@@ -195,6 +201,126 @@ namespace ToolKHBrowser.Views
             //LocalData.CatchGroupNoPending("323422");
 
             SetDashboardConfigTab("share");
+        }
+
+        private void frmMain_Loaded(object sender, RoutedEventArgs e)
+        {
+            BindDashboardPanelToggleBindings();
+        }
+
+        private void BindDashboardPanelToggleBindings()
+        {
+            try
+            {
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgShare, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgGroups, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgPages, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgNewsFeed, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgProfile, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgFriends, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgContact, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgOther, this);
+                DashboardPanelBindingHelper.BindToggleTargets(pnlDashboardCfgCleanPc, this);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void InitializeSidebarElapsedTimer()
+        {
+            try
+            {
+                sidebarElapsedTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(1)
+                };
+                sidebarElapsedTimer.Tick += SidebarElapsedTimer_Tick;
+                UpdateSidebarElapsedTimeText(TimeSpan.Zero);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void SidebarElapsedTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateSidebarElapsedTimeFromStart();
+        }
+
+        private void UpdateSidebarElapsedTimeFromStart()
+        {
+            try
+            {
+                if (!sidebarRunStartedAtUtc.HasValue)
+                {
+                    UpdateSidebarElapsedTimeText(TimeSpan.Zero);
+                    return;
+                }
+
+                TimeSpan elapsed = DateTime.UtcNow - sidebarRunStartedAtUtc.Value;
+                if (elapsed < TimeSpan.Zero)
+                {
+                    elapsed = TimeSpan.Zero;
+                }
+
+                UpdateSidebarElapsedTimeText(elapsed);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void UpdateSidebarElapsedTimeText(TimeSpan elapsed)
+        {
+            try
+            {
+                if (txtSidebarElapsedTime != null)
+                {
+                    txtSidebarElapsedTime.Text = $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void UpdateSidebarElapsedTimerState(bool isRunning)
+        {
+            try
+            {
+                if (sidebarElapsedTimer == null)
+                {
+                    return;
+                }
+
+                if (isRunning)
+                {
+                    if (!sidebarRunStartedAtUtc.HasValue)
+                    {
+                        sidebarRunStartedAtUtc = DateTime.UtcNow;
+                    }
+
+                    if (!sidebarElapsedTimer.IsEnabled)
+                    {
+                        sidebarElapsedTimer.Start();
+                    }
+
+                    UpdateSidebarElapsedTimeFromStart();
+                    return;
+                }
+
+                sidebarRunStartedAtUtc = null;
+                if (sidebarElapsedTimer.IsEnabled)
+                {
+                    sidebarElapsedTimer.Stop();
+                }
+
+                UpdateSidebarElapsedTimeText(TimeSpan.Zero);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void SidebarConfigNav_Click(object sender, RoutedEventArgs e)
@@ -370,10 +496,10 @@ namespace ToolKHBrowser.Views
                 return;
             }
 
-            button.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#0F1F3D" : "Transparent");
-            button.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#17346B" : "Transparent");
+            button.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#12264A" : "Transparent");
+            button.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#2C5AA0" : "Transparent");
             button.BorderThickness = isActive ? new Thickness(1) : new Thickness(0);
-            button.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#60A5FA" : "#E5E7EB");
+            button.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString(isActive ? "#5AA8FF" : "#F1F5F9");
             button.FontWeight = isActive ? FontWeights.SemiBold : FontWeights.Medium;
         }
 
@@ -381,7 +507,18 @@ namespace ToolKHBrowser.Views
         {
             if (sender is Button button)
             {
-                button.Foreground = System.Windows.Media.Brushes.Black;
+                var tabKey = button.Tag?.ToString() ?? string.Empty;
+                bool isActive = string.Equals(dashboardConfigTabKey, tabKey, StringComparison.OrdinalIgnoreCase);
+                if (isActive)
+                {
+                    return;
+                }
+
+                button.Background = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#B8D4E8");
+                button.BorderBrush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#C9E2F3");
+                button.BorderThickness = new Thickness(1);
+                button.Foreground = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#0E1A2A");
+                button.FontWeight = FontWeights.SemiBold;
             }
         }
 
@@ -2247,6 +2384,8 @@ namespace ToolKHBrowser.Views
                 {
                     txtSidebarStartLabel.Text = isRunning ? "STOP ENGINE" : "START ENGINE";
                 }
+
+                UpdateSidebarElapsedTimerState(isRunning);
             }
             catch (Exception)
             {

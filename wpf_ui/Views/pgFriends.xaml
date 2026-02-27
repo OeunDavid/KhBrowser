@@ -10,6 +10,27 @@
         Height="400"
         Title="pgFriends">
 
+    <Page.Resources>
+        <SolidColorBrush x:Key="MaterialDesignBody" Color="#858C9D"/>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type PasswordBox}">
+            <Setter Property="Background" Value="#10141C"/>
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+            <Setter Property="BorderBrush" Value="#252C39"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource MaterialDesignRadioButton}">
+            <Setter Property="Foreground" Value="#E7ECF5"/>
+        </Style>
+    </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   Background="#05070D"
                   Padding="16,12,16,80">
@@ -64,7 +85,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0" Grid.Column="0" Grid.Row="0">
-                <TextBlock Margin="2" FontSize="11" Foreground="#FF20B2AA" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="Add Friends by UID --------------------------------------------------"/></TextBlock>
+                <TextBlock Margin="2" FontSize="13" FontWeight="Bold" Foreground="#12E3D8" VerticalAlignment="Center" HorizontalAlignment="Left"><Run Text="ADD FRIENDS BY UID"/></TextBlock>
             </StackPanel>
             <StackPanel Margin="5" Grid.Column="0" Grid.Row="1">
                 <Grid>
@@ -113,4 +134,5 @@
     </StackPanel>
     </ScrollViewer>
 </Page>
+
 
