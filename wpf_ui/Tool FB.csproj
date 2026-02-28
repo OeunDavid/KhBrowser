@@ -85,4 +85,15 @@
     <Resource Include="Assets\**\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Views\Controls\DashboardProfilePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Update="Views\Controls\DashboardProfilePanel.xaml.cs">
+      <DependentUpon>DashboardProfilePanel.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>
