@@ -4,6 +4,7 @@ using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -1206,6 +1207,11 @@ namespace ToolKHBrowser.ToolLib.Tool
         }
         public static bool GoToPost(IWebDriver driver)
         {
+            if (TryOpenCreatePostDialog(driver))
+            {
+                return true;
+            }
+
             bool isWorking = false, isSuccess = false;
             try
             {
@@ -1334,66 +1340,148 @@ namespace ToolKHBrowser.ToolLib.Tool
                 }
             }
 
+            if (!isSuccess)
+            {
+                isSuccess = TryOpenCreatePostDialog(driver);
+            }
+
             return isSuccess;
+        }
+
+        private static bool IsCreatePostDialogOpen(IWebDriver driver)
+        {
+            try
+            {
+                return driver.FindElements(By.XPath("//div[@role='dialog']")).Any(e =>
+                {
+                    try { return e.Displayed; } catch (Exception) { return false; }
+                });
+            }
+            catch (Exception) { }
+
+            return false;
+        }
+
+        private static bool TryOpenCreatePostDialog(IWebDriver driver)
+        {
+            if (IsCreatePostDialogOpen(driver))
+            {
+                return true;
+            }
+
+            string[] openSelectors = new[]
+            {
+                "//div[contains(@aria-label,\"What's on your mind\") or contains(@aria-label,\"What’s on your mind\") or contains(@aria-label,'Create post')]",
+                "//span[contains(text(),\"What's on your mind\") or contains(text(),\"What’s on your mind\")]/ancestor::*[@role='button'][1]",
+                "//div[@role='button' and .//span[contains(text(),'Create post')]]",
+                "//div[@role='button' and .//span[contains(text(),'Create Post')]]",
+                "//div[@aria-label='Create post' or @aria-label='Create Post']"
+            };
+
+            foreach (var xp in openSelectors)
+            {
+                try
+                {
+                    var element = driver.FindElements(By.XPath(xp)).FirstOrDefault(e =>
+                    {
+                        try { return e.Displayed && e.Enabled; } catch (Exception) { return false; }
+                    });
+                    if (element == null)
+                    {
+                        continue;
+                    }
+
+                    try { element.Click(); }
+                    catch (Exception) { ClickElement(driver, element); }
+
+                    Thread.Sleep(1200);
+                    if (IsCreatePostDialogOpen(driver))
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            return IsCreatePostDialogOpen(driver);
+        }
+
+        private static bool TryAttachMediaToCreateDialog(IWebDriver driver, string file, int postWaiting)
+        {
+            if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
+            {
+                return false;
+            }
+
+            bool attached = false;
+            for (int attempt = 0; attempt < 10 && !attached; attempt++)
+            {
+                try
+                {
+                    var inputs = driver.FindElements(By.XPath("//div[@role='dialog']//input[@type='file']")).ToList();
+                    if (inputs.Count == 0)
+                    {
+                        inputs = driver.FindElements(By.XPath("//input[@type='file']")).ToList();
+                    }
+
+                    foreach (var input in inputs)
+                    {
+                        try
+                        {
+                            input.SendKeys(file);
+                            attached = true;
+                            break;
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                catch (Exception) { }
+
+                if (!attached)
+                {
+                    Thread.Sleep(600);
+                }
+            }
+
+            if (attached)
+            {
+                Thread.Sleep(postWaiting);
+            }
+            return attached;
         }
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
-        public static void PostTimeline(IWebDriver driver, string caption, string file, int postWaiting, int submitWaiting)
+        public static bool PostTimeline(IWebDriver driver, string caption, string file, int postWaiting, int submitWaiting)
         {
             bool isWorking = false, isPhoto = false;
             bool captionInserted = string.IsNullOrWhiteSpace(caption);
             int counter = 0;
 
             isWorking = GoToPost(driver);
+            if (!isWorking || !IsCreatePostDialogOpen(driver))
+            {
+                return false;
+            }
 
             Thread.Sleep(2000);
             if (!string.IsNullOrEmpty(file))
             {
-                isWorking = false;
-                try
-                {
-                    driver.FindElement(By.XPath("//div[@aria-label='Photo/Video']")).Click();
-                    isWorking = true;
-                    Thread.Sleep(2000);
-                }
-                catch (Exception) { }
-                if (!isWorking)
+                isPhoto = TryAttachMediaToCreateDialog(driver, file, postWaiting);
+                if (!isPhoto)
                 {
                     try
                     {
-                        driver.FindElement(By.XPath("//div[@aria-label='Photo/video']")).Click();
-                        isWorking = true;
-                        Thread.Sleep(2000);
-                    }
-                    catch (Exception) { }
-                }
-                counter = 6;
-                do
-                {
-                    Thread.Sleep(500);
-                    try
-                    {
-                        IWebElement upload_file = driver.FindElement(By.XPath("//input[@accept='image/*,image/heif,image/heic,video/*,video/mp4,video/x-m4v,video/x-matroska,.mkv']"));
-                        upload_file.SendKeys(file);
-                        isPhoto = true;
-                    }
-                    catch (Exception) { }
-                    if (!isPhoto)
-                    {
-                        try
+                        var closeBtn = driver.FindElements(By.XPath("//*[@aria-label='Close'] | //div[@aria-label='Close']")).FirstOrDefault();
+                        if (closeBtn != null)
                         {
-                            IWebElement upload_file = driver.FindElement(By.XPath("//input[@type='file']"));
-                            upload_file.SendKeys(file);
-                            isPhoto = true;
+                            try { closeBtn.Click(); }
+                            catch (Exception) { ClickElement(driver, closeBtn); }
                         }
-                        catch (Exception) { }
                     }
-                    if (isPhoto)
-                    {
-                        Thread.Sleep(postWaiting);
-                    }
-                } while (!isPhoto && counter-- > 0);
+                    catch (Exception) { }
+                    return false;
+                }
             }
             if (!string.IsNullOrEmpty(caption))
             {
@@ -1680,45 +1768,50 @@ namespace ToolKHBrowser.ToolLib.Tool
                 // Do not submit file-only post when caption was requested but editor input failed.
                 if (!captionInserted)
                 {
-                    try
+                    // If media exists, continue with media-only post instead of aborting.
+                    if (string.IsNullOrEmpty(file))
                     {
-                        driver.FindElement(By.XPath("//*[@aria-label='Close']")).Click();
-                        Thread.Sleep(300);
+                        try
+                        {
+                            driver.FindElement(By.XPath("//*[@aria-label='Close']")).Click();
+                            Thread.Sleep(300);
+                        }
+                        catch (Exception) { }
+                        try
+                        {
+                            driver.FindElement(By.XPath("//div[@aria-label='Close']")).Click();
+                            Thread.Sleep(300);
+                        }
+                        catch (Exception) { }
+                        return false;
                     }
-                    catch (Exception) { }
-                    try
-                    {
-                        driver.FindElement(By.XPath("//div[@aria-label='Close']")).Click();
-                        Thread.Sleep(300);
-                    }
-                    catch (Exception) { }
-                    return;
                 }
             }
             Thread.Sleep(5000);
             isWorking = SubmitPost(driver);
 
-            Thread.Sleep(1500);
-            try
-            {
-                driver.FindElement(By.XPath("//*[@aria-label='Close']")).Click();
-                Thread.Sleep(500);
-                driver.FindElement(By.XPath("//div[@aria-label='Close']")).Click();
-            }
-            catch (Exception) { }
             if (isWorking)
             {
                 try
                 {
+                    Thread.Sleep(1500);
+                    try
+                    {
+                        driver.FindElement(By.XPath("//*[@aria-label='Close']")).Click();
+                        Thread.Sleep(500);
+                        driver.FindElement(By.XPath("//div[@aria-label='Close']")).Click();
+                    }
+                    catch (Exception) { }
                     Thread.Sleep(submitWaiting);
                 }
                 catch (Exception) { }
             }
+            return isWorking;
         }
         public static bool SubmitPost(IWebDriver driver)
         {
             bool isWorking = false;
-            int counter = 10;
+            int counter = 25;
             Thread.Sleep(1000);
             do
             {
@@ -1767,6 +1860,33 @@ namespace ToolKHBrowser.ToolLib.Tool
                     {
                         driver.FindElement(By.XPath("/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/form/div/div[1]/div/div/div/div[3]/div[2]/div")).Click();
                         isWorking = true;
+                    }
+                    catch (Exception) { }
+                }
+                if (!isWorking)
+                {
+                    try
+                    {
+                        string[] selectors = new[]
+                        {
+                            "//div[@role='dialog']//div[@role='button' and (@aria-label='Post' or @aria-label='Share' or @aria-label='Publish')]",
+                            "//div[@role='dialog']//*[self::div or self::span][normalize-space(.)='Post']/ancestor::div[@role='button'][1]",
+                            "//div[@role='dialog']//*[self::div or self::span][normalize-space(.)='Share']/ancestor::div[@role='button'][1]",
+                            "//div[@role='dialog']//*[self::div or self::span][normalize-space(.)='Publish']/ancestor::div[@role='button'][1]"
+                        };
+
+                        foreach (var xp in selectors)
+                        {
+                            var btn = driver.FindElements(By.XPath(xp)).FirstOrDefault(e =>
+                            {
+                                try { return e.Displayed && e.Enabled; } catch (Exception) { return false; }
+                            });
+                            if (btn == null) continue;
+                            try { btn.Click(); }
+                            catch (Exception) { ClickElement(driver, btn); }
+                            isWorking = true;
+                            break;
+                        }
                     }
                     catch (Exception) { }
                 }

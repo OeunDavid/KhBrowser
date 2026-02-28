@@ -873,18 +873,43 @@ namespace ToolKHBrowser.ViewModels
                 catch (Exception) { }
                 FBTool.WaitingPageLoading(driver);
                 Thread.Sleep(1000);
-                var source = this.form.GetSourceTimeline(data.TimelineSource, processActionData.NewsFeed.Timeline.DeleteAfterPost);
-                source = source.Replace('\\', '/').Trim();
-                if (string.IsNullOrEmpty(source) || !File.Exists(source))
+                string caption = GetCaption();
+                var source = (this.form.GetSourceTimeline(data.TimelineSource, processActionData.NewsFeed.Timeline.DeleteAfterPost) ?? "")
+                    .Replace('\\', '/')
+                    .Trim();
+                if (!string.IsNullOrEmpty(source) && !File.Exists(source))
                 {
+                    source = "";
+                }
+
+                // Allow text-only timeline post. Skip only when both are empty.
+                if (string.IsNullOrWhiteSpace(caption) && string.IsNullOrWhiteSpace(source))
+                {
+                    try
+                    {
+                        data.Description = "PostTimeline skipped: empty source and caption";
+                        form.SetGridDataRowStatus(data);
+                        int status = data.Status == "Die" ? 0 : 1;
+                        accountDao.updateStatus(data.UID, data.Description, status);
+                    }
+                    catch (Exception) { }
                     break;
                 }
 
-                string caption = GetCaption();
-
                 if (!string.IsNullOrEmpty(caption) || !string.IsNullOrEmpty(source))
                 {
-                    WebFBTool.PostTimeline(driver, caption, source, 3000, 30000);
+                    bool posted = WebFBTool.PostTimeline(driver, caption, source, 3000, 30000);
+                    if (!posted)
+                    {
+                        try
+                        {
+                            data.Description = "PostTimeline failed: unable to submit";
+                            form.SetGridDataRowStatus(data);
+                            int status = data.Status == "Die" ? 0 : 1;
+                            accountDao.updateStatus(data.UID, data.Description, status);
+                        }
+                        catch (Exception) { }
+                    }
                     Thread.Sleep(1000);
                     if (!string.IsNullOrEmpty(source) && File.Exists(source) && processActionData.NewsFeed.Timeline.DeleteAfterPost)
                     {

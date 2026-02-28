@@ -36,13 +36,31 @@
                          Color="#1A2232"/>
         <SolidColorBrush x:Key="MenuItem.Highlight.Border"
                          Color="#2B3A57"/>
+        <SolidColorBrush x:Key="MenuItem.Selected.Background"
+                         Color="#1A2232"/>
+        <SolidColorBrush x:Key="MenuItem.Selected.Border"
+                         Color="#2B3A57"/>
+        <SolidColorBrush x:Key="MenuItem.Pressed.Background"
+                         Color="#1A2232"/>
+        <SolidColorBrush x:Key="MenuItem.Pressed.Border"
+                         Color="#2B3A57"/>
+        <SolidColorBrush x:Key="MenuItem.Submenu.Background"
+                         Color="#141923"/>
+        <SolidColorBrush x:Key="MenuItem.Submenu.Border"
+                         Color="#232835"/>
         <SolidColorBrush x:Key="MenuItem.Static.Background"
-                         Color="Transparent"/>
+                         Color="#141923"/>
         <SolidColorBrush x:Key="MenuItem.Static.Border"
                          Color="Transparent"/>
         <SolidColorBrush x:Key="MenuItem.Static.Foreground"
                          Color="#FFFFFF"/>
         <SolidColorBrush x:Key="MenuItem.Disabled.Foreground"
+                         Color="#7B8599"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.MenuBrushKey}"
+                         Color="#141923"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.MenuTextBrushKey}"
+                         Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.GrayTextBrushKey}"
                          Color="#7B8599"/>
 
         <Style x:Key="DashboardCardBorderStyle"
@@ -3238,7 +3256,107 @@
 
                     <DataGrid.ContextMenu>
                         <ContextMenu Background="#141923"
-                                     Foreground="White">
+                                     Foreground="White"
+                                     ItemContainerStyle="{DynamicResource DarkContextMenuItemStyle}">
+                            <ContextMenu.Resources>
+                                <SolidColorBrush x:Key="Menu.Static.Background"
+                                                 Color="#141923"/>
+                                <SolidColorBrush x:Key="Menu.Static.Border"
+                                                 Color="#232835"/>
+                                <SolidColorBrush x:Key="MenuItem.Static.Background"
+                                                 Color="#141923"/>
+                                <SolidColorBrush x:Key="MenuItem.Static.Border"
+                                                 Color="Transparent"/>
+                                <SolidColorBrush x:Key="MenuItem.Highlight.Background"
+                                                 Color="#1A2232"/>
+                                <SolidColorBrush x:Key="MenuItem.Highlight.Border"
+                                                 Color="#2B3A57"/>
+                                <SolidColorBrush x:Key="MenuItem.Submenu.Background"
+                                                 Color="#141923"/>
+                                <SolidColorBrush x:Key="MenuItem.Submenu.Border"
+                                                 Color="#232835"/>
+                                <Style x:Key="DarkContextMenuItemStyle"
+                                       TargetType="{x:Type MenuItem}">
+                                    <Setter Property="Foreground"
+                                            Value="#E7ECF5"/>
+                                    <Setter Property="Background"
+                                            Value="#141923"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="Transparent"/>
+                                    <Setter Property="BorderThickness"
+                                            Value="0"/>
+                                    <Setter Property="Padding"
+                                            Value="12,6"/>
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch"/>
+                                    <Setter Property="VerticalContentAlignment"
+                                            Value="Center"/>
+                                    <Setter Property="ItemContainerStyle"
+                                            Value="{DynamicResource DarkContextMenuItemStyle}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type MenuItem}">
+                                                <Border x:Name="ItemBorder"
+                                                        Background="{TemplateBinding Background}"
+                                                        SnapsToDevicePixels="True">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="16"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ContentPresenter x:Name="HeaderHost"
+                                                                          ContentSource="Header"
+                                                                          Margin="12,6,8,6"
+                                                                          VerticalAlignment="Center"
+                                                                          RecognizesAccessKey="True"/>
+                                                        <Path x:Name="SubmenuArrow"
+                                                              Grid.Column="1"
+                                                              Margin="0,0,8,0"
+                                                              VerticalAlignment="Center"
+                                                              HorizontalAlignment="Right"
+                                                              Fill="#5B6477"
+                                                              Data="M 0 0 L 0 8 L 4 4 Z"
+                                                              Visibility="Collapsed"/>
+                                                        <Popup x:Name="PART_Popup"
+                                                               Placement="Right"
+                                                               HorizontalOffset="-1"
+                                                               IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                                               AllowsTransparency="True"
+                                                               Focusable="False"
+                                                               PopupAnimation="Fade">
+                                                            <Border Background="#141923"
+                                                                    BorderBrush="#232835"
+                                                                    BorderThickness="1">
+                                                                <StackPanel IsItemsHost="True"
+                                                                            KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                                                            </Border>
+                                                        </Popup>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="HasItems"
+                                                             Value="True">
+                                                        <Setter TargetName="SubmenuArrow"
+                                                                Property="Visibility"
+                                                                Value="Visible"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsHighlighted"
+                                                             Value="True">
+                                                        <Setter TargetName="ItemBorder"
+                                                                Property="Background"
+                                                                Value="#1A2232"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled"
+                                                             Value="False">
+                                                        <Setter Property="Foreground"
+                                                                Value="#7B8599"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ContextMenu.Resources>
                             <MenuItem Header="Change Store"
                                       Click="changeStore_Click"/>
                             <MenuItem Header="Check Size (Message Show)"

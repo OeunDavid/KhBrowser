@@ -789,6 +789,230 @@ namespace ToolKHBrowser.Views
             });
         }
 
+        private bool IsInvalidDetectedName(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return true;
+            }
+
+            string v = Regex.Replace(value.Trim(), @"\s+", " ");
+            if (v.Length < 2 || v.Length > 80)
+            {
+                return true;
+            }
+
+            if (Regex.IsMatch(v, @"^[0-9@._-]+$"))
+            {
+                return true;
+            }
+
+            string lower = v.ToLowerInvariant();
+            switch (lower)
+            {
+                case "facebook":
+                case "home":
+                case "friends":
+                case "reels":
+                case "watch":
+                case "marketplace":
+                case "groups":
+                case "notifications":
+                case "menu":
+                case "videos":
+                case "gaming":
+                case "saved":
+                case "memories":
+                case "search":
+                case "messenger":
+                case "news feed":
+                case "feed":
+                case "feeds":
+                case "profile":
+                case "login":
+                case "log in":
+                    return true;
+            }
+
+            return false;
+        }
+
+        private string TryReadAccountNameNoNavigate(IWebDriver driver, string uid)
+        {
+            if (driver == null)
+            {
+                return "";
+            }
+
+            string name = "";
+
+            try
+            {
+                var js = driver as IJavaScriptExecutor;
+                if (js != null)
+                {
+                    var uidSafe = (uid ?? "").Trim();
+                    var raw = js.ExecuteScript(@"
+const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+const uid = (arguments[0] || '').toString().trim();
+const candidates = [];
+const bad = new Set([
+  'facebook','home','friends','reels','watch','marketplace','groups',
+  'notifications','menu','videos','gaming','saved','memories','search',
+  'messenger','news feed','feed','feeds','profile','login','log in'
+]);
+
+const add = (s, score) => {
+  const t = clean(s);
+  if (!t) return;
+  candidates.push({ text: t, score });
+};
+
+const readFrom = (el, score) => {
+  if (!el) return;
+  add(el.getAttribute && el.getAttribute('aria-label'), score + 2);
+  add(el.textContent, score + 1);
+  const span = el.querySelector && el.querySelector('span[dir=""auto""]');
+  if (span) add(span.textContent, score + 3);
+};
+
+if (uid) {
+  const byUid = document.querySelectorAll(
+    `a[href*=""profile.php?id=${uid}""], a[href*=""/${uid}?""] , a[href$=""/${uid}""], [role=""link""][href*=""profile.php?id=${uid}""]`
+  );
+  for (const el of byUid) readFrom(el, 20);
+}
+
+for (const el of document.querySelectorAll('a[href*=""/me/""]')) readFrom(el, 15);
+for (const el of document.querySelectorAll('a[href*=""profile.php?id=""]')) readFrom(el, 12);
+
+const og = document.querySelector('meta[property=""og:title""]');
+if (og && og.content) add(og.content, 8);
+
+const title = clean(document.title);
+if (title) add(title, 5);
+
+const sorted = candidates.sort((a, b) => b.score - a.score);
+for (const item of sorted) {
+  if (!item || !item.text) continue;
+  const v = item.text
+    .replace(/\s+\|\s*Facebook.*$/i, '')
+    .replace(/^Facebook\s*[-|]\s*/i, '')
+    .trim();
+  if (!v) continue;
+  const low = v.toLowerCase();
+  if (bad.has(low)) continue;
+  if (/^[0-9@._-]+$/.test(v)) continue;
+  if (v.length < 2 || v.length > 80) continue;
+  return v;
+}
+return '';
+", uidSafe);
+
+                    name = raw == null ? "" : raw.ToString().Trim();
+                }
+            }
+            catch (Exception) { }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                try
+                {
+                    name = (driver.Title ?? "").Trim();
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        name = Regex.Replace(name, @"\s+\|\s*Facebook.*$", "", RegexOptions.IgnoreCase).Trim();
+                        name = Regex.Replace(name, @"^Facebook\s*[-|]\s*", "", RegexOptions.IgnoreCase).Trim();
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            if (IsInvalidDetectedName(name))
+            {
+                name = "";
+            }
+
+            return name ?? "";
+        }
+
+        private void TrySyncAccountIdentity(IWebDriver driver, FbAccount account)
+        {
+            if (driver == null || account == null)
+            {
+                return;
+            }
+
+            string oldUid = (account.UID ?? "").Trim();
+            if (string.IsNullOrEmpty(oldUid))
+            {
+                return;
+            }
+
+            // Use browser UID only for name lookup, do not rewrite user's UID automatically.
+            string lookupUid = oldUid;
+            try
+            {
+                var uid = FBTool.GetUserId(driver);
+                if (!string.IsNullOrWhiteSpace(uid))
+                {
+                    lookupUid = uid.Trim();
+                }
+            }
+            catch (Exception) { }
+
+            string accountName = "";
+            try { accountName = TryReadAccountNameNoNavigate(driver, lookupUid); } catch (Exception) { }
+
+            if (IsInvalidDetectedName(accountName) && !string.IsNullOrWhiteSpace(account.Token))
+            {
+                try
+                {
+                    var graph = new FBGraph();
+                    graph.GetCookieContainerFromDriver(driver);
+                    var info = graph.GetInfo(account.Token);
+                    if (info != null && !string.IsNullOrWhiteSpace(info.name))
+                    {
+                        accountName = info.name.Trim();
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            if (IsInvalidDetectedName(accountName))
+            {
+                if (IsInvalidDetectedName(account.Name))
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        account.Name = "";
+                    });
+
+                    try
+                    {
+                        fbAccountViewModel.getAccountDao().UpdateName(oldUid, "");
+                    }
+                    catch (Exception) { }
+                }
+
+                return;
+            }
+
+            if (!IsInvalidDetectedName(accountName))
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    account.Name = accountName;
+                });
+
+                try
+                {
+                    fbAccountViewModel.getAccountDao().UpdateName(oldUid, accountName);
+                }
+                catch (Exception) { }
+            }
+        }
+
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -1920,6 +2144,7 @@ namespace ToolKHBrowser.Views
                 case 1:
                     fbAccount.Status = "Live";
                     fbAccount.Description = "Check Live";
+                    TrySyncAccountIdentity(webDriver, fbAccount);
                     break;
                 case -1:
                     fbAccount.Status = "Die";
@@ -1958,6 +2183,7 @@ namespace ToolKHBrowser.Views
                 case 1:
                     fbAccount.Status = "Live";
                     fbAccount.Description = "Open Account";
+                    TrySyncAccountIdentity(webDriver, fbAccount);
                     break;
                 case -1:
                     fbAccount.Status = "Die";
@@ -2197,6 +2423,7 @@ namespace ToolKHBrowser.Views
                 shareUrlIndex = 0;
                 reelVideoIndex = 0;
                 timelineIndex = 0;
+                timelineArr = null;
                 sourceReelVideoArr = null;
                 joinGroupIDIndex = 0;
                 joinGroupIDArr = GetJoinGroupIDArr();
@@ -3140,6 +3367,7 @@ namespace ToolKHBrowser.Views
                     dbDesc = "Login success";
                     account.Status = "Live";
                     account.Description = dbDesc;
+                    TrySyncAccountIdentity(driver, account);
                 }
                 else
                 {
@@ -7228,9 +7456,10 @@ namespace ToolKHBrowser.Views
                     return processActionsData.NewsFeed.Timeline.SourceFolder;
                 }
 
-                if (timelineArr == null)
+                if (timelineArr == null || timelineIndex >= timelineArr.Length)
                 {
                     timelineArr = LocalData.GetFiles(processActionsData.NewsFeed.Timeline.SourceFolder);
+                    timelineIndex = 0;
                     if (timelineArr.Length == 0)
                     {
                         return "";
@@ -7240,19 +7469,35 @@ namespace ToolKHBrowser.Views
             catch (Exception)
             {
             }
-            if (timelineIndex >= timelineArr.Length)
-            {
-                return "";
-            }
             try
             {
-                result = timelineArr[timelineIndex];
-                timelineIndex++;
+                while (timelineIndex < timelineArr.Length)
+                {
+                    result = timelineArr[timelineIndex];
+                    timelineIndex++;
+                    if (System.IO.File.Exists(result))
+                    {
+                        return result;
+                    }
+                }
+
+                // Files might have changed (e.g. deleted after post). Reload once.
+                timelineArr = LocalData.GetFiles(processActionsData.NewsFeed.Timeline.SourceFolder);
+                timelineIndex = 0;
+                while (timelineIndex < timelineArr.Length)
+                {
+                    result = timelineArr[timelineIndex];
+                    timelineIndex++;
+                    if (System.IO.File.Exists(result))
+                    {
+                        return result;
+                    }
+                }
             }
             catch (Exception)
             {
             }
-            return result;
+            return "";
         }
         public string GetPhotoPostTimeline_b()
         {
