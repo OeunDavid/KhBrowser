@@ -49,6 +49,7 @@ namespace ToolKHBrowser.Views
                     try
                     {
                         txtGroupJoinOfNumber.Value = Int32.Parse(groupObj.Join.NumberOfJoin.ToString());
+                        txtGroupInviteFriendsNumber.Value = groupObj.Join.NumberOfInviteFriends > 0 ? groupObj.Join.NumberOfInviteFriends : 10;
                         txtGroupAnswer.Text = groupObj.Join.Answers;
                         txtGroupIDs.Text = groupIds;
                         chbJoinOnlyGroupNoPending.IsChecked = groupObj.Join.IsJoinOnlyGroupNoPending;
@@ -160,6 +161,7 @@ namespace ToolKHBrowser.Views
                 var timeEnd = SafeInt(txtViewGroupTimeEnd.Value);
 
                 var numberOfJoin = SafeInt(txtGroupJoinOfNumber.Value);
+                var numberOfInviteFriends = SafeInt(txtGroupInviteFriendsNumber.Value);
                 var answers = txtGroupAnswer.Text ?? "";
 
                 // ✅ Normalize & clean group list before saving
@@ -193,6 +195,7 @@ namespace ToolKHBrowser.Views
 
                 // JOIN
                 joinObj.NumberOfJoin = numberOfJoin;
+                joinObj.NumberOfInviteFriends = numberOfInviteFriends <= 0 ? 10 : numberOfInviteFriends;
                 joinObj.Answers = answers;
                 joinObj.IsJoinOnlyGroupNoPending = isJoinOnlyGroupNoPending;
 

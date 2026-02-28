@@ -73,6 +73,14 @@
                 <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Post to Group"/>
                 <ToggleButton Grid.Column="1" Tag="chbGroupPost" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Invite Friends"/>
+                <ToggleButton Grid.Column="1" Tag="chbGroupInvite" Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

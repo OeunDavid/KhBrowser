@@ -1608,6 +1608,33 @@
                                               HorizontalAlignment="Left"
                                               Margin="0"/>
                             </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal"
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            Margin="0">
+                                    <TextBlock Margin="2"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource MaterialDesignBody}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"><Run Text="Invite Friends"/></TextBlock>
+                                </StackPanel>
+                                <ToggleButton Grid.Row="0"
+                                              Grid.Column="1"
+                                              x:Name="chbGroupInvite"
+                                              IsChecked="False"
+                                              Height="12"
+                                              Style="{DynamicResource MaterialDesignSwitchToggleButton}"
+                                              HorizontalAlignment="Left"
+                                              Margin="0"/>
+                            </Grid>
                             <Button x:Name="btnStore"
                                     Height="30"
                                     Width="auto"

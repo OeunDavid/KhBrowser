@@ -3186,6 +3186,288 @@ namespace ToolKHBrowser.ToolLib.Tool
             }
             Thread.Sleep(2000);
         }
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
+        public static bool InviteFriendsToGroup(IWebDriver driver, int maxInvite = 10)
+        {
+            if (driver == null || maxInvite <= 0)
+            {
+                return false;
+            }
+            Func<IWebElement> findInviteDialog = () =>
+            {
+                try
+                {
+                    return driver.FindElements(By.XPath(
+                        "//div[@role='dialog' and (" +
+                        ".//*[contains(text(),'Invite friends to this group')]" +
+                        " or .//*[contains(text(),'friends selected')]" +
+                        " or .//input[contains(@placeholder,'Search for friends')]" +
+                        ")]")).FirstOrDefault();
+                }
+                catch (Exception) { }
+                return null;
+            };
+
+            Action<IWebElement> cancelInviteDialog = (dlg) =>
+            {
+                try
+                {
+                    if (dlg == null)
+                    {
+                        dlg = findInviteDialog();
+                    }
+                }
+                catch (Exception) { }
+
+                string[] cancelXPaths = new string[]
+                {
+                    ".//span[normalize-space()='Cancel']/ancestor::div[@role='button'][1]",
+                    ".//div[@role='button' and (@aria-label='Cancel' or @aria-label='Close')]",
+                    ".//div[@aria-label='Close']",
+                    ".//div[@aria-label='Cancel']",
+                    ".//div[@role='button'][.//span[normalize-space()='Cancel']]",
+                    ".//div[@role='button'][.//span[normalize-space()='×']]"
+                };
+
+                if (dlg != null)
+                {
+                    foreach (var xPath in cancelXPaths)
+                    {
+                        try
+                        {
+                            var btn = dlg.FindElements(By.XPath(xPath)).FirstOrDefault();
+                            if (btn != null)
+                            {
+                                ClickElement(driver, btn);
+                                Thread.Sleep(400);
+                                return;
+                            }
+                        }
+                        catch (Exception) { }
+                    }
+                }
+
+                try
+                {
+                    var closeBtn = driver.FindElements(By.XPath("//div[@role='dialog']//div[@aria-label='Close'] | //div[@role='dialog']//span[normalize-space()='Cancel']/ancestor::div[@role='button'][1]")).FirstOrDefault();
+                    if (closeBtn != null)
+                    {
+                        ClickElement(driver, closeBtn);
+                        Thread.Sleep(400);
+                    }
+                }
+                catch (Exception) { }
+            };
+
+            // If account is not a member, join group first before opening invite dialog.
+            try
+            {
+                if (IsJoinGroup(driver))
+                {
+                    JoinGroup(driver, "Okay");
+                    Thread.Sleep(1200);
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(700);
+                }
+            }
+            catch (Exception) { }
+
+            var dialog = findInviteDialog();
+            if (dialog == null)
+            {
+                int openCounter = 8;
+                string[] openInviteXPaths = new string[]
+                {
+                    "//div[@aria-label='Invite friends']",
+                    "//div[@aria-label='Invite']",
+                    "//div[@role='button'][.//span[normalize-space()='Invite']]",
+                    "//span[normalize-space()='Invite']/ancestor::div[@role='button'][1]",
+                    "//div[@role='button'][.//span[contains(text(),'Invite friends')]]",
+                    "//span[contains(text(),'Invite friends')]/ancestor::div[@role='button'][1]"
+                };
+
+                do
+                {
+                    Thread.Sleep(700);
+                    foreach (var xPath in openInviteXPaths)
+                    {
+                        if (dialog != null)
+                        {
+                            break;
+                        }
+                        try
+                        {
+                            var element = driver.FindElement(By.XPath(xPath));
+                            if (element == null)
+                            {
+                                continue;
+                            }
+
+                            ClickElement(driver, element);
+                            Thread.Sleep(1200);
+                            dialog = findInviteDialog();
+                        }
+                        catch (Exception) { }
+                    }
+                } while (dialog == null && openCounter-- > 0);
+            }
+
+            if (dialog == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var dialogText = (dialog.Text ?? "").ToLowerInvariant();
+                if (dialogText.Contains("no friends to invite"))
+                {
+                    cancelInviteDialog(dialog);
+                    return false;
+                }
+            }
+            catch (Exception) { }
+
+            int selectedCount = 0;
+            int selectRound = 10;
+            do
+            {
+                Thread.Sleep(500);
+                try
+                {
+                    var dialogText = (dialog.Text ?? "").ToLowerInvariant();
+                    if (dialogText.Contains("no friends to invite"))
+                    {
+                        cancelInviteDialog(dialog);
+                        return false;
+                    }
+                }
+                catch (Exception) { }
+
+                IReadOnlyCollection<IWebElement> checkboxElements = null;
+                try
+                {
+                    checkboxElements = dialog.FindElements(By.XPath(
+                        ".//div[@role='checkbox' and (@aria-checked='false' or not(@aria-checked))]" +
+                        " | .//input[@type='checkbox' and (not(@checked) or @checked='false')]"));
+                }
+                catch (Exception) { }
+
+                if (checkboxElements != null && checkboxElements.Count > 0)
+                {
+                    foreach (var checkbox in checkboxElements)
+                    {
+                        if (selectedCount >= maxInvite)
+                        {
+                            break;
+                        }
+
+                        try
+                        {
+                            bool shouldSkip = false;
+                            var text = ((checkbox.GetAttribute("aria-label") ?? "") + " " + (checkbox.Text ?? "")).ToLowerInvariant();
+                            if (text.Contains("all"))
+                            {
+                                shouldSkip = true;
+                            }
+                            if (shouldSkip)
+                            {
+                                continue;
+                            }
+
+                            ClickElement(driver, checkbox);
+                            selectedCount++;
+                            Thread.Sleep(180);
+                        }
+                        catch (Exception) { }
+                    }
+                }
+
+                if (selectedCount < maxInvite)
+                {
+                    try
+                    {
+                        IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
+                        executor.ExecuteScript(
+                            "var root=arguments[0];" +
+                            "var nodes=root.querySelectorAll('div');" +
+                            "for(var i=0;i<nodes.length;i++){" +
+                            " if(nodes[i].scrollHeight>nodes[i].clientHeight+20){nodes[i].scrollTop=nodes[i].scrollTop+500;break;}" +
+                            "}",
+                            dialog);
+                        Thread.Sleep(300);
+                    }
+                    catch (Exception)
+                    {
+                        try
+                        {
+                            new Actions(driver).MoveToElement(dialog).Click().SendKeys(OpenQA.Selenium.Keys.PageDown).Perform();
+                            Thread.Sleep(300);
+                        }
+                        catch (Exception) { }
+                    }
+                }
+            } while (selectedCount < maxInvite && selectRound-- > 0);
+
+            if (selectedCount <= 0)
+            {
+                cancelInviteDialog(dialog);
+                return false;
+            }
+
+            bool isSent = false;
+            string[] sendButtonXPaths = new string[]
+            {
+                ".//div[@role='button' and (@aria-label='Send invites' or @aria-label='Send invite') and not(@aria-disabled='true')]",
+                ".//span[normalize-space()='Send invites']/ancestor::div[@role='button'][1]",
+                ".//span[contains(text(),'Send invite')]/ancestor::div[@role='button'][1]",
+                ".//div[@role='button' and not(@aria-disabled='true') and .//span[contains(text(),'Send')]]"
+            };
+
+            foreach (var xPath in sendButtonXPaths)
+            {
+                if (isSent)
+                {
+                    break;
+                }
+                try
+                {
+                    var sendBtn = dialog.FindElements(By.XPath(xPath)).FirstOrDefault();
+                    if (sendBtn != null)
+                    {
+                        ClickElement(driver, sendBtn);
+                        Thread.Sleep(1000);
+                        isSent = true;
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            if (!isSent)
+            {
+                try
+                {
+                    var footerButtons = dialog.FindElements(By.XPath(".//div[@role='button' and not(@aria-disabled='true')]"));
+                    foreach (var btn in footerButtons.Reverse())
+                    {
+                        var t = (btn.Text ?? "").Trim().ToLowerInvariant();
+                        if (string.IsNullOrEmpty(t) || t.Contains("cancel") || t.Contains("close"))
+                        {
+                            continue;
+                        }
+                        ClickElement(driver, btn);
+                        Thread.Sleep(1000);
+                        isSent = true;
+                        break;
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            return isSent;
+        }
         public static void ClickElement(IWebDriver driver, IWebElement element)
         {
             try

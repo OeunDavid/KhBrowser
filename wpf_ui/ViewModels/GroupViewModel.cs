@@ -51,6 +51,10 @@ namespace ToolKHBrowser.ViewModels
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        void InviteFriendsToGroup();
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
         void PostGroup();
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
@@ -447,6 +451,95 @@ namespace ToolKHBrowser.ViewModels
         public void BackupGroup()
         {
             this.form.BackupGroups(driver, data);
+        }
+        public void InviteFriendsToGroup()
+        {
+            if (processActionData == null || processActionData.GroupConfig == null)
+                return;
+
+            int inviteNumber = 10;
+            try
+            {
+                inviteNumber = processActionData.GroupConfig.Join.NumberOfInviteFriends;
+            }
+            catch { }
+            if (inviteNumber <= 0)
+            {
+                inviteNumber = 10;
+            }
+
+            var targetGroupIds = new List<string>();
+            try
+            {
+                var groupRecords = groupsDao.GetRecordsByUID(data.UID);
+                if (groupRecords != null)
+                {
+                    foreach (DataRow row in groupRecords.Rows)
+                    {
+                        try
+                        {
+                            var gid = (row["group_id"] + "").Trim();
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
+            if (targetGroupIds.Count == 0)
+            {
+                try
+                {
+                    var cfgIds = this.form.GetJoinGroupIDArr();
+                    if (cfgIds != null)
+                    {
+                        foreach (var gid in cfgIds)
+                        {
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid.Trim());
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            if (targetGroupIds.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var groupId in targetGroupIds)
+            {
+                if (IsStop())
+                {
+                    break;
+                }
+
+                try
+                {
+                    data.Description = "Invite Friends Group: " + groupId;
+                    form.SetGridDataRowStatus(data);
+                }
+                catch { }
+
+                try
+                {
+                    driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
+                }
+                catch (Exception) { }
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(1000);
+
+                try
+                {
+                    WebFBTool.InviteFriendsToGroup(driver, inviteNumber);
+                }
+                catch (Exception) { }
+
+                Thread.Sleep(1200);
+            }
         }
         public void ViewGroup()
         {

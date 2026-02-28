@@ -2916,6 +2916,7 @@ return '';
             processActions.IsLeaveGroup = chbGroupLeave.IsChecked.Value;
             processActions.IsJoinGroup = chbGroupJoin.IsChecked.Value;
             processActions.IsViewGroup = chbGroupView.IsChecked.Value;
+            processActions.IsInviteFriendsToGroup = chbGroupInvite.IsChecked.Value;
             processActions.AutoScrollGroup = chbAutoScrollGroup.IsChecked.Value;
             processActions.IsBackupGroup = chbGroupBackup.IsChecked.Value;
             processActions.ReadMessenger = chbNewsFeedReadMessenger.IsChecked.Value;
@@ -4425,6 +4426,7 @@ return '';
                     processActionsData.IsLeaveGroup ||
                     processActionsData.IsBackupGroup ||
                     processActionsData.IsViewGroup ||
+                    processActionsData.IsInviteFriendsToGroup ||
                     processActionsData.GroupPost ||
                     processActionsData.AutoScrollGroup)
                 {
@@ -6934,7 +6936,13 @@ return '';
 
         public void StartGroup(IWebDriver driver, FbAccount data)
         {
-            if (processActionsData.IsLeaveGroup || processActionsData.IsJoinGroup || processActionsData.IsBackupGroup || processActionsData.IsViewGroup || processActionsData.AutoScrollGroup)
+            if (processActionsData.IsLeaveGroup ||
+                processActionsData.IsJoinGroup ||
+                processActionsData.IsBackupGroup ||
+                processActionsData.IsViewGroup ||
+                processActionsData.IsInviteFriendsToGroup ||
+                processActionsData.AutoScrollGroup ||
+                processActionsData.GroupPost)
             {
                 processActionsData.GroupConfig = GetCacheConfig<GroupConfig>("group:config");
                 IGroupViewModel groupViewModel = DIConfig.Get<IGroupViewModel>();
@@ -6958,6 +6966,11 @@ return '';
                 {
                     data.Description += ", View Groups";
                     groupViewModel.ViewGroup();
+                }
+                if (processActionsData.IsInviteFriendsToGroup && !IsStop())
+                {
+                    data.Description += ", Invite Friends Group";
+                    groupViewModel.InviteFriendsToGroup();
                 }
                 if (processActionsData.AutoScrollGroup && !IsStop())
                 {

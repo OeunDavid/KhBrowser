@@ -24,6 +24,7 @@ namespace ToolKHBrowser.ViewModels
         public bool IsLeaveGroup { get; set; }
         public bool IsJoinGroup { get; set; }
         public bool IsViewGroup { get; set; }
+        public bool IsInviteFriendsToGroup { get; set; }
         public bool AutoScrollGroup { get; set; }
         public bool IsBackupGroup { get; set; }
 
@@ -339,6 +340,7 @@ namespace ToolKHBrowser.ViewModels
     {
         //public string GroupIDs { get; set; }
         public int NumberOfJoin { get; set; }
+        public int NumberOfInviteFriends { get; set; }
         public string Answers { get; set; }
         public bool IsJoinOnlyGroupNoPending { get; set; }  
     }
