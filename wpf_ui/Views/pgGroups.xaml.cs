@@ -49,6 +49,7 @@ namespace ToolKHBrowser.Views
                     try
                     {
                         txtGroupJoinOfNumber.Value = Int32.Parse(groupObj.Join.NumberOfJoin.ToString());
+                        txtGroupInviteFriendsNumber.Value = groupObj.Join.NumberOfInviteFriends > 0 ? groupObj.Join.NumberOfInviteFriends : 10;
                         txtGroupAnswer.Text = groupObj.Join.Answers;
                         txtGroupIDs.Text = groupIds;
                         chbJoinOnlyGroupNoPending.IsChecked = groupObj.Join.IsJoinOnlyGroupNoPending;
@@ -160,6 +161,7 @@ namespace ToolKHBrowser.Views
                 var timeEnd = SafeInt(txtViewGroupTimeEnd.Value);
 
                 var numberOfJoin = SafeInt(txtGroupJoinOfNumber.Value);
+                var numberOfInviteFriends = SafeInt(txtGroupInviteFriendsNumber.Value);
                 var answers = txtGroupAnswer.Text ?? "";
 
                 // ✅ Normalize & clean group list before saving
@@ -193,6 +195,7 @@ namespace ToolKHBrowser.Views
 
                 // JOIN
                 joinObj.NumberOfJoin = numberOfJoin;
+                joinObj.NumberOfInviteFriends = numberOfInviteFriends <= 0 ? 10 : numberOfInviteFriends;
                 joinObj.Answers = answers;
                 joinObj.IsJoinOnlyGroupNoPending = isJoinOnlyGroupNoPending;
 
@@ -261,6 +264,45 @@ namespace ToolKHBrowser.Views
             int n;
             if (int.TryParse(value.ToString(), out n)) return n;
             return 0;
+        }
+
+        private void btnGroupSourceFolderBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            BrowseFolderInto(txtGroupSourceFolder);
+        }
+
+        private void BrowseFolderInto(TextBox target)
+        {
+            if (target == null) return;
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
+
+            try
+            {
+                var currentPath = (target.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
+                }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
+                }
+            }
+            catch { }
+
+            if (dialog.ShowDialog() == true)
+            {
+                target.Text = dialog.FileName;
+            }
         }
 
         // ✅ Convert multiline input into normalized urls (one per line)

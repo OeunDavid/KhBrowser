@@ -54,6 +54,7 @@ namespace ToolLib.Data
         public string Verify { get; set; }
         public int IsTwoFA { get; set; }
         public string TempName { get; set; }
+        public string StoreName { get; set; }
         public string Note { get; set; }
         public string ReelSourceVideo { get; set; }
         public string MailPass { get; set; }
@@ -72,7 +73,7 @@ namespace ToolLib.Data
             long birthday = (long)row["birthday"];
 
             string twofa = row["twofa"].ToString().Trim();
-            
+
             string token = row["token"] + "";
             string proxy = row["proxy"] + "";
             string pendingJoin = row["pending_join"] + "";
@@ -98,7 +99,7 @@ namespace ToolLib.Data
             var friendsRequest = 0;
 
             var isVerify = Convert.ToInt32(row["is_verify"]);
-            string tempName = "", pageIds= "", primaryLocation= "";
+            string tempName = "", storeName = "", pageIds = "", primaryLocation = "";
             int total_page = 0;
             try
             {
@@ -112,12 +113,17 @@ namespace ToolLib.Data
             catch (Exception) { }
             try
             {
-                friendsRequest= Convert.ToInt32(row["friends_request"]);
+                friendsRequest = Convert.ToInt32(row["friends_request"]);
             }
             catch (Exception) { }
             try
             {
                 tempName = row["temp_name"].ToString().Trim();
+            }
+            catch (Exception) { }
+            try
+            {
+                storeName = row["store_name"].ToString().Trim();
             }
             catch (Exception) { }
             string reel_source_video = "";
@@ -178,6 +184,7 @@ namespace ToolLib.Data
                 GroupIDs = groupIDs,
 
                 TempName = tempName,
+                StoreName = storeName,
                 OldGroupIDs = old_group_ids,
 
                 FriendsRequest = friendsRequest,
@@ -209,16 +216,16 @@ namespace ToolLib.Data
                 StoreId = storeId,
                 PendingJoin = pendingJoin,
 
-                Note= note,
-                MailPass= mailPass,
-                PrimaryLocation= primaryLocation,
-                ReelSourceVideo= reel_source_video,
+                Note = note,
+                MailPass = mailPass,
+                PrimaryLocation = primaryLocation,
+                ReelSourceVideo = reel_source_video,
 
-                TimelineSource= timeline_source,
-                CreationDate= creation_date,
+                TimelineSource = timeline_source,
+                CreationDate = creation_date,
             };
 
             return acc;
         }
-    }    
+    }
 }

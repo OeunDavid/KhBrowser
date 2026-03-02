@@ -51,6 +51,10 @@ namespace ToolKHBrowser.ViewModels
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
         [STAThread]
+        void InviteFriendsToGroup();
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        [STAThread]
         void PostGroup();
         [HandleProcessCorruptedStateExceptions]
         [SecurityCritical]
@@ -448,26 +452,137 @@ namespace ToolKHBrowser.ViewModels
         {
             this.form.BackupGroups(driver, data);
         }
+        public void InviteFriendsToGroup()
+        {
+            if (processActionData == null || processActionData.GroupConfig == null)
+                return;
+
+            int inviteNumber = 10;
+            try
+            {
+                inviteNumber = processActionData.GroupConfig.Join.NumberOfInviteFriends;
+            }
+            catch { }
+            if (inviteNumber <= 0)
+            {
+                inviteNumber = 10;
+            }
+
+            var targetGroupIds = new List<string>();
+            try
+            {
+                var groupRecords = groupsDao.GetRecordsByUID(data.UID);
+                if (groupRecords != null)
+                {
+                    foreach (DataRow row in groupRecords.Rows)
+                    {
+                        try
+                        {
+                            var gid = (row["group_id"] + "").Trim();
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
+            if (targetGroupIds.Count == 0)
+            {
+                try
+                {
+                    var cfgIds = this.form.GetJoinGroupIDArr();
+                    if (cfgIds != null)
+                    {
+                        foreach (var gid in cfgIds)
+                        {
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid.Trim());
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            if (targetGroupIds.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var groupId in targetGroupIds)
+            {
+                if (IsStop())
+                {
+                    break;
+                }
+
+                try
+                {
+                    data.Description = "Invite Friends Group: " + groupId;
+                    form.SetGridDataRowStatus(data);
+                }
+                catch { }
+
+                try
+                {
+                    driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
+                }
+                catch (Exception) { }
+                FBTool.WaitingPageLoading(driver);
+                Thread.Sleep(1000);
+
+                try
+                {
+                    WebFBTool.InviteFriendsToGroup(driver, inviteNumber);
+                }
+                catch (Exception) { }
+
+                Thread.Sleep(1200);
+            }
+        }
         public void ViewGroup()
         {
             if (processActionData == null || processActionData.GroupConfig == null || processActionData.GroupConfig.View == null)
+            {
+                try
+                {
+                    data.Description = "View Group: missing group view config";
+                    form.SetGridDataRowStatus(data);
+                }
+                catch { }
                 return;
+            }
 
-            string des = data.Description;
-
-            int sN = this.form.processActionsData.GroupConfig.View.GroupNumber.NumberStart;
-            int eN = this.form.processActionsData.GroupConfig.View.GroupNumber.NumberEnd;
+            var viewCfg = processActionData.GroupConfig.View;
+            int sN = 1, eN = 1;
+            int sT = 1, eT = 1;
+            try
+            {
+                if (viewCfg.GroupNumber != null)
+                {
+                    sN = viewCfg.GroupNumber.NumberStart;
+                    eN = viewCfg.GroupNumber.NumberEnd;
+                }
+            }
+            catch { }
+            try
+            {
+                if (viewCfg.ViewTime != null)
+                {
+                    sT = viewCfg.ViewTime.NumberStart;
+                    eT = viewCfg.ViewTime.NumberEnd;
+                }
+            }
+            catch { }
 
             int viewGroupNumber = GetRankNumber(sN, eN);
             if(viewGroupNumber <= 0)
             {
                 return;
             }
-            int sT = this.form.processActionsData.GroupConfig.View.ViewTime.NumberStart;
-            int eT = this.form.processActionsData.GroupConfig.View.ViewTime.NumberEnd;
-            int time = GetRankNumber(sT, eT);
 
-            var sourceFolder = processActionData.GroupConfig.View.SourceFolder;
+            var sourceFolder = viewCfg.SourceFolder;
             string source = "";
             bool isSourceFolderFile = false;
             if (!string.IsNullOrEmpty(sourceFolder))
@@ -480,22 +595,81 @@ namespace ToolKHBrowser.ViewModels
                 catch (Exception) { }
             }
             string runType = ConfigData.GetRunType().ToLower().Trim();
-            var groupRecords = groupsDao.GetRecordsByUID(data.UID);
-            foreach (DataRow row in groupRecords.Rows)
+            var targetGroupIds = new List<string>();
+            try
             {
-                string groupId = "";
+                var groupRecords = groupsDao.GetRecordsByUID(data.UID);
+                if (groupRecords != null)
+                {
+                    foreach (DataRow row in groupRecords.Rows)
+                    {
+                        try
+                        {
+                            var gid = (row["group_id"] + "").Trim();
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
+            // Fallback to Groups config textbox list when account DB has no backed-up groups yet.
+            if (targetGroupIds.Count == 0)
+            {
                 try
                 {
-                    groupId = row["group_id"] + "";
+                    var cfgIds = this.form.GetJoinGroupIDArr();
+                    if (cfgIds != null)
+                    {
+                        foreach (var gid in cfgIds)
+                        {
+                            if (!string.IsNullOrWhiteSpace(gid))
+                                targetGroupIds.Add(gid.Trim());
+                        }
+                    }
                 }
-                catch (Exception) { }
+                catch { }
+            }
+
+            if (targetGroupIds.Count == 0)
+            {
+                try
+                {
+                    data.Description = "View Group: no targets (backup groups or Group IDs list)";
+                    form.SetGridDataRowStatus(data);
+                }
+                catch { }
+                return;
+            }
+
+            int processed = 0;
+            foreach (var groupIdRaw in targetGroupIds)
+            {
+                if (IsStop() || processed >= viewGroupNumber)
+                {
+                    break;
+                }
+
+                string groupId = groupIdRaw;
                 if (string.IsNullOrEmpty(groupId))
                 {
                     continue;
                 }
+                processed++;
+
                 string caption = GetCaption();
-                if (runType == "web" || true)
+                int time = GetRankNumber(sT, eT);
+                if (runType != "mobile")
                 {
+                    try
+                    {
+                        data.Description = "View Group: " + groupId;
+                        form.SetGridDataRowStatus(data);
+                    }
+                    catch { }
+
                     try
                     {
                         driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_WEB_URL, groupId));
@@ -516,11 +690,18 @@ namespace ToolKHBrowser.ViewModels
                 {
                     try
                     {
+                        data.Description = "View Group(m): " + groupId;
+                        form.SetGridDataRowStatus(data);
+                    }
+                    catch { }
+
+                    try
+                    {
                         driver.Navigate().GoToUrl(FBTool.GetSafeGroupUrl(Constant.FB_MOBILE_URL, groupId));
                     }
                     catch (Exception) { }
                     FBTool.WaitingPageLoading(driver);
-                    FBTool.Scroll(driver, 1000, false);
+                        FBTool.Scroll(driver, 1000, false);
 
                 }
 
@@ -530,13 +711,14 @@ namespace ToolKHBrowser.ViewModels
                     bool isLike = false;
                     do
                     {
+                        if (IsStop()) break;
                         if(!isLike)
                         {
                             isLike = true;
-                            if(processActionData.GroupConfig.View.React.Like)
+                            if(viewCfg.React != null && viewCfg.React.Like)
                             {
                                 WebFBTool.LikePost(driver);
-                            } else if(processActionData.GroupConfig.View.React.Random && random.Next(0,2) == 1)
+                            } else if(viewCfg.React != null && viewCfg.React.Random && random.Next(0,2) == 1)
                             {
                                 WebFBTool.LikePost(driver);
                             }
@@ -572,7 +754,10 @@ namespace ToolKHBrowser.ViewModels
         }
         public int GetRankNumber(int min, int max)
         {
-            return new Random().Next(min, max);
+            if (min < 0) min = 0;
+            if (max < min) max = min;
+            if (min == max) return min;
+            return random != null ? random.Next(min, max + 1) : new Random().Next(min, max + 1);
         }
         public string GetComment()
         {

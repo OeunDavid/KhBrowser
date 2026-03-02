@@ -76,6 +76,21 @@ namespace ToolKHBrowser.Views
             txtMinComments.Value = ToInt(nf?.MinComments, 1);
             txtMaxComments.Value = ToInt(nf?.MaxComments, 1);
 
+            var autoScroll = newsfeedObj.AutoScroll;
+            if (autoScroll?.React != null)
+            {
+                bool isRandom = autoScroll.React.Random;
+                bool isLike = autoScroll.React.Like;
+                bool isComment = autoScroll.React.Comment;
+
+                autoRandom.IsChecked = isRandom;
+                autoCommentAndLike.IsChecked = !isRandom && isLike && isComment;
+                autoLike.IsChecked = !isRandom && isLike && !isComment;
+                autoComment.IsChecked = !isRandom && !isLike && isComment;
+                autolike.IsChecked = !isRandom && !isLike && !isComment;
+            }
+            txtAutoScrollComments.Text = autoScroll?.Comments ?? nf?.Comments ?? "";
+
             if (nf?.CommentPost != null)
             {
                 txtCommentPostVideoUrls.Text = nf.CommentPost.VideoUrls ?? "";
@@ -164,6 +179,17 @@ namespace ToolKHBrowser.Views
             reactObj.Comment = isReactComment;
             reactObj.None = !reactObj.Random && !reactObj.Like && !reactObj.Comment;
 
+            bool isAutoRandom = autoRandom.IsChecked == true;
+            bool isAutoLikeComment = autoCommentAndLike.IsChecked == true;
+            bool isAutoLike = autoLike.IsChecked == true;
+            bool isAutoComment = autoComment.IsChecked == true;
+
+            React autoScrollReactObj = new React();
+            autoScrollReactObj.Random = isAutoRandom;
+            autoScrollReactObj.Like = isAutoLikeComment || isAutoLike;
+            autoScrollReactObj.Comment = isAutoLikeComment || isAutoComment;
+            autoScrollReactObj.None = !autoScrollReactObj.Random && !autoScrollReactObj.Like && !autoScrollReactObj.Comment;
+
             bool isCommentPostLikeComment = chbCommentPostLikeComment.IsChecked == true;
             bool isCommentPostLikeOnly = chbCommentPostLikeOnly.IsChecked == true;
             bool isCommentPostCommentOnly = chbCommentPostCommentOnly.IsChecked == true;
@@ -214,6 +240,10 @@ namespace ToolKHBrowser.Views
             playObj.MaxComments = Int32.Parse(txtMaxComments.Value.ToString());
             playObj.CommentPost = commentPostObj;
 
+            PageAutoScrollConfig autoScrollObj = new PageAutoScrollConfig();
+            autoScrollObj.React = autoScrollReactObj;
+            autoScrollObj.Comments = txtAutoScrollComments.Text;
+
             Messenger messengerObj = new Messenger();
             messengerObj.MessageCallSound = callSoundObj;
             messengerObj.MessageSound = soundObj;
@@ -229,6 +259,7 @@ namespace ToolKHBrowser.Views
 
             NewsFeedConfig newsfeedObj = new NewsFeedConfig();
             newsfeedObj.NewsFeed = playObj;
+            newsfeedObj.AutoScroll = autoScrollObj;
             newsfeedObj.Timeline = timelineObj;
             newsfeedObj.Messenger = messengerObj;
             newsfeedObj.PagePost = pagePostObj;
@@ -241,23 +272,7 @@ namespace ToolKHBrowser.Views
         }
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
-            {
-                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
-                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
-                
-                if (!string.IsNullOrEmpty(txtSourceFolder.Text) && System.IO.Directory.Exists(txtSourceFolder.Text))
-                {
-                    dialog.InitialDirectory = txtSourceFolder.Text;
-                }
-
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    txtSourceFolder.Text = dialog.FileName;
-                }
-            }
+            BrowseSourceFileInto(txtSourceFolder);
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
@@ -267,23 +282,46 @@ namespace ToolKHBrowser.Views
 
         private void btnPagePostBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
-            {
-                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
-                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
-                
-                if (!string.IsNullOrEmpty(txtPagePostSourceFolder.Text) && System.IO.Directory.Exists(txtPagePostSourceFolder.Text))
-                {
-                    dialog.InitialDirectory = txtPagePostSourceFolder.Text;
-                }
+            BrowseSourceFileInto(txtPagePostSourceFolder);
+        }
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        private void BrowseSourceFileInto(TextBox target)
+        {
+            if (target == null) return;
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
+
+            try
+            {
+                var currentPath = (target.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
                 {
-                    txtPagePostSourceFolder.Text = dialog.FileName;
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
+                }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
                 }
             }
+            catch { }
+
+            if (dialog.ShowDialog() == true)
+            {
+                target.Text = dialog.FileName;
+            }
+        }
+
+        private void txtCommentPostVideoUrls_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

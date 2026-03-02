@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using CliWrap;
-using CliWrap.Buffered;
 using ToolKHBrowser.ToolLib.Cmd;
 
 namespace ToolLib
@@ -39,19 +38,38 @@ namespace ToolLib
                     if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
 
-                    // Execute buffered to capture stdout/stderr
-                    var result = Cli.Wrap(PATH)
-                        .WithArguments(args)
-                        .WithWorkingDirectory(string.IsNullOrWhiteSpace(dir) ? Environment.CurrentDirectory : dir)
-                        .ExecuteBufferedAsync()
-                        .GetAwaiter()
-                        .GetResult();
+                    // Execute adb and capture stdout/stderr.
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = PATH,
+                        Arguments = args,
+                        WorkingDirectory = string.IsNullOrWhiteSpace(dir) ? Environment.CurrentDirectory : dir,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
+
+                    string stdOut = "";
+                    string stdErr = "";
+                    int exitCode = -1;
+
+                    using (var process = Process.Start(startInfo))
+                    {
+                        if (process == null)
+                            throw new InvalidOperationException("Failed to start adb process.");
+
+                        stdOut = process.StandardOutput.ReadToEnd();
+                        stdErr = process.StandardError.ReadToEnd();
+                        process.WaitForExit();
+                        exitCode = process.ExitCode;
+                    }
 
                     var exec = new ExecutionResult
                     {
-                        ExitCode = result.ExitCode,
-                        StandardOutput = result.StandardOutput ?? "",
-                        StandardError = result.StandardError ?? ""
+                        ExitCode = exitCode,
+                        StandardOutput = stdOut ?? "",
+                        StandardError = stdErr ?? ""
                     };
 
                     log.Info(" result " + exec.StandardOutput + " \n " + exec.StandardError);

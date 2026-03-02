@@ -112,6 +112,19 @@ namespace ToolKHBrowser.ViewModels
             this.driver = driver;
             this.processActionData = this.form.processActionsData;
             this.mainProfileName = (data?.Name ?? "").Trim();
+            this.mainProfileUrl = "";
+
+            // Seed the personal profile URL early so later page actions don't "remember"
+            // a page identity URL and then switch back to the wrong target.
+            try
+            {
+                var uid = (data?.UID ?? "").Trim();
+                if (!string.IsNullOrWhiteSpace(uid))
+                {
+                    this.mainProfileUrl = "https://www.facebook.com/profile.php?id=" + uid;
+                }
+            }
+            catch { }
 
             try
             {
@@ -1152,6 +1165,216 @@ namespace ToolKHBrowser.ViewModels
         /// <summary>
         /// This button for switch to main account after post successful!
         /// </summary>
+        //private void SwitchToProfileIdentity()
+        //{
+        //    try
+        //    {
+        //        Log("Switching back to profile identity...");
+
+        //        // First try direct navigation to the remembered personal profile URL.
+        //        if (!string.IsNullOrWhiteSpace(mainProfileUrl))
+        //        {
+        //            Log("Trying remembered main profile URL: " + mainProfileUrl);
+        //            try
+        //            {
+        //                SafeGo(mainProfileUrl, 1000);
+        //                FBTool.WaitingPageLoading(driver);
+        //                Thread.Sleep(1500);
+        //                TryClickSwitchNowIfPresent();
+        //                Thread.Sleep(1200);
+        //            }
+        //            catch { }
+        //        }
+
+        //        // Open home so the account/profile menu is in a predictable state.
+        //        try
+        //        {
+        //            SafeGo("https://www.facebook.com/", 1000);
+        //            FBTool.WaitingPageLoading(driver);
+        //            Thread.Sleep(1200);
+        //        }
+        //        catch { }
+
+        //        // Click top-right profile picture menu
+        //        var profileMenu = FindFirstDisplayed(new[]
+        //        {
+        //            By.XPath("//div[@aria-label='Account']"),
+        //            By.XPath("//div[@role='button' and @aria-label='Your profile']"),
+        //            By.XPath("//div[@role='button' and .//img]")
+        //        }, 5);
+
+        //        if (profileMenu != null)
+        //        {
+        //            SafeClick(profileMenu);
+        //            Thread.Sleep(1000);
+        //        }
+
+        //        // Your popup layout tip: current page is row #1, main profile is row #2.
+        //        // Try this first when "Select profile" popup is visible.
+        //        if (TryClickSecondProfileRowByIndexPopup())
+        //        {
+        //            Log("Popup index click: selected 2nd profile row (main profile).");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Primary method for this popup:
+        //        // Fixed popup-relative OS click for row 2 (main profile under current page).
+        //        if (TryOsClickSecondProfileRowByPopupLayout())
+        //        {
+        //            Log("OS popup-layout click: selected second profile row.");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Primary method fallback:
+        //        // Native Selenium click on the 2nd row (real/trusted browser click).
+        //        if (TryNativeClickSecondProfileRowInPopup())
+        //        {
+        //            Log("Native click: selected second profile row.");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Secondary method:
+        //        // Use keyboard navigation instead of DOM click selectors.
+        //        // Select profile popup starts on current page row -> Home, ArrowDown, Enter => 2nd row.
+        //        if (TrySelectSecondProfileByKeyboard())
+        //        {
+        //            Log("Keyboard primary: selected second profile row.");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Fallback for your popup layout:
+        //        // Click the 2nd visible profile row (top is current page, second is main profile).
+        //        if (TryClickSecondProfileRowInPopupJs())
+        //        {
+        //            Log("Clicked 2nd profile row in Select profile popup.");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Fallback for "Select profile" popup:
+        //        // click the profile row immediately after the currently selected row (checked icon).
+        //        if (TryClickRowAfterCurrentProfile())
+        //        {
+        //            Log("Clicked profile row after current selected page.");
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+
+        //        // Final fallback: name-based click
+        //        if (!string.IsNullOrWhiteSpace(mainProfileName))
+        //        {
+        //            if (TryClickProfileByNameJs(mainProfileName))
+        //            {
+        //                Log("Clicked personal profile by JS text match: " + mainProfileName);
+        //                if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //            }
+
+        //            if (TryClickProfileByVisibleName(mainProfileName))
+        //            {
+        //                Log("Clicked personal profile by name: " + mainProfileName);
+        //                if (WaitSelectProfilePopupClosed(4)) { Log("Switched to profile."); return; }
+        //            }
+        //        }
+
+        //        // Fallback: click the top profile row directly
+        //        var topProfileRow = FindFirstDisplayed(new[]
+        //        {
+        //            By.XPath("(//div[@role='dialog']//div[@role='button'][.//img])[1]"),
+        //            By.XPath("(//div[@role='menu']//div[@role='button'][.//img])[1]"),
+        //            By.XPath("(//div[@role='button'][.//img and not(.//*[normalize-space(.)='See all profiles'])])[1]")
+        //        }, 2);
+
+        //        if (topProfileRow != null)
+        //        {
+        //            try
+        //            {
+        //                var rowText = (topProfileRow.Text ?? "").Trim();
+        //                if (!string.IsNullOrWhiteSpace(rowText) &&
+        //                    rowText.IndexOf("See all profiles", StringComparison.OrdinalIgnoreCase) < 0)
+        //                {
+        //                    SafeClick(topProfileRow);
+        //                    Thread.Sleep(2000);
+        //                    Log("Clicked top profile row from account switch popup.");
+        //                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //                }
+        //            }
+        //            catch { }
+        //        }
+
+        //        // Click "See all profiles"
+        //        var seeAll = FindFirstDisplayed(new[]
+        //        {
+        //            By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
+        //            By.XPath("//span[contains(.,'profiles')]/ancestor::div[@role='button'][1]")
+        //        }, 3);
+
+        //        if (seeAll != null)
+        //        {
+        //            SafeClick(seeAll);
+        //            Thread.Sleep(1000);
+        //        }
+
+        //        // Click your personal profile (not Page)
+        //        var switchProfile = FindFirstDisplayed(new[]
+        //        {
+        //            By.XPath("//span[contains(.,'Switch to')]/ancestor::div[@role='button'][1]"),
+        //            By.XPath("//span[contains(.,'profile')]/ancestor::div[@role='button'][1]")
+        //        }, 3);
+
+        //        if (switchProfile != null)
+        //        {
+        //            SafeClick(switchProfile);
+        //            Thread.Sleep(2000);
+        //            if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //        }
+        //        else
+        //        {
+        //            // Fallback: direct menu item text on some FB variants
+        //            var personal = FindFirstDisplayed(new[]
+        //            {
+        //                By.XPath("//span[normalize-space(.)='Switch to profile']/ancestor::div[@role='button'][1]"),
+        //                By.XPath("//span[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'switch to profile')]/ancestor::div[@role='button'][1]")
+        //            }, 2);
+
+        //            if (personal != null)
+        //            {
+        //                SafeClick(personal);
+        //                Thread.Sleep(2000);
+        //                if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+        //            }
+        //        }
+
+        //        if (IsSelectProfilePopupOpen())
+        //        {
+        //            // Last automatic fallback (outside Selenium): AutoHotkey click on popup row #2.
+        //            if (TryAutoHotkeyClickSecondProfileRow())
+        //            {
+        //                Log("AutoHotkey fallback: clicked second profile row.");
+        //                if (WaitSelectProfilePopupClosed(6))
+        //                {
+        //                    Log("Switched to profile.");
+        //                    return;
+        //                }
+        //            }
+
+        //            Log("Auto switch failed. Waiting manual click on main profile in 'Select profile' popup...");
+        //            if (WaitManualSelectProfilePopupClosed(120))
+        //            {
+        //                Log("Manual switch detected (popup closed).");
+        //                return;
+        //            }
+
+        //            Log("Switch profile failed: Select profile popup still open after manual wait timeout.");
+        //        }
+        //        else
+        //        {
+        //            Log("Switch flow finished (popup not visible).");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log("SwitchToProfileIdentity error: " + ex.Message);
+        //    }
+        //}
+
         private void SwitchToProfileIdentity()
         {
             try
@@ -1169,6 +1392,8 @@ namespace ToolKHBrowser.ViewModels
                         Thread.Sleep(1500);
                         TryClickSwitchNowIfPresent();
                         Thread.Sleep(1200);
+                        // If "Switch Now" was available and we're now on profile, done.
+                        if (WaitSwitchBackConfirmed(3)) { Log("Switched via profile URL + SwitchNow."); return; }
                     }
                     catch { }
                 }
@@ -1178,66 +1403,61 @@ namespace ToolKHBrowser.ViewModels
                 {
                     SafeGo("https://www.facebook.com/", 1000);
                     FBTool.WaitingPageLoading(driver);
-                    Thread.Sleep(1200);
+                    Thread.Sleep(1500);
                 }
                 catch { }
 
-                // Click top-right profile picture menu
-                var profileMenu = FindFirstDisplayed(new[]
+                // When acting as a Page, Facebook shows a different top-right button.
+                // Try ALL known variants of the account/profile menu button.
+                bool menuOpened = TryOpenAccountMenu();
+                if (!menuOpened)
                 {
-                    By.XPath("//div[@aria-label='Account']"),
-                    By.XPath("//div[@role='button' and @aria-label='Your profile']"),
-                    By.XPath("//div[@role='button' and .//img]")
-                }, 5);
-
-                if (profileMenu != null)
-                {
-                    SafeClick(profileMenu);
-                    Thread.Sleep(1000);
+                    Log("WARNING: Could not open account menu — will still attempt popup click.");
                 }
 
-                // Primary method for this popup:
-                // Fixed popup-relative OS click for row 2 (main profile under current page).
-                if (TryOsClickSecondProfileRowByPopupLayout())
+                // Your popup layout is stable: current page row is first, main profile is second.
+                // Try a physical click on row #2 immediately after popup opens.
+                if (EnsureSelectProfileDialogOpen() && TryOsClickSecondProfileRowByPopupLayout())
                 {
-                    Log("OS popup-layout click: selected second profile row.");
+                    Log("Popup-layout: clicked 2nd profile row (main profile).");
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
 
-                // Primary method fallback:
-                // Native Selenium click on the 2nd row (real/trusted browser click).
-                if (TryNativeClickSecondProfileRowInPopup())
+                if (EnsureSelectProfileDialogOpen() && TryNativeClickSecondProfileRowInPopup())
                 {
-                    Log("Native click: selected second profile row.");
+                    Log("Native fallback: clicked 2nd profile row in popup.");
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
 
-                // Secondary method:
-                // Use keyboard navigation instead of DOM click selectors.
-                // Select profile popup starts on current page row -> Home, ArrowDown, Enter => 2nd row.
+                // ── Unified method: text-match mainProfileName first, index-1 fallback ──
+                if (SwitchBackToMainProfile())
+                {
+                    Log("SwitchBackToMainProfile: selected main profile row.");
+                    if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
+                }
+
+                // Secondary: keyboard navigation
                 if (TrySelectSecondProfileByKeyboard())
                 {
-                    Log("Keyboard primary: selected second profile row.");
+                    Log("Keyboard: selected second profile row.");
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
 
-                // Fallback for your popup layout:
-                // Click the 2nd visible profile row (top is current page, second is main profile).
+                // Fallback: 2nd visible profile row via JS
                 if (TryClickSecondProfileRowInPopupJs())
                 {
                     Log("Clicked 2nd profile row in Select profile popup.");
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
 
-                // Fallback for "Select profile" popup:
-                // click the profile row immediately after the currently selected row (checked icon).
+                // Fallback: row after currently-checked profile
                 if (TryClickRowAfterCurrentProfile())
                 {
                     Log("Clicked profile row after current selected page.");
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
 
-                // Final fallback: name-based click
+                // Fallback: name-based click
                 if (!string.IsNullOrWhiteSpace(mainProfileName))
                 {
                     if (TryClickProfileByNameJs(mainProfileName))
@@ -1245,7 +1465,6 @@ namespace ToolKHBrowser.ViewModels
                         Log("Clicked personal profile by JS text match: " + mainProfileName);
                         if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                     }
-
                     if (TryClickProfileByVisibleName(mainProfileName))
                     {
                         Log("Clicked personal profile by name: " + mainProfileName);
@@ -1253,13 +1472,13 @@ namespace ToolKHBrowser.ViewModels
                     }
                 }
 
-                // Fallback: click the top profile row directly
+                // Fallback: top profile row
                 var topProfileRow = FindFirstDisplayed(new[]
                 {
-                    By.XPath("(//div[@role='dialog']//div[@role='button'][.//img])[1]"),
-                    By.XPath("(//div[@role='menu']//div[@role='button'][.//img])[1]"),
-                    By.XPath("(//div[@role='button'][.//img and not(.//*[normalize-space(.)='See all profiles'])])[1]")
-                }, 2);
+            By.XPath("(//div[@role='dialog']//div[@role='button'][.//img])[1]"),
+            By.XPath("(//div[@role='menu']//div[@role='button'][.//img])[1]"),
+            By.XPath("(//div[@role='button'][.//img and not(.//*[normalize-space(.)='See all profiles'])])[1]")
+        }, 2);
 
                 if (topProfileRow != null)
                 {
@@ -1271,19 +1490,19 @@ namespace ToolKHBrowser.ViewModels
                         {
                             SafeClick(topProfileRow);
                             Thread.Sleep(2000);
-                            Log("Clicked top profile row from account switch popup.");
+                            Log("Clicked top profile row.");
                             if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                         }
                     }
                     catch { }
                 }
 
-                // Click "See all profiles"
+                // Click "See all profiles" path
                 var seeAll = FindFirstDisplayed(new[]
                 {
-                    By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
-                    By.XPath("//span[contains(.,'profiles')]/ancestor::div[@role='button'][1]")
-                }, 3);
+            By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
+            By.XPath("//span[contains(.,'profiles')]/ancestor::div[@role='button'][1]")
+        }, 3);
 
                 if (seeAll != null)
                 {
@@ -1291,12 +1510,12 @@ namespace ToolKHBrowser.ViewModels
                     Thread.Sleep(1000);
                 }
 
-                // Click your personal profile (not Page)
                 var switchProfile = FindFirstDisplayed(new[]
                 {
-                    By.XPath("//span[contains(.,'Switch to')]/ancestor::div[@role='button'][1]"),
-                    By.XPath("//span[contains(.,'profile')]/ancestor::div[@role='button'][1]")
-                }, 3);
+            By.XPath("//span[contains(.,'Switch to')]/ancestor::div[@role='button'][1]"),
+            By.XPath("//span[normalize-space(.)='Switch to profile']/ancestor::div[@role='button'][1]"),
+            By.XPath("//span[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'switch to profile')]/ancestor::div[@role='button'][1]")
+        }, 3);
 
                 if (switchProfile != null)
                 {
@@ -1304,48 +1523,90 @@ namespace ToolKHBrowser.ViewModels
                     Thread.Sleep(2000);
                     if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
                 }
-                else
-                {
-                    // Fallback: direct menu item text on some FB variants
-                    var personal = FindFirstDisplayed(new[]
-                    {
-                        By.XPath("//span[normalize-space(.)='Switch to profile']/ancestor::div[@role='button'][1]"),
-                        By.XPath("//span[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'switch to profile')]/ancestor::div[@role='button'][1]")
-                    }, 2);
-
-                    if (personal != null)
-                    {
-                        SafeClick(personal);
-                        Thread.Sleep(2000);
-                        if (WaitSwitchBackConfirmed(4)) { Log("Switched to profile."); return; }
-                    }
-                }
 
                 if (IsSelectProfilePopupOpen())
                 {
-                    // Last automatic fallback (outside Selenium): AutoHotkey click on popup row #2.
                     if (TryAutoHotkeyClickSecondProfileRow())
                     {
                         Log("AutoHotkey fallback: clicked second profile row.");
-                        if (WaitSelectProfilePopupClosed(6))
+                        if (WaitSelectProfilePopupClosed(6)) { Log("Switched to profile."); return; }
+                    }
+
+                    // Final non-blocking retry: direct profile URL + "Switch Now" once more.
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(data?.UID))
                         {
-                            Log("Switched to profile.");
-                            return;
+                            var directProfile = "https://www.facebook.com/profile.php?id=" + data.UID.Trim();
+                            Log("Final retry via direct profile URL: " + directProfile);
+                            SafeGo(directProfile, 1000);
+                            FBTool.WaitingPageLoading(driver);
+                            Thread.Sleep(1000);
+                            TryClickSwitchNowIfPresent();
+                            Thread.Sleep(1000);
+                            if (!IsLikelyPageIdentityUi())
+                            {
+                                Log("Final direct-profile retry switched to main profile.");
+                                return;
+                            }
                         }
                     }
+                    catch { }
 
-                    Log("Auto switch failed. Waiting manual click on main profile in 'Select profile' popup...");
-                    if (WaitManualSelectProfilePopupClosed(120))
+                    // Do not block the whole run waiting 120s for manual input.
+                    Log("Switch profile failed (popup still open). Skipping manual wait and continuing.");
+                    try
                     {
-                        Log("Manual switch detected (popup closed).");
-                        return;
+                        // Best effort close popup so following actions are not blocked.
+                        driver.FindElement(By.TagName("body")).SendKeys(OpenQA.Selenium.Keys.Escape);
+                        Thread.Sleep(400);
                     }
-
-                    Log("Switch profile failed: Select profile popup still open after manual wait timeout.");
+                    catch { }
                 }
                 else
                 {
-                    Log("Switch flow finished (popup not visible).");
+                    bool pageUiDetected = false;
+                    try { pageUiDetected = IsLikelyPageIdentityUi(); } catch { }
+
+                    Log("Switch flow finished (popup not visible). pageUiDetected=" + pageUiDetected);
+                    Log("No-popup branch: trying forced profile switch...");
+
+                    try
+                    {
+                        var candidates = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(mainProfileUrl))
+                            candidates.Add(mainProfileUrl.Trim());
+                        if (!string.IsNullOrWhiteSpace(data?.UID))
+                            candidates.Add("https://www.facebook.com/profile.php?id=" + data.UID.Trim());
+                        candidates.Add("https://www.facebook.com/me");
+
+                        foreach (var url in candidates)
+                        {
+                            if (string.IsNullOrWhiteSpace(url)) continue;
+
+                            Log("No-popup forced retry via: " + url);
+                            SafeGo(url, 1000);
+                            FBTool.WaitingPageLoading(driver);
+                            Thread.Sleep(1000);
+                            TryClickSwitchNowIfPresent();
+                            Thread.Sleep(1000);
+
+                            if (!IsLikelyPageIdentityUi())
+                            {
+                                Log("No-popup forced retry switched to main profile.");
+                                return;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("No-popup forced retry error: " + ex.Message);
+                    }
+
+                    if (IsLikelyPageIdentityUi())
+                        Log("Switch flow finished (popup not visible) and still Page identity.");
+                    else
+                        Log("Switch flow finished (popup not visible) after forced retries.");
                 }
             }
             catch (Exception ex)
@@ -1354,28 +1615,165 @@ namespace ToolKHBrowser.ViewModels
             }
         }
 
+        // ── NEW: handles Page-context menu buttons that differ from personal profile ──
+        private bool TryOpenAccountMenu()
+        {
+            // All known top-right button variants across personal + Page contexts
+            var candidates = new[]
+            {
+        // Standard personal profile
+        By.XPath("//div[@aria-label='Account']"),
+        By.XPath("//div[@role='button' and @aria-label='Your profile']"),
+        // Page context: Facebook shows page avatar with different aria-label
+        By.XPath("//div[@aria-label='Account controls and Page switcher']"),
+        By.XPath("//div[@aria-label='Page controls and notifications']"),
+        By.XPath("//div[@aria-label='Your Pages and profiles']"),
+        // Generic fallback: top-right area image button
+        By.XPath("(//div[@role='navigation']//div[@role='button'][.//img])[last()]"),
+        By.XPath("(//div[@role='banner']//div[@role='button'][.//img])[last()]"),
+        By.XPath("(//div[@role='button'][.//img])[last()]"),
+    };
+
+            var btn = FindFirstDisplayed(candidates, 5);
+            if (btn == null)
+            {
+                Log("TryOpenAccountMenu: no menu button found.");
+                return false;
+            }
+
+            try
+            {
+                Log("TryOpenAccountMenu: clicking " + (btn.GetAttribute("aria-label") ?? "unknown"));
+                SafeClick(btn);
+                Thread.Sleep(1000);
+
+                // If the actual "Select profile" dialog appeared right away, we're done.
+                if (IsSelectProfileDialogOpen()) return true;
+
+                // Some Page contexts show an intermediate menu first.
+                // Look for "Switch profile" / "See all profiles" / "Select profile" inside that menu.
+                var switchItem = FindFirstDisplayed(new[]
+                {
+            By.XPath("//span[contains(.,'Switch profile')]/ancestor::div[@role='menuitem'][1]"),
+            By.XPath("//span[contains(.,'Switch profile')]/ancestor::div[@role='button'][1]"),
+            By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='menuitem'][1]"),
+            By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
+            By.XPath("//span[normalize-space(.)='Select profile']/ancestor::div[@role='button'][1]"),
+        }, 3);
+
+                if (switchItem != null)
+                {
+                    SafeClick(switchItem);
+                    Thread.Sleep(1000);
+                }
+
+                return EnsureSelectProfileDialogOpen();
+            }
+            catch (Exception ex)
+            {
+                Log("TryOpenAccountMenu error: " + ex.Message);
+                return false;
+            }
+        }
+
+        private bool IsSelectProfileDialogOpen()
+        {
+            try
+            {
+                var js = (IJavaScriptExecutor)driver;
+                var result = js.ExecuteScript(@"
+                    function vis(el){
+                        if(!el) return false;
+                        var r=el.getBoundingClientRect(), s=getComputedStyle(el);
+                        return r.width>0 && r.height>0 && s.display!=='none' && s.visibility!=='hidden';
+                    }
+                    function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }
+                    var nodes = Array.from(document.querySelectorAll('div,span')).filter(vis);
+                    var hasTitle = nodes.some(function(n){ return txt(n) === 'Select profile'; });
+                    if (!hasTitle) return false;
+                    return nodes.some(function(n){
+                        var t = txt(n);
+                        if (!t) return false;
+                        if (t.indexOf('See all Pages') < 0 && t.indexOf('See all profiles') < 0) return false;
+                        var r = n.getBoundingClientRect();
+                        if (r.width < 220 || r.width > 760 || r.height < 180 || r.height > 980) return false;
+                        return n.querySelectorAll && n.querySelectorAll('img').length >= 2;
+                    });
+                ");
+                return result is bool && (bool)result;
+            }
+            catch { return false; }
+        }
+
+        private bool EnsureSelectProfileDialogOpen()
+        {
+            try
+            {
+                if (IsSelectProfileDialogOpen()) return true;
+
+                var item = FindFirstDisplayed(new[]
+                {
+                    By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='menuitem'][1]"),
+                    By.XPath("//span[normalize-space(.)='See all profiles']/ancestor::div[@role='button'][1]"),
+                    By.XPath("//span[contains(.,'Switch profile')]/ancestor::div[@role='menuitem'][1]"),
+                    By.XPath("//span[contains(.,'Switch profile')]/ancestor::div[@role='button'][1]"),
+                    By.XPath("//span[normalize-space(.)='Select profile']/ancestor::div[@role='button'][1]")
+                }, 2);
+
+                if (item != null)
+                {
+                    SafeClick(item);
+                    Thread.Sleep(1000);
+                }
+
+                for (int i = 0; i < 8; i++)
+                {
+                    if (IsSelectProfileDialogOpen()) return true;
+                    Thread.Sleep(250);
+                }
+            }
+            catch { }
+            return IsSelectProfileDialogOpen();
+        }
+
         private bool IsSelectProfilePopupOpen()
         {
             try
             {
                 var js = (IJavaScriptExecutor)driver;
-                var result = js.ExecuteScript(
-                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }" +
-                    "function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }" +
-                    "var nodes = Array.from(document.querySelectorAll('div')).filter(vis);" +
-                    "for (var i=0;i<nodes.length;i++){" +
-                    "  var el = nodes[i]; var t = txt(el); if(!t) continue;" +
-                    "  if (t.indexOf('See all Pages')<0 && t.indexOf('See all profiles')<0) continue;" +
-                    "  var r = el.getBoundingClientRect();" +
-                    "  if (r.width < 240 || r.width > 700 || r.height < 220 || r.height > 900) continue;" +
-                    "  if (!el.querySelectorAll || el.querySelectorAll('img').length < 2) continue;" +
-                    "  return true;" +
-                    "}" +
-                    "return false;");
+                var result = js.ExecuteScript(@"
+                    function vis(el){ 
+                        if(!el) return false; 
+                        var r=el.getBoundingClientRect(), s=getComputedStyle(el); 
+                        return r.width>0 && r.height>0 && s.display!=='none' && s.visibility!=='hidden'; 
+                    }
+                    function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }
+                    var nodes = Array.from(document.querySelectorAll('div')).filter(vis);
+                    for (var i=0; i<nodes.length; i++){
+                        var el = nodes[i], t = txt(el);
+                        if (!t) continue;
+                        // Match English AND other FB UI languages
+                        var hasProfileKeyword = 
+                            t.indexOf('Select profile') >= 0 ||
+                            t.indexOf('See all Pages') >= 0 ||
+                            t.indexOf('See all profiles') >= 0 ||
+                            t.indexOf('Switch profile') >= 0;
+                        if (!hasProfileKeyword) continue;
+                        var r = el.getBoundingClientRect();
+                        if (r.width < 200 || r.width > 760 || r.height < 150 || r.height > 980) continue;
+                        if (!el.querySelectorAll) continue;
+                        // Must have at least 2 avatar images
+                        var imgs = el.querySelectorAll('img');
+                        if (imgs.length < 2) continue;
+                        return true;
+                    }
+                    return false;
+                ");
                 return result is bool && (bool)result;
             }
             catch { return false; }
         }
+
 
         private bool WaitSelectProfilePopupClosed(int seconds)
         {
@@ -1402,7 +1800,38 @@ namespace ToolKHBrowser.ViewModels
                 Thread.Sleep(300);
             }
 
-            Log("Popup closed but still appears to be Page identity UI.");
+            Log("Popup closed but still appears to be Page identity UI. Trying forced profile switch...");
+
+            try
+            {
+                // Sometimes FB closes the popup but stays in Page mode.
+                // Force personal profile URL and accept "Switch Now" if shown.
+                var directProfile = !string.IsNullOrWhiteSpace(mainProfileUrl)
+                    ? mainProfileUrl
+                    : (!string.IsNullOrWhiteSpace(data?.UID) ? "https://www.facebook.com/profile.php?id=" + data.UID.Trim() : null);
+
+                if (!string.IsNullOrWhiteSpace(directProfile))
+                {
+                    Log("Forced switch via profile URL: " + directProfile);
+                    SafeGo(directProfile, 1000);
+                    FBTool.WaitingPageLoading(driver);
+                    Thread.Sleep(1000);
+                    TryClickSwitchNowIfPresent();
+
+                    for (int i = 0; i < 12; i++)
+                    {
+                        if (!IsLikelyPageIdentityUi())
+                            return true;
+                        Thread.Sleep(300);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Forced switch confirm retry error: " + ex.Message);
+            }
+
+            Log("Still in Page identity UI after forced switch retry.");
             return false;
         }
 
@@ -1410,14 +1839,27 @@ namespace ToolKHBrowser.ViewModels
         {
             try
             {
+                try
+                {
+                    var cur = SafeGetUrl();
+                    if (!string.IsNullOrWhiteSpace(cur) &&
+                        cur.IndexOf("professional_dashboard", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return true;
+                }
+                catch { }
+
                 string src = "";
                 try { src = (driver.PageSource ?? "").ToLowerInvariant(); } catch { src = ""; }
                 if (string.IsNullOrEmpty(src)) return false;
 
                 // English UI signals seen in your screenshots while acting as Page.
                 if (src.Contains("tips for your page")) return true;
+                if (src.Contains("professional dashboard")) return true;
+                if (src.Contains("meta business suite")) return true;
+                if (src.Contains("ads manager") && src.Contains("ad center")) return true;
                 if (src.Contains("recommended post") && src.Contains("see insights")) return true;
                 if (src.Contains("boost reel")) return true;
+                if (src.Contains("boost post") && src.Contains("professional dashboard")) return true;
 
                 return false;
             }
@@ -1478,6 +1920,99 @@ namespace ToolKHBrowser.ViewModels
             catch { return false; }
         }
 
+        private bool TryClickSecondProfileRowByIndexPopup()
+        {
+            try
+            {
+                if (!IsSelectProfilePopupOpen()) return false;
+
+                var js = (IJavaScriptExecutor)driver;
+                var rowObj = js.ExecuteScript(
+                    "function vis(el){ if(!el) return false; var r=el.getBoundingClientRect(); var s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }" +
+                    "function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }" +
+                    "function panel(){ " +
+                    "  var nodes = Array.from(document.querySelectorAll('div')).filter(vis);" +
+                    "  var best = null;" +
+                    "  for (var i=0;i<nodes.length;i++){" +
+                    "    var el = nodes[i], t = txt(el);" +
+                    "    if (!t) continue;" +
+                    "    if (t.indexOf('Select profile')<0 && t.indexOf('See all Pages')<0 && t.indexOf('See all profiles')<0) continue;" +
+                    "    var r = el.getBoundingClientRect();" +
+                    "    if (r.width < 240 || r.width > 760 || r.height < 220 || r.height > 980) continue;" +
+                    "    if (!el.querySelectorAll || el.querySelectorAll('img').length < 2) continue;" +
+                    "    if (!best) best = el;" +
+                    "    else { var br = best.getBoundingClientRect(); if (r.width*r.height < br.width*br.height) best = el; }" +
+                    "  }" +
+                    "  return best;" +
+                    "}" +
+                    "var p = panel(); if(!p) return null;" +
+                    "var rows = Array.from(p.querySelectorAll(\"div[role='button'], [role='menuitem']\")).filter(function(el){" +
+                    "  if(!vis(el)) return false;" +
+                    "  var r = el.getBoundingClientRect();" +
+                    "  var t = txt(el);" +
+                    "  if (!t) return false;" +
+                    "  if (t.indexOf('Select profile')>=0) return false;" +
+                    "  if (t.indexOf('See all')>=0) return false;" +
+                    "  if (r.width < 180 || r.height < 36) return false;" +
+                    "  if (!el.querySelector || !el.querySelector('img')) return false;" +
+                    "  return true;" +
+                    "});" +
+                    "rows.sort(function(a,b){ return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });" +
+                    "var uniq=[];" +
+                    "for (var j=0;j<rows.length;j++){" +
+                    "  var rr = rows[j].getBoundingClientRect();" +
+                    "  if (uniq.some(function(u){ var ur=u.getBoundingClientRect(); return Math.abs(ur.top-rr.top)<6; })) continue;" +
+                    "  uniq.push(rows[j]);" +
+                    "}" +
+                    "if (uniq.length < 2) return null;" +
+                    "return uniq[1];");
+
+                var row = rowObj as IWebElement;
+                if (row == null) return false;
+
+                string rowText = "";
+                try { rowText = (row.Text ?? "").Trim(); } catch { }
+                if (!string.IsNullOrWhiteSpace(rowText))
+                    Log("2nd popup profile row text: " + rowText.Replace("\r", " ").Replace("\n", " "));
+
+                try
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", row);
+                    Thread.Sleep(150);
+                }
+                catch { }
+
+                // Prefer left-center click (avatar/text area) rather than center to avoid right-side controls.
+                try
+                {
+                    var clicked = js.ExecuteScript(
+                        "var el=arguments[0]; if(!el) return false;" +
+                        "var r=el.getBoundingClientRect();" +
+                        "var x=Math.floor(r.left + r.width*0.28);" +
+                        "var y=Math.floor(r.top + r.height*0.5);" +
+                        "var t=document.elementFromPoint(x,y) || el;" +
+                        "['mousedown','mouseup','click'].forEach(function(ev){ try{ t.dispatchEvent(new MouseEvent(ev,{bubbles:true,cancelable:true,view:window,clientX:x,clientY:y})); }catch(e){} });" +
+                        "try{ el.click(); }catch(e){}" +
+                        "return true;", row);
+                    if (clicked is bool && (bool)clicked)
+                    {
+                        Thread.Sleep(1200);
+                        return true;
+                    }
+                }
+                catch { }
+
+                SafeClick(row);
+                Thread.Sleep(1200);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log("TryClickSecondProfileRowByIndexPopup error: " + ex.Message);
+                return false;
+            }
+        }
+
         private bool TryOsClickSecondProfileRowByPopupLayout()
         {
             try
@@ -1493,17 +2028,21 @@ namespace ToolKHBrowser.ViewModels
                 Log($"Popup rect => left={left:0.0}, top={top:0.0}, w={width:0.0}, h={height:0.0}, dpr={dpr:0.##}");
 
                 // Layout-based row-2 click (from your screenshot):
-                // row2 is below title + row1. Click near avatar/text line area, not center of popup.
+                // row2 (main profile) is directly under the checked current page row.
+                // Aim slightly higher first; older 0.43 clicks can drift into row3 on some popup heights.
                 var candidatesCss = new[]
                 {
                     // Prefer text hotspot ("Ro Bin") over avatar/left shell.
-                    Tuple.Create(left + width * 0.42, top + height * 0.43, "row2-text-main"),
-                    Tuple.Create(left + width * 0.48, top + height * 0.43, "row2-text-right"),
-                    Tuple.Create(left + width * 0.36, top + height * 0.43, "row2-text-left"),
-                    Tuple.Create(left + width * 0.28, top + height * 0.43, "row2-main"),
-                    Tuple.Create(left + width * 0.22, top + height * 0.43, "row2-avatar"),
-                    Tuple.Create(left + width * 0.28, top + height * 0.46, "row2-down"),
-                    Tuple.Create(left + width * 0.28, top + height * 0.40, "row2-up")
+                    Tuple.Create(left + width * 0.42, top + height * 0.375, "row2-text-main"),
+                    Tuple.Create(left + width * 0.48, top + height * 0.375, "row2-text-right"),
+                    Tuple.Create(left + width * 0.36, top + height * 0.375, "row2-text-left"),
+                    Tuple.Create(left + width * 0.28, top + height * 0.375, "row2-main"),
+                    Tuple.Create(left + width * 0.22, top + height * 0.375, "row2-avatar"),
+                    Tuple.Create(left + width * 0.42, top + height * 0.39, "row2-text-down"),
+                    Tuple.Create(left + width * 0.42, top + height * 0.36, "row2-text-up"),
+                    // Legacy ratios kept as fallbacks.
+                    Tuple.Create(left + width * 0.28, top + height * 0.40, "row2-legacy-up"),
+                    Tuple.Create(left + width * 0.28, top + height * 0.43, "row2-legacy-mid")
                 };
 
                 foreach (var c in candidatesCss)
@@ -1656,7 +2195,378 @@ namespace ToolKHBrowser.ViewModels
                 return false;
             }
         }
+        private bool SwitchBackToMainProfile()
+        {
+            try
+            {
+                if (!EnsureSelectProfileDialogOpen())
+                {
+                    Log("SwitchBackToMainProfile: Select profile dialog not open, skipping.");
+                    return false;
+                }
 
+                var js = (IJavaScriptExecutor)driver;
+
+                // Use the actual mainProfileName from data for logs, but per your confirmed UI layout
+                // we prioritize row #2 under the current Page profile.
+                string profileNameToFind = (mainProfileName ?? "").Trim();
+                Log("SwitchBackToMainProfile: looking for profile name='" + profileNameToFind + "'");
+
+                var result = js.ExecuteScript(@"
+            var profileName = arguments[0] || '';
+            
+            function vis(el){ 
+                if(!el) return false;
+                var r=el.getBoundingClientRect(), s=getComputedStyle(el); 
+                return r.width>0 && r.height>0 && s.display!=='none' && s.visibility!=='hidden'; 
+            }
+            function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }
+
+            // Find the popup panel - look for any container with multiple profile avatars
+            var panel = null;
+            var allDivs = Array.from(document.querySelectorAll('div')).filter(vis);
+            for (var i=0; i<allDivs.length; i++){
+                var el = allDivs[i];
+                if (!el.querySelectorAll) continue;
+                var imgs = el.querySelectorAll('img');
+                if (imgs.length < 2) continue;
+                var r = el.getBoundingClientRect();
+                if (r.width < 200 || r.width > 760 || r.height < 150 || r.height > 980) continue;
+                var t = txt(el);
+                if (!t) continue;
+                // Must look like a profile switcher panel
+                var isPanel = t.indexOf('Select profile') >= 0 || 
+                              t.indexOf('See all') >= 0 || 
+                              t.indexOf('Switch profile') >= 0;
+                if (!isPanel) continue;
+                if (!panel) panel = el;
+                else {
+                    var pr = panel.getBoundingClientRect();
+                    if (r.width*r.height < pr.width*pr.height) panel = el;
+                }
+            }
+            
+            if (!panel) return { found: false, error: 'no panel', rows: [] };
+
+            // Build rows from visible avatars (more robust than role='button' on FB variants)
+            var avatars = Array.from(panel.querySelectorAll('img')).filter(function(img){
+                if (!vis(img)) return false;
+                var r = img.getBoundingClientRect();
+                return r.width >= 20 && r.height >= 20;
+            });
+            avatars.sort(function(a,b){ return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });
+
+            var uniqAvatars = [];
+            avatars.forEach(function(img){
+                var ir = img.getBoundingClientRect();
+                if (!uniqAvatars.some(function(u){
+                    var ur = u.getBoundingClientRect();
+                    return Math.abs(ur.top - ir.top) < 4 && Math.abs(ur.left - ir.left) < 4;
+                })) uniqAvatars.push(img);
+            });
+
+            var uniq = [];
+            uniqAvatars.forEach(function(img){
+                var row = img;
+                for (var d=0; d<10 && row; d++){
+                    var r = row.getBoundingClientRect(), t = txt(row);
+                    var imgCount = (row.querySelectorAll ? row.querySelectorAll('img').length : 0);
+                    if (vis(row) &&
+                        r.width > 180 && r.height > 36 && r.height < 140 &&
+                        row.querySelector && row.querySelector('img') &&
+                        imgCount >= 1 && imgCount <= 3 &&
+                        t && t.indexOf('See all') < 0 && t !== 'Select profile') {
+                        break;
+                    }
+                    row = row.parentElement;
+                }
+                if (!row) return;
+                var rr = row.getBoundingClientRect();
+                if (uniq.some(function(u){ var ur=u.getBoundingClientRect(); return Math.abs(ur.top-rr.top) < 6; })) return;
+                uniq.push(row);
+            });
+
+            uniq.sort(function(a,b){ return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });
+
+            var names = uniq.map(function(el){ return txt(el).replace(/\s+/g,' ').substring(0,40); });
+
+            // Prefer: row immediately after the CURRENT selected row (the one with a check icon).
+            // Fallback: visual row #2 from top, then name match.
+            var target = null;
+            var currentIndex = -1;
+            for (var k=0; k<uniq.length; k++){
+                var row = uniq[k];
+                // Current selected profile row usually has a check icon SVG on the right.
+                // Be stricter than has-any-svg because notification rows can also contain icons.
+                var hasAvatar = !!(row.querySelector && row.querySelector('img'));
+                var ariaChecked = (row.getAttribute && row.getAttribute('aria-checked')) || '';
+                var rr0 = row.getBoundingClientRect();
+                var hasRightCheckLikeSvg = false;
+                try
+                {
+                    var svgs = Array.from(row.querySelectorAll ? row.querySelectorAll('svg') : []).filter(vis);
+                    hasRightCheckLikeSvg = svgs.some(function(s){
+                        var sr = s.getBoundingClientRect();
+                        return sr.width >= 12 && sr.height >= 12 &&
+                               sr.left > (rr0.left + rr0.width * 0.68);
+                    });
+                }
+                catch (e) { }
+                if (hasAvatar && (ariaChecked === 'true' || hasRightCheckLikeSvg))
+                {
+                    currentIndex = k;
+                    break;
+                }
+            }
+
+            if (currentIndex >= 0 && currentIndex + 1 < uniq.length)
+            {
+                target = uniq[currentIndex + 1];
+            }
+            if (!target && uniq.length >= 2) target = uniq[1];
+            if (!target && profileName)
+            {
+                target = uniq.find(function(el){
+                    return txt(el).toLowerCase().indexOf(profileName.toLowerCase()) >= 0;
+                });
+            }
+            if (!target) return { found: false, error: 'no target', rows: names, currentIndex: currentIndex }
+            ;
+
+            var targetName = txt(target).replace(/\s+/g,' ').substring(0,40);
+            var tr = target.getBoundingClientRect();
+            var sx = (window.screenX || window.screenLeft || 0);
+            var sy = (window.screenY || window.screenTop || 0);
+            var chromeTop = Math.max(0, (window.outerHeight - window.innerHeight));
+            var chromeLeft = Math.max(0, (window.outerWidth - window.innerWidth) / 2);
+            var dpr = (window.devicePixelRatio || 1);
+
+            // Click a clickable descendant (role=button/a/tabindex) if present, then target row itself.
+            try
+            {
+                var r = target.getBoundingClientRect();
+                var x = Math.floor(r.left + r.width * 0.28);
+                var y = Math.floor(r.top + r.height * 0.50);
+                var hit = document.elementFromPoint(x, y) || target;
+                var clickEl = null;
+                try
+                {
+                    clickEl = (hit && hit.closest) ? (hit.closest('[role=""button""],a,[tabindex]') || hit) : hit;
+                }
+                catch (e) { clickEl = hit; }
+                if (!clickEl || !target.contains(clickEl))
+                {
+                    try
+                    {
+                        var innerClickable = target.querySelector('[role=""button""],a,[tabindex]');
+                        if (innerClickable) clickEl = innerClickable;
+                    }
+                    catch (e) { }
+                }
+                [clickEl, hit, target].forEach(function(el){
+                    if (!el) return;
+                    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(function(ev){
+                        try
+                        {
+                            var Ctor = ev.indexOf('pointer') === 0 ? PointerEvent : MouseEvent;
+                            el.dispatchEvent(new Ctor(ev,{ bubbles:true, cancelable:true, view:window, clientX:x, clientY:y }));
+                        }
+                        catch (e)
+                        {
+                            try { el.dispatchEvent(new MouseEvent(ev.replace('pointer', 'mouse'),{ bubbles:true, cancelable:true, view:window, clientX:x, clientY:y })); } catch (e2) { }
+                        }
+                    });
+                    try { el.focus && el.focus(); } catch (e) { }
+                    try
+                    {
+                        el.dispatchEvent(new KeyboardEvent('keydown',{ key:'Enter', code:'Enter', bubbles:true }));
+                        el.dispatchEvent(new KeyboardEvent('keyup',{ key:'Enter', code:'Enter', bubbles:true }));
+                    }
+                    catch (e) { }
+                });
+            }
+            catch (e) { }
+            try { target.click(); } catch (e) { }
+
+            return {
+            found: true, 
+                name: targetName, 
+                rows: names, 
+                currentIndex: currentIndex,
+                targetLeft: (sx + chromeLeft + tr.left),
+                targetTop: (sy + chromeTop + tr.top),
+                targetWidth: tr.width,
+                targetHeight: tr.height,
+                targetDpr: dpr
+            }
+            ;
+            ", profileNameToFind);
+
+                var dict = result as IDictionary<string, object>;
+                if (dict == null)
+                {
+                    Log("SwitchBackToMainProfile: JS returned null");
+                    return false;
+                }
+
+                // Always log the rows found for debugging
+                var rowNames = "";
+                if (dict.ContainsKey("rows"))
+                {
+                    var rowList = dict["rows"] as IList<object>;
+                    if (rowList != null) rowNames = string.Join(" | ", rowList);
+                }
+                Log("SwitchBackToMainProfile rows found: [" + rowNames + "]");
+
+                if (dict.ContainsKey("error"))
+                    Log("SwitchBackToMainProfile error detail: " + dict["error"]);
+                if (dict.ContainsKey("currentIndex"))
+                    Log("SwitchBackToMainProfile current row index: " + (dict["currentIndex"] ?? "null"));
+
+                bool found = dict.ContainsKey("found") && dict["found"] is bool && (bool)dict["found"];
+                if (!found)
+                {
+                    Log("SwitchBackToMainProfile: target row not found.");
+                    return false;
+                }
+
+                var clickedName = dict.ContainsKey("name") ? dict["name"]?.ToString() : "?";
+                Log("SwitchBackToMainProfile: clicked row '" + clickedName + "'");
+
+                Thread.Sleep(1500);
+
+                if (!IsSelectProfilePopupOpen())
+                {
+                    Log("SwitchBackToMainProfile: popup closed — success.");
+                    return true;
+                }
+
+                // Popup still open — try OS click on the exact JS-selected row first.
+                Log("SwitchBackToMainProfile: popup still open, trying exact-row OS click...");
+                try
+                {
+                    if (dict.ContainsKey("targetLeft") && dict.ContainsKey("targetTop"))
+                    {
+                        double left = Convert.ToDouble(dict["targetLeft"]);
+                        double top = Convert.ToDouble(dict["targetTop"]);
+                        double width = dict.ContainsKey("targetWidth") ? Convert.ToDouble(dict["targetWidth"]) : 0;
+                        double height = dict.ContainsKey("targetHeight") ? Convert.ToDouble(dict["targetHeight"]) : 0;
+                        double dpr = dict.ContainsKey("targetDpr") ? Convert.ToDouble(dict["targetDpr"]) : 1.0;
+
+                        if (width > 0 && height > 0)
+                        {
+                            var cx = left + (width * 0.28);
+                            var cy = top + (height * 0.50);
+                            var mx = left + (width * 0.50);
+                            var my = top + (height * 0.50);
+
+                            var points = new List<Tuple<int, int, string>>
+                            {
+                                Tuple.Create((int)Math.Round(cx), (int)Math.Round(cy), "exact-css-left"),
+                                Tuple.Create((int)Math.Round(mx), (int)Math.Round(my), "exact-css-center"),
+                                Tuple.Create((int)Math.Round(cx * dpr), (int)Math.Round(cy * dpr), "exact-scaled-left"),
+                                Tuple.Create((int)Math.Round(mx * dpr), (int)Math.Round(my * dpr), "exact-scaled-center")
+                            };
+
+                            foreach (var p in points)
+                            {
+                                if (!SetCursorPos(p.Item1, p.Item2))
+                                    continue;
+
+                                Log($"SwitchBackToMainProfile exact OS click => mode={p.Item3}, x={p.Item1}, y={p.Item2}, dpr={dpr:0.##}");
+                                Thread.Sleep(120);
+                                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                                Thread.Sleep(60);
+                                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+
+                                // A second click often helps on Facebook profile switch rows.
+                                Thread.Sleep(120);
+                                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                                Thread.Sleep(50);
+                                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+
+                                Thread.Sleep(800);
+                                if (!IsSelectProfilePopupOpen())
+                                {
+                                    Log("SwitchBackToMainProfile: exact-row OS click succeeded.");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("SwitchBackToMainProfile exact OS click error: " + ex.Message);
+                }
+
+                // Popup still open — try generic layout-based OS click fallback
+                Log("SwitchBackToMainProfile: trying popup-layout OS click...");
+                if (TryOsClickSecondProfileRowByPopupLayout())
+                {
+                    Thread.Sleep(1000);
+                    if (!IsSelectProfilePopupOpen())
+                    {
+                        Log("SwitchBackToMainProfile: OS click succeeded.");
+                        return true;
+                    }
+                }
+
+                // Last try: native Selenium Actions click
+                Log("SwitchBackToMainProfile: trying native Selenium click...");
+                try
+                {
+                    var rowEl = js.ExecuteScript(@"
+                var profileName = arguments[0] || '';
+                function vis(el){ var r=el.getBoundingClientRect(),s=getComputedStyle(el); return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'; }
+                function txt(el){ return ((el&&(el.innerText||el.textContent))||'').trim(); }
+                var rows = Array.from(document.querySelectorAll('div[role=""button""]')).filter(function(el){
+                    if(!vis(el)) return false;
+                    if(!el.querySelector('img')) return false;
+                    var t=txt(el), r=el.getBoundingClientRect();
+                    if(!t||t.indexOf('See all')>=0||r.width<150||r.height<30) return false;
+                    return true;
+                });
+                rows.sort(function(a,b){ return a.getBoundingClientRect().top-b.getBoundingClientRect().top; });
+                var uniq=[];
+                rows.forEach(function(el){ var top=el.getBoundingClientRect().top; if(!uniq.some(function(u){ return Math.abs(u.getBoundingClientRect().top-top)<8; })) uniq.push(el); });
+                if (profileName) {
+                    var byName = uniq.find(function(el){ return txt(el).toLowerCase().indexOf(profileName.toLowerCase())>=0; });
+                    if (byName) return byName;
+                }
+                return uniq.length >= 2 ? uniq[1] : null;
+            ", profileNameToFind) as IWebElement;
+
+                    if (rowEl != null)
+                    {
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block:'center'});", rowEl);
+                        Thread.Sleep(300);
+                        new OpenQA.Selenium.Interactions.Actions(driver)
+                            .MoveToElement(rowEl)
+                            .Click()
+                            .Build()
+                            .Perform();
+                        Thread.Sleep(1500);
+                        if (!IsSelectProfilePopupOpen())
+                        {
+                            Log("SwitchBackToMainProfile: Selenium Actions click succeeded.");
+                            return true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("SwitchBackToMainProfile Selenium click error: " + ex.Message);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log("SwitchBackToMainProfile error: " + ex.Message);
+                return false;
+            }
+        }
         private string FindAutoHotkeyExe()
         {
             try

@@ -151,22 +151,33 @@ namespace ToolKHBrowser.Views
         }
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                dialog.Title = "Select Media File (Image/Video) to pick Source Folder";
-                dialog.Filter = "Media Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.mkv;*.wmv|All Files|*.*";
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
+                Title = "Select source file",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+                Filter = "Media files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.mov;*.avi;*.mkv;*.webm|All files|*.*"
+            };
 
-                if (!string.IsNullOrEmpty(txtCreateReelSourceFolder.Text) && System.IO.Directory.Exists(txtCreateReelSourceFolder.Text))
+            try
+            {
+                var currentPath = (txtCreateReelSourceFolder.Text ?? "").Trim();
+                if (System.IO.File.Exists(currentPath))
                 {
-                    dialog.InitialDirectory = txtCreateReelSourceFolder.Text;
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(currentPath);
+                    dialog.FileName = System.IO.Path.GetFileName(currentPath);
                 }
+                else if (System.IO.Directory.Exists(currentPath))
+                {
+                    dialog.InitialDirectory = currentPath;
+                }
+            }
+            catch { }
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    txtCreateReelSourceFolder.Text = dialog.FileName;
-                }
+            if (dialog.ShowDialog() == true)
+            {
+                txtCreateReelSourceFolder.Text = dialog.FileName;
             }
         }
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)

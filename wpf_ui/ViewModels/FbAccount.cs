@@ -11,6 +11,7 @@ namespace ToolKHBrowser.ViewModels
     public class FbAccount: INotifyPropertyChanged
     {
         private long _id;
+        private int _store_id;
         private int _group_device_id;
         private string _uid;
         private string _name;
@@ -72,6 +73,7 @@ namespace ToolKHBrowser.ViewModels
         public string _timeline_source;
         public string _creation_date;
         public string _old_group_ids;
+        public string _store_name;
         private bool _is_selected;
         public int TotalPage
         {
@@ -142,6 +144,15 @@ namespace ToolKHBrowser.ViewModels
             set
             {
                 _creation_date = value;
+                RaiseProperChanged();
+            }
+        }
+        public string StoreName
+        {
+            get { return _store_name; }
+            set
+            {
+                _store_name = value;
                 RaiseProperChanged();
             }
         }
@@ -369,6 +380,15 @@ namespace ToolKHBrowser.ViewModels
             set
             {
                 _id = value;
+                RaiseProperChanged();
+            }
+        }
+        public int StoreId
+        {
+            get { return _store_id; }
+            set
+            {
+                _store_id = value;
                 RaiseProperChanged();
             }
         }
