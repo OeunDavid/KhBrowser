@@ -1,4 +1,4 @@
-<UserControl x:Class="ToolKHBrowser.Views.Controls.DashboardGroupsPanel"
+<UserControl x:Class="ToolKHBrowser.Views.Controls.DashboardPagesPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -25,24 +25,32 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Join Groups"/>
-                <ToggleButton Grid.Column="1" Tag="chbGroupJoin" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Create Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageCreate" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
             <Grid Style="{StaticResource DashboardConfigRowStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Leave Groups"/>
-                <ToggleButton Grid.Column="1" Tag="chbGroupLeave" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Follow Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageFollow" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
             <Grid Style="{StaticResource DashboardConfigRowStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="View Groups"/>
-                <ToggleButton Grid.Column="1" Tag="chbGroupView" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Backup Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageBackup" Style="{StaticResource DashboardPillSwitchStyle}"/>
+            </Grid>
+            <Grid Style="{StaticResource DashboardConfigRowStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Auto Scroll Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbAutoScrollPage" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
         </StackPanel>
 
@@ -52,37 +60,33 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Auto Scroll"/>
-                <ToggleButton Grid.Column="1" Tag="chbAutoScrollGroup" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Create Reel"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageCreateReel" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
             <Grid Style="{StaticResource DashboardConfigRowStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Backup Groups"/>
-                <ToggleButton Grid.Column="1" Tag="chbGroupBackup" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Invite to Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageInvite" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
             <Grid Style="{StaticResource DashboardConfigRowStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Post to Group"/>
-                <ToggleButton Grid.Column="1" Tag="chbGroupPost" Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Remove Admin"/>
+                <ToggleButton Grid.Column="1" Tag="chbPageRemoveAdmin" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
             <Grid Style="{StaticResource DashboardConfigRowStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Invite Friends"/>
-                <ToggleButton x:Name="tglInviteFriends"
-                              Grid.Column="1"
-                              Tag="chbGroupInvite"
-                              Style="{StaticResource DashboardPillSwitchStyle}"/>
+                <TextBlock Style="{StaticResource ShareCardLabelStyle}" Text="Post to Page"/>
+                <ToggleButton Grid.Column="1" Tag="chbPagePost" Style="{StaticResource DashboardPillSwitchStyle}"/>
             </Grid>
         </StackPanel>
     </Grid>
 </UserControl>
-

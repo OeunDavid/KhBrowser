@@ -1188,6 +1188,18 @@
                                         Width="0"
                                         Height="0"
                                         IsHitTestVisible="False"/>
+                                <ToggleButton x:Name="chbShareAutoLike"
+                                              Visibility="Collapsed"
+                                              Width="0"
+                                              Height="0"
+                                              IsChecked="False"
+                                              IsHitTestVisible="False"/>
+                                <ToggleButton x:Name="chbShareAutoComment"
+                                              Visibility="Collapsed"
+                                              Width="0"
+                                              Height="0"
+                                              IsChecked="False"
+                                              IsHitTestVisible="False"/>
                             </Grid>
                         </Border>
 
