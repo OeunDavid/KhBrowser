@@ -473,6 +473,7 @@ namespace ToolKHBrowser.Views
                 btnDashboardConfigBottomOpenDialog.Visibility = showOpenDialogButton ? Visibility.Visible : Visibility.Collapsed;
             }
 
+            BindDashboardPanelToggleBindings();
             UpdateSidebarNavVisuals();
         }
 
@@ -2916,14 +2917,15 @@ return '';
             processActions.IsLeaveGroup = chbGroupLeave.IsChecked.Value;
             processActions.IsJoinGroup = chbGroupJoin.IsChecked.Value;
             processActions.IsViewGroup = chbGroupView.IsChecked.Value;
-            processActions.IsInviteFriendsToGroup = chbGroupInvite.IsChecked.Value;
+            bool inviteFriendsFromDashboard = pnlDashboardCfgGroups != null && pnlDashboardCfgGroups.IsInviteFriendsToGroupChecked;
+            processActions.IsInviteFriendsToGroup = inviteFriendsFromDashboard || chbGroupInvite.IsChecked.Value;
             processActions.AutoScrollGroup = chbAutoScrollGroup.IsChecked.Value;
             processActions.IsBackupGroup = chbGroupBackup.IsChecked.Value;
             processActions.ReadMessenger = chbNewsFeedReadMessenger.IsChecked.Value;
             processActions.ReadNotification = chbNewsFeedReadNotification.IsChecked.Value;
             processActions.PostTimeline = chbNewsFeedPostTimeline.IsChecked.Value;
-            processActions.PlayNewsFeed = chbNewsFeedPlay.IsChecked.Value;
-            processActions.NewsFeedCommentPost = chbNewsFeedCommentPost.IsChecked.Value;
+            processActions.PlayNewsFeed = chbNewsFeedPlay.IsChecked.Value || chbShareAutoLike.IsChecked.Value;
+            processActions.NewsFeedCommentPost = chbNewsFeedCommentPost.IsChecked.Value || chbShareAutoComment.IsChecked.Value;
             processActions.AutoScroll = chbAutoScroll.IsChecked.Value;
             processActions.CreatePage = chbPageCreate.IsChecked.Value;
             processActions.FollowPage = chbPageFollow.IsChecked.Value;
